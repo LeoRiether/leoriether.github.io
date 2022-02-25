@@ -17,4 +17,3 @@ jobs:
           # Provide personal access token
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-          BUILD_DIR: docs
