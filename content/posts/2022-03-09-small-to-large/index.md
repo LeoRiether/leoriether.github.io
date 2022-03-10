@@ -31,32 +31,61 @@ With the bigger constraints, however, this algorithm isn't fast enough because
 we go through `O(N)` nodes each query, in the worst case.
 
 ![t1](https://user-images.githubusercontent.com/8211902/120910175-01d12100-c653-11eb-86d8-dd77f574beae.png) 
+
 In some cases, however, we don't have `O(NQ)` complexity. Imagine, first, that
 we cache the frequency tables for nodes we've already processed. Then, what's
-the time complexity **if the tree is balanced**?.
-> TODO: translate
-Caso bom interessante: a árvore é bem balanceada, a complexidade de fazer uma dfs em cada nó é semelhante à complexidade de um mergesort. O número de operações fica `N + N/2 + N/2 + N/4 + N/4 + N/4 + N/4 + ... = O(N log N)`.
+the time complexity **if the tree is balanced and binary**?. Then, we would take
+`N` time in the root node, `N/2 + N/2` time in the children of the root, `N/4 +
+N/4 + N/4 + N/4` in the children of the children of the root node, ... It's
+exactly like a mergesort: `O(N log N)`!
 
 ![t2](https://user-images.githubusercontent.com/8211902/120910404-1ca49500-c655-11eb-92db-914a99183ef1.png)
 
-### Ideias Intuitivas de Otimização
+### Optimization Ideas
+What are some heuristics we could use to optimize the naive algorithm?
 
 #### 1. Offline
-Em vez de responder as queries na ordem que foram dadas, nesse problema é possível calcular as respostas na ordem que for mais fácil, e só responder depois de ter calculado todas as respostas.
+Instead of answering queries in the order they are given, we could compute them
+in whichever order is most convenient to us, store the answers, then print them
+in the right order.
 
-#### 2. Reutilizar DFSs Dos Filhos
-Voltando ao exemplo do "caso ruim", a gente realmente precisa visitar todos os filhos em toda dfs? Resposta: não, é possível reutilizar o array de frequências de um filho e apenas acrescentar o nó atual da dfs para atualizar o array.
+#### 2. Reuse the result from some DFSs 
+Let's go back to the example tree that gave us `O(N²)` runtime. Did we really
+need to run a DFS for every single node? The answer is no! We could, in that
+particular case, reuse the frequency table generated in the child and update it
+in `O(1)` to get the frequency for the parent, like so:
+```cpp
+int frequency[MAX_K];
+void dfs(int u) {
+    dfs(child[u]);
+    frequency[value[u]]++;
+    // we now have a valid frequency table for `u`
+}
+```
 
-Mas isso sempre é possível? O que fazer nesse caso?
+But is this always possible? What should we do in this case?
 
 ![t3](https://user-images.githubusercontent.com/8211902/120910622-bb7dc100-c656-11eb-909a-4db0bc26e36b.png)
 
-Resposta: sim, mas com uma modificação. Primeiro temos que fazer a dfs no vértice 7 e **limpar** a tabela de frequências dele. Depois, prosseguimos com a dfs dos outros nós do jeito otimizado que discutimos anteriormente.
+Answer: yes, but there's a catch. First, we should run DFS for node 7 and clear
+the frequency table. Then, we carry on with the DFS of the other nodes in the
+optimized way, reusing tables from the child.
 
 # Small to Large
 
-As técnicas mostradas já são suficientes para encontrar um algoritmo `O(N log N)` para o problema exemplo! A ideia geral de uma chamada da dfs é: calcular a resposta para os filhos "pequenos", **limpar a estrutura de dados que eles criaram** (caso seja global, geralmente é), calcular a resposta para o filho "grande" e **reutilizar a estrutura que ele montou**.
+The optimizations shown are sufficient to make an `O(N log N)` algorithm for the
+problem! The general idea is that a DFS call will
 
-__O resto é WIP.__
+1. Compute the data structures for each "small" child (small in the sense that
+   they have less nodes in their subtrees, like 7 only had 1 node in its
+   subtree);
+2. Clear the data structures in each of their DFS calls (assuming the DFS
+   modifies one global data structure);
+3. Compute the data structure for the "big" child (the one with the biggest
+   subtree), but instead of clearing it, reuse it to compute the parent's
+   answer.
+4. Iterate over the subtrees of the small children and the parent node, updating
+   the data structure accordingly.
 
+The rest of this blog is still WIP ;)
 
