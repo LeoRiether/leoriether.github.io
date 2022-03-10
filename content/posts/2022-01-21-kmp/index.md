@@ -15,34 +15,34 @@ We want to solve the string matching problem: given two strings `S` and `P`, fin
 ## A Simple Solution
 There's a pretty simple NFA construction that solves this exact problem. We'll "feed" this automaton the characters of `S` as input, and if at any point a thread is at the accepting state, we'll know there's a substring that matches `P`. Let the starting state have an edge for every character of the alphabet (the alphabet of the automaton, not necessarily the english alphabet). This loop will create a thread at every input and leave it there, at the starting node, ready to match the pattern when the other inputs come. Next, we'll make a path containing the characters of the pattern `P` at every edge. Here's an example of an NFA that matches the pattern "abacaba":
 
-![abacabautomaton](https://user-images.githubusercontent.com/8211902/119422245-09014200-bcd7-11eb-8f7f-36165f224a7e.png)
+![abacabautomaton](images/example.png)
 
 Notice that the Σ edge in the first node represents "an edge for every symbol of the alphabet", and that includes the symbol "a". Thus, if the automaton receives an "a", the thread in the first node splits into one for the second node and one that keeps looping on the starting node. When this split occurs, one of the threads will keep walking to the right while the symbols of the string are matching the forward edges, but if at any point they don't match, the thread dies. Take a moment to appreciate how this simple NFA solves the matching problem.
 
 ## An Example
 Let's look at an automaton that matches the pattern "abaa". The nodes filled in red represent alive threads. 
 
-![abaa](https://user-images.githubusercontent.com/8211902/119428015-84b4bc00-bce2-11eb-9454-f6bea7dc449b.png)
+![abaa](images/abaa.png)
 
 We'll input the string "abaab" and see how the threads behave. First, let's input the letter "a".
 
-![abaa1](https://user-images.githubusercontent.com/8211902/119428024-88e0d980-bce2-11eb-9f34-2502ca799cde.png)
+![abaa1](images/abaa1.png)
 
 The thread we had before split into two, and now the one on the right will try to walk to the right as far as it can. Now we input the second character of our string, "b".
 
-![abaa2](https://user-images.githubusercontent.com/8211902/119428026-89797000-bce2-11eb-953b-164b10be68b5.png)
+![abaa2](images/abaa2.png)
 
 Nothing surprising here. Let's input "a".
 
-![abaa3](https://user-images.githubusercontent.com/8211902/119428028-8a120680-bce2-11eb-9988-9cebf116446b.png)
+![abaa3](images/abaa3.png)
 
 Now there are 3 threads, look at them go! Now input another "a".
 
-![abaa4](https://user-images.githubusercontent.com/8211902/119428021-88e0d980-bce2-11eb-9b0a-1f64ed2dc44a.png)
+![abaa4](images/abaa4.png)
 
 Notice that the thread that was on the second node didn't have any edge to follow, so it died, but then the first node split and another thread is now at the second state. Also, we have a filled accepting state, so there's a match with the pattern "abaa"! One last input, "b".
 
-![abaa5](https://user-images.githubusercontent.com/8211902/119428022-88e0d980-bce2-11eb-9e26-fe518d42830e.png)
+![abaa5](images/abaa5.png)
 
 We already have a thread matching the "b" from "abaa", even if this first "a" overlaps with our first match. This kind of behaviour allows us to match overlapping patterns efficiently.
 
@@ -62,7 +62,7 @@ Now we can finally know what to do in the case of a failed match.
 ### Dealing with failure
 Suppose we've built the automaton for "abababax" and fed "abababa" to it. 
 
-![abababax](https://user-images.githubusercontent.com/8211902/119515453-3e944280-bd4c-11eb-9d72-7719b2d940cd.png)
+![abababax](images/abababa.png)
 
 What would happen if we input the letter "b"? Well, the leader can't go forward, so it dies. The thread immediately to the left of the leader, however, can go forward, and thus becomes the new leader. We'll call this "thread immediately to the left of a thread" the "neighbor". This idea outlines a possible efficient way of simulating our NFA. We'll keep track of the leader at every step. How? There are two cases:
 1. The leader matches the input and goes forward. This case is easy, just increment the current leader.
