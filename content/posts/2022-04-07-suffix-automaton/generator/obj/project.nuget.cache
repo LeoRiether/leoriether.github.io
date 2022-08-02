@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "8QuLwJNuVKu/gxE19AiztAVcg9yrgMjbn50Sz/3Yhwz5wxrliOzxLHj7WrzfXHkMz3duuc3FPmzWS3p+1ebR1A==",
+  "success": true,
+  "projectFilePath": "/mnt/c/Users/Leonardo/Desktop/lectures/suffix_automaton/generator/generator.fsproj",
+  "expectedPackageFiles": [
+    "/root/.nuget/packages/fsharp.core/5.0.0/fsharp.core.5.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}

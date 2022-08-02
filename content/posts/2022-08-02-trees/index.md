@@ -5,16 +5,23 @@ categories = ["trees", "lectures"]
 tags = ["trees", "paths", "subtrees", "euler tour"]
 +++
 
-# Árvores Para Programação Competitiva
+> link da aula: [https://leoriether.github.io/trees](https://leoriether.github.io/trees)
 
-# Subárvores
+# ★ Subárvores
 ## DFS
 
-## DFS Time / Euler Tour 
+## DFS Time / Preorder Time / Euler Tour 
 
-# Caminhos
+# ★ Caminhos
 ## Lowest Common Ancestor (LCA)
+
+## DFS de novo!
 
 ## Diâmetro
 
 ## Centroid?
+
+# ★ Ler Mais
+- [Small to Large / DSU on Tree / Sack](https://codeforces.com/blog/entry/44351)
+- [Decomposição Heavy-Light](https://cp-algorithms.com/graph/hld.html#proof-of-correctness)
+- [Árvores Link-Cut](https://www.youtube.com/watch?v=XZLN6NxEQWo)
