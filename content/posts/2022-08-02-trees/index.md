@@ -23,6 +23,12 @@ escolher uma raíz qualquer!
 # ★ Subárvores
 ## DFS
 
+Muito útil para quando vc quer
+1. informação das subárvores pra calcular algo pro vértice, ou
+2. informação do caminho `raíz -> u` pra calcular algo pra `u`
+3. por que no los dos? (acho que nunca vi problema que usa os dois ao mesmo
+   tempo, mas fiquem de olho que eu posso settar um a qualquer momento)
+
 ```cpp
 vector<int> g[N];
 
@@ -36,6 +42,8 @@ void dfs(int u, int p = 0) {
 ## DFS Time / Preorder Time / Euler Tour 
 
 > A única estrutura mais fácil que uma árvore é um **array** 
+
+Acho que o único jeito de explicar isso é fazendo uns exemplos? 🤔
 
 # ★ Caminhos
 ## Lowest Common Ancestor (LCA)
@@ -61,6 +69,10 @@ Truque: transformar a árvore em binária
 ## Problema Chefão: Empresa de Festas
 > link: [http://maratona.sbc.org.br/hist/2020/primfase20/maratona20.pdf](http://maratona.sbc.org.br/hist/2020/primfase20/maratona20.pdf)
 
+<details>
+<summary>Dica</summary>
+A gente pode resolver offline!</details>
+
 # Coisas que só vou falar se der tempo
 ## Resolver offline
 - Muitas vezes é mais fácil resolver um problema **offline** em árvore, porque
@@ -71,6 +83,7 @@ Truque: transformar a árvore em binária
 
 ## Rerooting
 > problema: [https://cses.fi/problemset/task/1132](https://cses.fi/problemset/task/1132)
+>
 > problema: [https://cses.fi/problemset/task/1133/](https://cses.fi/problemset/task/1133/)
 
 ## Centroid Decomposition 
