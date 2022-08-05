@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en">
+	<title> - lct</title>
+	<link href="https://leoriether.github.io/tags/lct/atom.xml" rel="self" type="application/atom+xml"/>
+  <link href="https://leoriether.github.io"/>
+	<generator uri="https://www.getzola.org/">Zola</generator>
+	<updated>2022-05-14T00:00:00+00:00</updated>
+	<id>https://leoriether.github.io/tags/lct/atom.xml</id>
+	<entry xml:lang="en">
+		<title>Link-Cut Trees Black Box</title>
+		<published>2022-05-14T00:00:00+00:00</published>
+		<updated>2022-05-14T00:00:00+00:00</updated>
+		<link href="https://leoriether.github.io/posts/lct-blackbox/" type="text/html"/>
+		<id>https://leoriether.github.io/posts/lct-blackbox/</id>
+		<content type="html">&lt;p&gt;In this post I&#x27;ll demonstrate how to use Link-Cut Trees as a black box for solving competitive programming problems. &lt;&#x2F;p&gt;
+</content>
+	</entry>
+</feed>

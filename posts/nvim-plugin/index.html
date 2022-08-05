@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+    <title>Making a Neovim plugin - Leonardo Alves Riether</title>
+    
+    
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1"><meta name="description" content=" Making a Neovim plugin "/><meta name="keywords" content="vim, plugin" />
+    <meta property="og:title" content=" -&nbsp;Making a Neovim plugin" />
+    <meta property="og:type" content="website"/><meta property="og:url" content="https:&#x2F;&#x2F;leoriether.github.io&#x2F;posts&#x2F;nvim-plugin&#x2F;"/><meta property="og:description" content=""/>
+    <link rel="preload" href="https://leoriether.github.io/assets/fonts/FiraCode-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+    <link rel="preload" href="https://leoriether.github.io/assets/fonts/FiraCode-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="https://leoriether.github.io/style.css?h=6c8b6b2433b2a0fc0a1d7720d5b7986a97b2e087209be18947a538771ade06d2">
+    <link rel="stylesheet" href="https://leoriether.github.io/color/blue.css?h=f853f6ceed13dac0a7adeff4a9fe12232bc8e46999eb38afded111c2aed2ebab"><link rel="stylesheet" href="https://leoriether.github.io/custom.css?h=372b5fde253c9d47258280ff7dbc3a55c6c67d1f4ab61f347b6fb6da96a74a75">
+    
+<link rel="alternate" type="application/atom+xml" title=" RSS" href="https://leoriether.github.io/atom.xml"></head>
+    <body>
+        <div class="container center">
+<header class="header">
+    <div class="header__inner">
+        <div class="header__logo">
+            <a href="https:&#x2F;&#x2F;leoriether.github.io">
+    <div class="logo">
+        WIP
+    </div>
+</a>
+        </div>
+        <div class="menu-trigger">menu</div>
+    </div>
+    
+    <nav class="menu">
+        <ul class="menu__inner menu__inner--desktop">
+            
+            
+        <li>
+            <a href="
+    
+        https://leoriether.github.io/posts
+    
+">posts</a>
+        </li>
+        <li>
+            <a href="
+    
+        https://leoriether.github.io/categories
+    
+">categories</a>
+        </li>
+        <li>
+            <a href="
+    
+        https://leoriether.github.io/tags
+    
+">tags</a>
+        </li>
+        <li>
+            <a href="
+    
+        https://leoriether.github.io/snippets
+    
+">snippets</a>
+        </li>
+        <li>
+            <a href="
+    
+        https://leoriether.github.io/about
+    
+">about me</a>
+        </li></ul>
+
+        <ul class="menu__inner menu__inner--mobile">
+            
+        <li>
+            <a href="
+    
+        https://leoriether.github.io/posts
+    
+">posts</a>
+        </li>
+        <li>
+            <a href="
+    
+        https://leoriether.github.io/categories
+    
+">categories</a>
+        </li>
+        <li>
+            <a href="
+    
+        https://leoriether.github.io/tags
+    
+">tags</a>
+        </li>
+        <li>
+            <a href="
+    
+        https://leoriether.github.io/snippets
+    
+">snippets</a>
+        </li>
+        <li>
+            <a href="
+    
+        https://leoriether.github.io/about
+    
+">about me</a>
+        </li>
+        </ul>
+    </nav>
+
+    </header>
+<div class="content"><article class="post">
+        <header>
+            <h1 class="post-title">
+                <a href="https:&#x2F;&#x2F;leoriether.github.io&#x2F;posts&#x2F;nvim-plugin&#x2F;">Making a Neovim plugin</a>
+            </h1>
+            
+    <div class="post-meta">
+        <span class="post-date">2022.05.12
+                </span>
+
+        <span class="post-author">
+    ::
+    Leonardo Alves Riether</span>
+
+        
+
+    
+    :: {<a href="https://leoriether.github.io/categories/vim/">vim</a>} 
+
+            
+    ::
+    #<a href="https://leoriether.github.io/tags/plugin/">plugin</a>
+        
+    
+            
+        
+    </div>
+</header><h1 id="folder-structure">Folder structure<a class="zola-anchor" href="#folder-structure" aria-label="Anchor link for: folder-structure">§</a>
+</h1>
+<ul>
+<li>doc/</li>
+<li>lua/</li>
+<li>your_plugin_name.lua</li>
+<li>your_plugin_name/other_modules.lua</li>
+<li>Why you shouldn't put other_modules.lua in the main lua/ directory</li>
+</ul>
+<h1 id="defining-commands">Defining commands<a class="zola-anchor" href="#defining-commands" aria-label="Anchor link for: defining-commands">§</a>
+</h1>
+<h1 id="making-it-configurable">Making it configurable<a class="zola-anchor" href="#making-it-configurable" aria-label="Anchor link for: making-it-configurable">§</a>
+</h1>
+<h1 id="user-autocommands">User autocommands<a class="zola-anchor" href="#user-autocommands" aria-label="Anchor link for: user-autocommands">§</a>
+</h1>
+<h1 id="documentation">Documentation<a class="zola-anchor" href="#documentation" aria-label="Anchor link for: documentation">§</a>
+</h1>
+
+
+        
+    
+
+        
+        
+    </article></div>
+    <div class="pagination">
+        <div class="pagination__buttons">
+            </div>
+    </div>
+<footer class="footer">
+                    <div class="footer__inner"><div class="copyright">
+            <span>© 2022 <a href="https://github.com/ejmg/zerm">zerm</a> :: Powered by <a href="https://www.getzola.org/">Zola</a></span>
+            <span>:: Theme made by <a href="https://github.com/ejmg">ejmg</a></span>
+        </div>
+    <script type="text/javascript" src="https://leoriether.github.io/assets/js/main.js"></script>
+</div>
+                    
+
+                </footer></div>
+    </body>
+</html>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en">
+	<title> - vim</title>
+	<link href="https://leoriether.github.io/categories/vim/atom.xml" rel="self" type="application/atom+xml"/>
+  <link href="https://leoriether.github.io"/>
+	<generator uri="https://www.getzola.org/">Zola</generator>
+	<updated>2022-05-12T00:00:00+00:00</updated>
+	<id>https://leoriether.github.io/categories/vim/atom.xml</id>
+	<entry xml:lang="en">
+		<title>Making a Neovim plugin</title>
+		<published>2022-05-12T00:00:00+00:00</published>
+		<updated>2022-05-12T00:00:00+00:00</updated>
+		<link href="https://leoriether.github.io/posts/nvim-plugin/" type="text/html"/>
+		<id>https://leoriether.github.io/posts/nvim-plugin/</id>
+		<content type="html">&lt;h1 id=&quot;folder-structure&quot;&gt;Folder structure&lt;a class=&quot;zola-anchor&quot; href=&quot;#folder-structure&quot; aria-label=&quot;Anchor link for: folder-structure&quot;&gt;§&lt;&#x2F;a&gt;
+&lt;&#x2F;h1&gt;
+&lt;ul&gt;
+&lt;li&gt;doc&#x2F;&lt;&#x2F;li&gt;
+&lt;li&gt;lua&#x2F;&lt;&#x2F;li&gt;
+&lt;li&gt;your_plugin_name.lua&lt;&#x2F;li&gt;
+&lt;li&gt;your_plugin_name&#x2F;other_modules.lua&lt;&#x2F;li&gt;
+&lt;li&gt;Why you shouldn&#x27;t put other_modules.lua in the main lua&#x2F; directory&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;h1 id=&quot;defining-commands&quot;&gt;Defining commands&lt;a class=&quot;zola-anchor&quot; href=&quot;#defining-commands&quot; aria-label=&quot;Anchor link for: defining-commands&quot;&gt;§&lt;&#x2F;a&gt;
+&lt;&#x2F;h1&gt;
+&lt;h1 id=&quot;making-it-configurable&quot;&gt;Making it configurable&lt;a class=&quot;zola-anchor&quot; href=&quot;#making-it-configurable&quot; aria-label=&quot;Anchor link for: making-it-configurable&quot;&gt;§&lt;&#x2F;a&gt;
+&lt;&#x2F;h1&gt;
+&lt;h1 id=&quot;user-autocommands&quot;&gt;User autocommands&lt;a class=&quot;zola-anchor&quot; href=&quot;#user-autocommands&quot; aria-label=&quot;Anchor link for: user-autocommands&quot;&gt;§&lt;&#x2F;a&gt;
+&lt;&#x2F;h1&gt;
+&lt;h1 id=&quot;documentation&quot;&gt;Documentation&lt;a class=&quot;zola-anchor&quot; href=&quot;#documentation&quot; aria-label=&quot;Anchor link for: documentation&quot;&gt;§&lt;&#x2F;a&gt;
+&lt;&#x2F;h1&gt;
+</content>
+	</entry>
+</feed>

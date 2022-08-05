@@ -1,0 +1,370 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en">
+	<title></title>
+	<link href="https://leoriether.github.io/atom.xml" rel="self" type="application/atom+xml"/>
+  <link href="https://leoriether.github.io"/>
+	<generator uri="https://www.getzola.org/">Zola</generator>
+	<updated>2022-08-02T00:00:00+00:00</updated>
+	<id>https://leoriether.github.io/atom.xml</id>
+	<entry xml:lang="en">
+		<title>Árvores Para Programação Competitiva</title>
+		<published>2022-08-02T00:00:00+00:00</published>
+		<updated>2022-08-02T00:00:00+00:00</updated>
+		<link href="https://leoriether.github.io/posts/trees/" type="text/html"/>
+		<id>https://leoriether.github.io/posts/trees/</id>
+		<content type="html">&lt;blockquote&gt;
+&lt;p&gt;link da aula: &lt;a href=&quot;https:&#x2F;&#x2F;leoriether.github.io&#x2F;posts&#x2F;trees&quot;&gt;https:&#x2F;&#x2F;leoriether.github.io&#x2F;posts&#x2F;trees&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;p&gt;O que é uma árvore?&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;Grafo com &lt;code&gt;N&lt;&#x2F;code&gt; nós e &lt;code&gt;N-1&lt;&#x2F;code&gt; arestas&lt;&#x2F;li&gt;
+&lt;li&gt;Conexo&lt;&#x2F;li&gt;
+&lt;li&gt;Existe um caminho único entre quaisquer dois vértices&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;&lt;em&gt;Escolha dois.&lt;&#x2F;em&gt;&lt;&#x2F;p&gt;
+&lt;hr &#x2F;&gt;
+&lt;p&gt;Uma árvore pode ou não ter raíz. Se não tiver, é bem provável que a gente possa
+escolher uma raíz qualquer!&lt;&#x2F;p&gt;
+&lt;h1 id=&quot;subarvores&quot;&gt;★ Subárvores&lt;a class=&quot;zola-anchor&quot; href=&quot;#subarvores&quot; aria-label=&quot;Anchor link for: subarvores&quot;&gt;§&lt;&#x2F;a&gt;
+&lt;&#x2F;h1&gt;
+&lt;h2 id=&quot;dfs&quot;&gt;DFS&lt;a class=&quot;zola-anchor&quot; href=&quot;#dfs&quot; aria-label=&quot;Anchor link for: dfs&quot;&gt;§&lt;&#x2F;a&gt;
+&lt;&#x2F;h2&gt;
+&lt;p&gt;Muito útil para quando vc quer&lt;&#x2F;p&gt;
+&lt;ol&gt;
+&lt;li&gt;informação das subárvores pra calcular algo pro vértice, ou&lt;&#x2F;li&gt;
+&lt;li&gt;informação do caminho &lt;code&gt;raíz -&amp;gt; u&lt;&#x2F;code&gt; pra calcular algo pra &lt;code&gt;u&lt;&#x2F;code&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;por que no los dos? (acho que nunca vi problema que usa os dois ao mesmo
+tempo, mas fiquem de olho que eu posso settar um a qualquer momento)&lt;&#x2F;li&gt;
+&lt;li&gt;fazer basicamente qualquer coisa em árvore (basicamente suas duas únicas
+opções são DFS ou BFS)&lt;&#x2F;li&gt;
+&lt;&#x2F;ol&gt;
+&lt;pre data-lang=&quot;cpp&quot; style=&quot;background-color:#0f1419;color:#bfbab0;&quot; class=&quot;language-cpp &quot;&gt;&lt;code class=&quot;language-cpp&quot; data-lang=&quot;cpp&quot;&gt;&lt;span&gt;vector&amp;lt;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff7733;&quot;&gt;int&lt;&#x2F;span&gt;&lt;span&gt;&amp;gt; g[N]&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bfbab0cc;&quot;&gt;;
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff7733;&quot;&gt;void &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ffb454;&quot;&gt;dfs&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff7733;&quot;&gt;int &lt;&#x2F;span&gt;&lt;span style=&quot;color:#f29718;&quot;&gt;u&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bfbab0cc;&quot;&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff7733;&quot;&gt;int &lt;&#x2F;span&gt;&lt;span style=&quot;color:#f29718;&quot;&gt;p &lt;&#x2F;span&gt;&lt;span style=&quot;color:#f29668;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#f29718;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;) {
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff7733;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff7733;&quot;&gt;int&lt;&#x2F;span&gt;&lt;span&gt; v &lt;&#x2F;span&gt;&lt;span style=&quot;color:#f29668;&quot;&gt;:&lt;&#x2F;span&gt;&lt;span&gt; g[u]) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff7733;&quot;&gt;if &lt;&#x2F;span&gt;&lt;span&gt;(v &lt;&#x2F;span&gt;&lt;span style=&quot;color:#f29668;&quot;&gt;!=&lt;&#x2F;span&gt;&lt;span&gt; p) {
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ffb454;&quot;&gt;dfs&lt;&#x2F;span&gt;&lt;span&gt;(v&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bfbab0cc;&quot;&gt;,&lt;&#x2F;span&gt;&lt;span&gt; u)&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bfbab0cc;&quot;&gt;;
+&lt;&#x2F;span&gt;&lt;span&gt;    }
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;blockquote&gt;
+&lt;p&gt;tamanho de subárvore: &lt;a href=&quot;https:&#x2F;&#x2F;cses.fi&#x2F;problemset&#x2F;task&#x2F;1674&quot;&gt;https:&#x2F;&#x2F;cses.fi&#x2F;problemset&#x2F;task&#x2F;1674&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;h2 id=&quot;dfs-time-preorder-time-euler-tour&quot;&gt;DFS Time &#x2F; Preorder Time &#x2F; Euler Tour&lt;a class=&quot;zola-anchor&quot; href=&quot;#dfs-time-preorder-time-euler-tour&quot; aria-label=&quot;Anchor link for: dfs-time-preorder-time-euler-tour&quot;&gt;§&lt;&#x2F;a&gt;
+&lt;&#x2F;h2&gt;
+&lt;blockquote&gt;
+&lt;p&gt;A única estrutura mais fácil que uma árvore é um &lt;strong&gt;array&lt;&#x2F;strong&gt; &lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;p&gt;Acho que o único jeito de explicar isso é fazendo uns exemplos? 🤔&lt;&#x2F;p&gt;
+&lt;h1 id=&quot;caminhos&quot;&gt;★ Caminhos&lt;a class=&quot;zola-anchor&quot; href=&quot;#caminhos&quot; aria-label=&quot;Anchor link for: caminhos&quot;&gt;§&lt;&#x2F;a&gt;
+&lt;&#x2F;h1&gt;
+&lt;h2 id=&quot;lowest-common-ancestor-lca&quot;&gt;Lowest Common Ancestor (LCA)&lt;a class=&quot;zola-anchor&quot; href=&quot;#lowest-common-ancestor-lca&quot; aria-label=&quot;Anchor link for: lowest-common-ancestor-lca&quot;&gt;§&lt;&#x2F;a&gt;
+&lt;&#x2F;h2&gt;
+&lt;ul&gt;
+&lt;li&gt;O que é?&lt;&#x2F;li&gt;
+&lt;li&gt;Ideia: &lt;strong&gt;todo caminho entre &lt;code&gt;u&lt;&#x2F;code&gt; e &lt;code&gt;v&lt;&#x2F;code&gt; em uma árvore pode ser dividido em dois
+caminhos: &lt;code&gt;u -&amp;gt; LCA(u, v)&lt;&#x2F;code&gt; + &lt;code&gt;v -&amp;gt; LCA(u, v)&lt;&#x2F;code&gt;&lt;&#x2F;strong&gt;&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;h3 id=&quot;as-vezes-voce-so-precisa-saber-que-o-lca-existe&quot;&gt;Às vezes você só precisa saber que o LCA existe...&lt;a class=&quot;zola-anchor&quot; href=&quot;#as-vezes-voce-so-precisa-saber-que-o-lca-existe&quot; aria-label=&quot;Anchor link for: as-vezes-voce-so-precisa-saber-que-o-lca-existe&quot;&gt;§&lt;&#x2F;a&gt;
+&lt;&#x2F;h3&gt;
+&lt;h4 id=&quot;diametro&quot;&gt;Diâmetro&lt;a class=&quot;zola-anchor&quot; href=&quot;#diametro&quot; aria-label=&quot;Anchor link for: diametro&quot;&gt;§&lt;&#x2F;a&gt;
+&lt;&#x2F;h4&gt;
+&lt;blockquote&gt;
+&lt;p&gt;link: &lt;a href=&quot;https:&#x2F;&#x2F;cses.fi&#x2F;problemset&#x2F;task&#x2F;1131&quot;&gt;https:&#x2F;&#x2F;cses.fi&#x2F;problemset&#x2F;task&#x2F;1131&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;p&gt;Truque: transformar a árvore em binária&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;mas-outras-vezes-voce-precisa-calcula-lo&quot;&gt;...mas outras vezes você precisa calculá-lo&lt;a class=&quot;zola-anchor&quot; href=&quot;#mas-outras-vezes-voce-precisa-calcula-lo&quot; aria-label=&quot;Anchor link for: mas-outras-vezes-voce-precisa-calcula-lo&quot;&gt;§&lt;&#x2F;a&gt;
+&lt;&#x2F;h3&gt;
+&lt;p&gt;Problema: Q queries de encontrar a distância entre dois vértices&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;binary-lifting&quot;&gt;Binary lifting&lt;a class=&quot;zola-anchor&quot; href=&quot;#binary-lifting&quot; aria-label=&quot;Anchor link for: binary-lifting&quot;&gt;§&lt;&#x2F;a&gt;
+&lt;&#x2F;h3&gt;
+&lt;blockquote&gt;
+&lt;p&gt;cses: &lt;a href=&quot;https:&#x2F;&#x2F;cses.fi&#x2F;problemset&#x2F;task&#x2F;1687&quot;&gt;https:&#x2F;&#x2F;cses.fi&#x2F;problemset&#x2F;task&#x2F;1687&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;h2 id=&quot;problema-facinho-mas-tricky-do-cses&quot;&gt;Problema facinho mas tricky do cses&lt;a class=&quot;zola-anchor&quot; href=&quot;#problema-facinho-mas-tricky-do-cses&quot; aria-label=&quot;Anchor link for: problema-facinho-mas-tricky-do-cses&quot;&gt;§&lt;&#x2F;a&gt;
+&lt;&#x2F;h2&gt;
+&lt;blockquote&gt;
+&lt;p&gt;link: &lt;a href=&quot;https:&#x2F;&#x2F;cses.fi&#x2F;problemset&#x2F;task&#x2F;1138&quot;&gt;https:&#x2F;&#x2F;cses.fi&#x2F;problemset&#x2F;task&#x2F;1138&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;h2 id=&quot;problema-chefao-empresa-de-festas&quot;&gt;Problema Chefão: Empresa de Festas&lt;a class=&quot;zola-anchor&quot; href=&quot;#problema-chefao-empresa-de-festas&quot; aria-label=&quot;Anchor link for: problema-chefao-empresa-de-festas&quot;&gt;§&lt;&#x2F;a&gt;
+&lt;&#x2F;h2&gt;
+&lt;blockquote&gt;
+&lt;p&gt;link: &lt;a href=&quot;http:&#x2F;&#x2F;maratona.sbc.org.br&#x2F;hist&#x2F;2020&#x2F;primfase20&#x2F;maratona20.pdf&quot;&gt;http:&#x2F;&#x2F;maratona.sbc.org.br&#x2F;hist&#x2F;2020&#x2F;primfase20&#x2F;maratona20.pdf&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;details&gt;
+&lt;summary&gt;Dica&lt;&#x2F;summary&gt;
+A gente pode resolver offline!&lt;&#x2F;details&gt;
+&lt;h1 id=&quot;coisas-que-so-vou-falar-se-der-tempo&quot;&gt;Coisas que só vou falar se der tempo&lt;a class=&quot;zola-anchor&quot; href=&quot;#coisas-que-so-vou-falar-se-der-tempo&quot; aria-label=&quot;Anchor link for: coisas-que-so-vou-falar-se-der-tempo&quot;&gt;§&lt;&#x2F;a&gt;
+&lt;&#x2F;h1&gt;
+&lt;h2 id=&quot;resolver-offline&quot;&gt;Resolver offline&lt;a class=&quot;zola-anchor&quot; href=&quot;#resolver-offline&quot; aria-label=&quot;Anchor link for: resolver-offline&quot;&gt;§&lt;&#x2F;a&gt;
+&lt;&#x2F;h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Muitas vezes é mais fácil resolver um problema &lt;strong&gt;offline&lt;&#x2F;strong&gt; em árvore, porque
+podemos reaproveitar os resultados das subárvores para calcular o resultado de
+um nó!&lt;&#x2F;li&gt;
+&lt;li&gt;Outras vezes, você pode resolver offline mantendo uma estrutura de dados sobre
+um caminho do pai até &lt;code&gt;u&lt;&#x2F;code&gt;&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;h2 id=&quot;rerooting&quot;&gt;Rerooting&lt;a class=&quot;zola-anchor&quot; href=&quot;#rerooting&quot; aria-label=&quot;Anchor link for: rerooting&quot;&gt;§&lt;&#x2F;a&gt;
+&lt;&#x2F;h2&gt;
+&lt;blockquote&gt;
+&lt;p&gt;problema: &lt;a href=&quot;https:&#x2F;&#x2F;cses.fi&#x2F;problemset&#x2F;task&#x2F;1132&quot;&gt;https:&#x2F;&#x2F;cses.fi&#x2F;problemset&#x2F;task&#x2F;1132&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;problema: &lt;a href=&quot;https:&#x2F;&#x2F;cses.fi&#x2F;problemset&#x2F;task&#x2F;1133&#x2F;&quot;&gt;https:&#x2F;&#x2F;cses.fi&#x2F;problemset&#x2F;task&#x2F;1133&#x2F;&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;h2 id=&quot;centroid-decomposition&quot;&gt;Centroid Decomposition&lt;a class=&quot;zola-anchor&quot; href=&quot;#centroid-decomposition&quot; aria-label=&quot;Anchor link for: centroid-decomposition&quot;&gt;§&lt;&#x2F;a&gt;
+&lt;&#x2F;h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Modo de decompor a árvore&lt;&#x2F;li&gt;
+&lt;li&gt;De forma parecida com o LCA, todo caminho entre dois vértices **em subárvores&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;h1 id=&quot;ler-mais&quot;&gt;★ Ler Mais&lt;a class=&quot;zola-anchor&quot; href=&quot;#ler-mais&quot; aria-label=&quot;Anchor link for: ler-mais&quot;&gt;§&lt;&#x2F;a&gt;
+&lt;&#x2F;h1&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;codeforces.com&#x2F;blog&#x2F;entry&#x2F;44351&quot;&gt;Small to Large &#x2F; DSU on Tree &#x2F; Sack&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;cp-algorithms.com&#x2F;graph&#x2F;hld.html#proof-of-correctness&quot;&gt;Decomposição Heavy-Light&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;codeforces.com&#x2F;blog&#x2F;entry&#x2F;100910&quot;&gt;7th Litte Technique&lt;&#x2F;a&gt; (nos
+comentários você encontra mais uns 2 ou 3 truques relacionados!)&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;www.youtube.com&#x2F;watch?v=XZLN6NxEQWo&quot;&gt;Árvores Link-Cut&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;codeforces.com&#x2F;blog&#x2F;entry&#x2F;76955&quot;&gt;Virtual Trees&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+</content>
+	</entry>
+	<entry xml:lang="en">
+		<title>Link-Cut Trees Black Box</title>
+		<published>2022-05-14T00:00:00+00:00</published>
+		<updated>2022-05-14T00:00:00+00:00</updated>
+		<link href="https://leoriether.github.io/posts/lct-blackbox/" type="text/html"/>
+		<id>https://leoriether.github.io/posts/lct-blackbox/</id>
+		<content type="html">&lt;p&gt;In this post I&#x27;ll demonstrate how to use Link-Cut Trees as a black box for solving competitive programming problems. &lt;&#x2F;p&gt;
+</content>
+	</entry>
+	<entry xml:lang="en">
+		<title>Making a Neovim plugin</title>
+		<published>2022-05-12T00:00:00+00:00</published>
+		<updated>2022-05-12T00:00:00+00:00</updated>
+		<link href="https://leoriether.github.io/posts/nvim-plugin/" type="text/html"/>
+		<id>https://leoriether.github.io/posts/nvim-plugin/</id>
+		<content type="html">&lt;h1 id=&quot;folder-structure&quot;&gt;Folder structure&lt;a class=&quot;zola-anchor&quot; href=&quot;#folder-structure&quot; aria-label=&quot;Anchor link for: folder-structure&quot;&gt;§&lt;&#x2F;a&gt;
+&lt;&#x2F;h1&gt;
+&lt;ul&gt;
+&lt;li&gt;doc&#x2F;&lt;&#x2F;li&gt;
+&lt;li&gt;lua&#x2F;&lt;&#x2F;li&gt;
+&lt;li&gt;your_plugin_name.lua&lt;&#x2F;li&gt;
+&lt;li&gt;your_plugin_name&#x2F;other_modules.lua&lt;&#x2F;li&gt;
+&lt;li&gt;Why you shouldn&#x27;t put other_modules.lua in the main lua&#x2F; directory&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;h1 id=&quot;defining-commands&quot;&gt;Defining commands&lt;a class=&quot;zola-anchor&quot; href=&quot;#defining-commands&quot; aria-label=&quot;Anchor link for: defining-commands&quot;&gt;§&lt;&#x2F;a&gt;
+&lt;&#x2F;h1&gt;
+&lt;h1 id=&quot;making-it-configurable&quot;&gt;Making it configurable&lt;a class=&quot;zola-anchor&quot; href=&quot;#making-it-configurable&quot; aria-label=&quot;Anchor link for: making-it-configurable&quot;&gt;§&lt;&#x2F;a&gt;
+&lt;&#x2F;h1&gt;
+&lt;h1 id=&quot;user-autocommands&quot;&gt;User autocommands&lt;a class=&quot;zola-anchor&quot; href=&quot;#user-autocommands&quot; aria-label=&quot;Anchor link for: user-autocommands&quot;&gt;§&lt;&#x2F;a&gt;
+&lt;&#x2F;h1&gt;
+&lt;h1 id=&quot;documentation&quot;&gt;Documentation&lt;a class=&quot;zola-anchor&quot; href=&quot;#documentation&quot; aria-label=&quot;Anchor link for: documentation&quot;&gt;§&lt;&#x2F;a&gt;
+&lt;&#x2F;h1&gt;
+</content>
+	</entry>
+	<entry xml:lang="en">
+		<title>How Floyd-Warshall is used to convert DFAs to regexes</title>
+		<published>2022-02-20T00:00:00+00:00</published>
+		<updated>2022-02-20T00:00:00+00:00</updated>
+		<link href="https://leoriether.github.io/posts/floyd-warshall-regex/" type="text/html"/>
+		<id>https://leoriether.github.io/posts/floyd-warshall-regex/</id>
+		<content type="html">&lt;p&gt;It&#x27;s really fun to find unexpected connections between different areas of
+knowledge, like how recursion and mathematical induction are essentially the
+same thing, or how linear independence in vector spaces correlates with cycles
+in graphs (so much so that &lt;a href=&quot;https:&#x2F;&#x2F;acm.timus.ru&#x2F;problem.aspx?space=1&amp;amp;num=1041&quot;&gt;you can run Kruskal on either&lt;&#x2F;a&gt;). The topic for
+today is neither of these, it&#x27;s actually about how the algorithm that converts a
+deterministic finite automaton to a regular expression is actually very very
+similar to Floyd-Warshall&#x27;s shortest path algorithm. Let&#x27;s start with the automata, shall we? &lt;&#x2F;p&gt;
+&lt;h1 id=&quot;deterministic-finite-automata&quot;&gt;Deterministic Finite Automata&lt;a class=&quot;zola-anchor&quot; href=&quot;#deterministic-finite-automata&quot; aria-label=&quot;Anchor link for: deterministic-finite-automata&quot;&gt;§&lt;&#x2F;a&gt;
+&lt;&#x2F;h1&gt;
+</content>
+	</entry>
+	<entry xml:lang="en">
+		<title>Hello World!</title>
+		<published>2022-01-21T00:00:00+00:00</published>
+		<updated>2022-02-25T00:00:00+00:00</updated>
+		<link href="https://leoriether.github.io/posts/test/" type="text/html"/>
+		<id>https://leoriether.github.io/posts/test/</id>
+		<content type="html">&lt;p&gt;Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
+incididunt ut labore et dolore magna aliqua. Euismod quis viverra nibh cras
+pulvinar mattis. Porta lorem mollis aliquam ut porttitor leo a diam
+sollicitudin. Cursus sit amet dictum sit. Et odio pellentesque diam volutpat
+commodo. Non diam phasellus vestibulum lorem. Sed ullamcorper morbi tincidunt
+ornare massa. Ornare suspendisse sed nisi lacus. Bibendum neque egestas congue
+quisque egestas diam in arcu. Lorem ipsum dolor sit amet consectetur adipiscing
+elit duis. Enim ut sem viverra aliquet eget sit. Feugiat in ante metus dictum
+at. Porttitor rhoncus dolor purus non enim praesent elementum. Id aliquet risus
+feugiat in ante metus. Amet risus nullam eget felis eget nunc lobortis mattis.
+Nisl tincidunt eget nullam non nisi. Sit amet consectetur adipiscing elit
+pellentesque.&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;rust&quot; style=&quot;background-color:#0f1419;color:#bfbab0;&quot; class=&quot;language-rust &quot;&gt;&lt;code class=&quot;language-rust&quot; data-lang=&quot;rust&quot;&gt;&lt;span style=&quot;color:#ff7733;&quot;&gt;fn &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ffb454;&quot;&gt;main&lt;&#x2F;span&gt;&lt;span&gt;() {
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#f07178;&quot;&gt;println!&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c2d94c;&quot;&gt;&amp;quot;Hello World!&amp;quot;&lt;&#x2F;span&gt;&lt;span&gt;)&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bfbab0cc;&quot;&gt;;
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;I actually have to write something here, otherwise the two codeblocks just merge. &lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;kotlin&quot; style=&quot;background-color:#0f1419;color:#bfbab0;&quot; class=&quot;language-kotlin &quot;&gt;&lt;code class=&quot;language-kotlin&quot; data-lang=&quot;kotlin&quot;&gt;&lt;span style=&quot;color:#ff7733;&quot;&gt;fun &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ffb454;&quot;&gt;main&lt;&#x2F;span&gt;&lt;span&gt;() {
+&lt;&#x2F;span&gt;&lt;span&gt;    println(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#c2d94c;&quot;&gt;&amp;quot;Hello World!&amp;quot;&lt;&#x2F;span&gt;&lt;span&gt;)
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;Leo vel orci porta non pulvinar neque laoreet. Fames ac turpis egestas integer.
+Mollis aliquam ut porttitor leo a diam sollicitudin tempor. At tempor commodo
+ullamcorper a lacus. Integer quis auctor elit sed vulputate. At ultrices mi
+tempus imperdiet nulla malesuada pellentesque elit. Pretium viverra suspendisse
+potenti nullam ac tortor. Diam maecenas sed enim ut. Volutpat ac tincidunt
+vitae semper quis lectus. Auctor elit sed vulputate mi sit amet mauris commodo
+quis. Libero nunc consequat interdum varius sit amet mattis vulputate.&lt;&#x2F;p&gt;
+</content>
+	</entry>
+	<entry xml:lang="en">
+		<title>Intuition Behind the Small to Large Algorithm</title>
+		<published>2021-06-05T00:00:00+00:00</published>
+		<updated>2021-06-05T00:00:00+00:00</updated>
+		<link href="https://leoriether.github.io/posts/small-to-large/" type="text/html"/>
+		<id>https://leoriether.github.io/posts/small-to-large/</id>
+		<content type="html">&lt;h1 id=&quot;the-problem&quot;&gt;The Problem&lt;a class=&quot;zola-anchor&quot; href=&quot;#the-problem&quot; aria-label=&quot;Anchor link for: the-problem&quot;&gt;§&lt;&#x2F;a&gt;
+&lt;&#x2F;h1&gt;
+&lt;p&gt;What if we want to build some data structure for every node in a tree, to solve
+a certain problem, but to build that structure for node &lt;code&gt;u&lt;&#x2F;code&gt; we need to trasverse
+the entire subtree of &lt;code&gt;u&lt;&#x2F;code&gt;, thus making the algorithm at least &lt;code&gt;O(N²)&lt;&#x2F;code&gt;, which is
+not fast enough in some cases, could we do better?&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;example&quot;&gt;Example&lt;a class=&quot;zola-anchor&quot; href=&quot;#example&quot; aria-label=&quot;Anchor link for: example&quot;&gt;§&lt;&#x2F;a&gt;
+&lt;&#x2F;h2&gt;
+&lt;blockquote&gt;
+&lt;p&gt;You&#x27;re given a tree with &lt;code&gt;N&lt;&#x2F;code&gt; nodes ($N \le 10^5$), in which every node has a
+value between $1$ and $10^6$. Answer &lt;code&gt;Q&lt;&#x2F;code&gt; queries ($Q \le 10^5$) that give you an
+integer &lt;code&gt;k&lt;&#x2F;code&gt;, a node &lt;code&gt;u&lt;&#x2F;code&gt;, and ask you how many nodes in the subtree of &lt;code&gt;u&lt;&#x2F;code&gt; have
+value equal to &lt;code&gt;k&lt;&#x2F;code&gt;. &lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;p&gt;&lt;img src=&quot;https:&#x2F;&#x2F;user-images.githubusercontent.com&#x2F;8211902&#x2F;120910700-4bbc0600-c657-11eb-9df6-493f39562b62.png&quot; alt=&quot;t0&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;If the constraints were smaller, for example $N \le 10^3$ and $Q \le 10^3$, it
+would be possible to solve this problem by running a DFS starting at the node
+given in the query. The DFS would create a data structure -- a frequency array
+-- that allows us to lookup the answer easily. That&#x27;s not the simplest way to
+solve this problem in particular, but it&#x27;s one that exemplifies the kind of
+reasoning behind Small to Large, so bear with me.&lt;&#x2F;p&gt;
+&lt;p&gt;With the bigger constraints, however, this algorithm isn&#x27;t fast enough because
+we go through &lt;code&gt;O(N)&lt;&#x2F;code&gt; nodes each query, in the worst case.&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;https:&#x2F;&#x2F;user-images.githubusercontent.com&#x2F;8211902&#x2F;120910175-01d12100-c653-11eb-86d8-dd77f574beae.png&quot; alt=&quot;t1&quot; &#x2F;&gt; &lt;&#x2F;p&gt;
+&lt;p&gt;In some cases, however, we don&#x27;t have &lt;code&gt;O(NQ)&lt;&#x2F;code&gt; complexity. Imagine, first, that
+we cache the frequency tables for nodes we&#x27;ve already processed. Then, what&#x27;s
+the time complexity &lt;strong&gt;if the tree is balanced and binary&lt;&#x2F;strong&gt;?. Then, we would take
+&lt;code&gt;N&lt;&#x2F;code&gt; time in the root node, &lt;code&gt;N&#x2F;2 + N&#x2F;2&lt;&#x2F;code&gt; time in the children of the root, &lt;code&gt;N&#x2F;4 + N&#x2F;4 + N&#x2F;4 + N&#x2F;4&lt;&#x2F;code&gt; in the children of the children of the root node, ... It&#x27;s
+exactly like a mergesort: &lt;code&gt;O(N log N)&lt;&#x2F;code&gt;!&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;https:&#x2F;&#x2F;user-images.githubusercontent.com&#x2F;8211902&#x2F;120910404-1ca49500-c655-11eb-92db-914a99183ef1.png&quot; alt=&quot;t2&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;optimization-ideas&quot;&gt;Optimization Ideas&lt;a class=&quot;zola-anchor&quot; href=&quot;#optimization-ideas&quot; aria-label=&quot;Anchor link for: optimization-ideas&quot;&gt;§&lt;&#x2F;a&gt;
+&lt;&#x2F;h3&gt;
+&lt;p&gt;What are some heuristics we could use to optimize the naive algorithm?&lt;&#x2F;p&gt;
+&lt;h4 id=&quot;1-offline&quot;&gt;1. Offline&lt;a class=&quot;zola-anchor&quot; href=&quot;#1-offline&quot; aria-label=&quot;Anchor link for: 1-offline&quot;&gt;§&lt;&#x2F;a&gt;
+&lt;&#x2F;h4&gt;
+&lt;p&gt;Instead of answering queries in the order they are given, we could compute them
+in whichever order is most convenient to us, store the answers, then print them
+in the right order.&lt;&#x2F;p&gt;
+&lt;h4 id=&quot;2-reuse-the-result-from-some-dfss&quot;&gt;2. Reuse the result from some DFSs&lt;a class=&quot;zola-anchor&quot; href=&quot;#2-reuse-the-result-from-some-dfss&quot; aria-label=&quot;Anchor link for: 2-reuse-the-result-from-some-dfss&quot;&gt;§&lt;&#x2F;a&gt;
+&lt;&#x2F;h4&gt;
+&lt;p&gt;Let&#x27;s go back to the example tree that gave us &lt;code&gt;O(N²)&lt;&#x2F;code&gt; runtime. Did we really
+need to run a DFS for every single node? The answer is no! We could, in that
+particular case, reuse the frequency table generated in the child and update it
+in &lt;code&gt;O(1)&lt;&#x2F;code&gt; to get the frequency for the parent, like so:&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;cpp&quot; style=&quot;background-color:#0f1419;color:#bfbab0;&quot; class=&quot;language-cpp &quot;&gt;&lt;code class=&quot;language-cpp&quot; data-lang=&quot;cpp&quot;&gt;&lt;span style=&quot;color:#ff7733;&quot;&gt;int&lt;&#x2F;span&gt;&lt;span&gt; frequency[MAX_K]&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bfbab0cc;&quot;&gt;;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff7733;&quot;&gt;void &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ffb454;&quot;&gt;dfs&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff7733;&quot;&gt;int &lt;&#x2F;span&gt;&lt;span style=&quot;color:#f29718;&quot;&gt;u&lt;&#x2F;span&gt;&lt;span&gt;) {
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ffb454;&quot;&gt;dfs&lt;&#x2F;span&gt;&lt;span&gt;(child[u])&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bfbab0cc;&quot;&gt;;
+&lt;&#x2F;span&gt;&lt;span&gt;    frequency[value[u]]&lt;&#x2F;span&gt;&lt;span style=&quot;color:#f29668;&quot;&gt;++&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bfbab0cc;&quot;&gt;;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#5c6773;&quot;&gt;&#x2F;&#x2F; we now have a valid frequency table for `u`
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;But is this always possible? What should we do in this case?&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;https:&#x2F;&#x2F;user-images.githubusercontent.com&#x2F;8211902&#x2F;120910622-bb7dc100-c656-11eb-909a-4db0bc26e36b.png&quot; alt=&quot;t3&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;Answer: yes, but there&#x27;s a catch. First, we should run DFS for node 7 and clear
+the frequency table. Then, we carry on with the DFS of the other nodes in the
+optimized way, reusing tables from the child.&lt;&#x2F;p&gt;
+&lt;h1 id=&quot;small-to-large&quot;&gt;Small to Large&lt;a class=&quot;zola-anchor&quot; href=&quot;#small-to-large&quot; aria-label=&quot;Anchor link for: small-to-large&quot;&gt;§&lt;&#x2F;a&gt;
+&lt;&#x2F;h1&gt;
+&lt;p&gt;The optimizations shown are sufficient to make an &lt;code&gt;O(N log N)&lt;&#x2F;code&gt; algorithm for the
+problem! The general idea is that a DFS call will&lt;&#x2F;p&gt;
+&lt;ol&gt;
+&lt;li&gt;Compute the data structures for each &amp;quot;small&amp;quot; child (small in the sense that
+they have less nodes in their subtrees, like 7 only had 1 node in its
+subtree);&lt;&#x2F;li&gt;
+&lt;li&gt;Clear the data structures in each of their DFS calls (assuming the DFS
+modifies one global data structure);&lt;&#x2F;li&gt;
+&lt;li&gt;Compute the data structure for the &amp;quot;big&amp;quot; child (the one with the biggest
+subtree), but instead of clearing it, reuse it to compute the parent&#x27;s
+answer.&lt;&#x2F;li&gt;
+&lt;li&gt;Iterate over the subtrees of the small children and the parent node, updating
+the data structure accordingly.&lt;&#x2F;li&gt;
+&lt;&#x2F;ol&gt;
+&lt;p&gt;The rest of this blog is still WIP ;)&lt;&#x2F;p&gt;
+</content>
+	</entry>
+	<entry xml:lang="en">
+		<title>An Alternative Interpretation for the KMP Algorithm</title>
+		<published>2021-05-24T00:00:00+00:00</published>
+		<updated>2021-05-24T00:00:00+00:00</updated>
+		<link href="https://leoriether.github.io/posts/kmp/" type="text/html"/>
+		<id>https://leoriether.github.io/posts/kmp/</id>
+		<content type="html">&lt;p&gt;Originally written in &lt;a href=&quot;https:&#x2F;&#x2F;gist.github.com&#x2F;LeoRiether&#x2F;c61b7f709b7826f47bc67f0c5d0d9b6b&quot;&gt;github&lt;&#x2F;a&gt;.
+This article assumes you already know DFAs and NFAs (including subset construction).&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;the-problem&quot;&gt;The Problem&lt;a class=&quot;zola-anchor&quot; href=&quot;#the-problem&quot; aria-label=&quot;Anchor link for: the-problem&quot;&gt;§&lt;&#x2F;a&gt;
+&lt;&#x2F;h2&gt;
+&lt;p&gt;We want to solve the string matching problem: given two strings &lt;code&gt;S&lt;&#x2F;code&gt; and &lt;code&gt;P&lt;&#x2F;code&gt;, find all substrings of &lt;code&gt;S&lt;&#x2F;code&gt; that match the pattern &lt;code&gt;P&lt;&#x2F;code&gt;. There are other uses for the concepts shown here, but we&#x27;ll focus on this one first.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;a-simple-solution&quot;&gt;A Simple Solution&lt;a class=&quot;zola-anchor&quot; href=&quot;#a-simple-solution&quot; aria-label=&quot;Anchor link for: a-simple-solution&quot;&gt;§&lt;&#x2F;a&gt;
+&lt;&#x2F;h2&gt;
+&lt;p&gt;There&#x27;s a pretty simple NFA construction that solves this exact problem. We&#x27;ll &amp;quot;feed&amp;quot; this automaton the characters of &lt;code&gt;S&lt;&#x2F;code&gt; as input, and if at any point a thread is at the accepting state, we&#x27;ll know there&#x27;s a substring that matches &lt;code&gt;P&lt;&#x2F;code&gt;. Let the starting state have an edge for every character of the alphabet (the alphabet of the automaton, not necessarily the english alphabet). This loop will create a thread at every input and leave it there, at the starting node, ready to match the pattern when the other inputs come. Next, we&#x27;ll make a path containing the characters of the pattern &lt;code&gt;P&lt;&#x2F;code&gt; at every edge. Here&#x27;s an example of an NFA that matches the pattern &amp;quot;abacaba&amp;quot;:&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;images&#x2F;example.png&quot; alt=&quot;abacabautomaton&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;Notice that the Σ edge in the first node represents &amp;quot;an edge for every symbol of the alphabet&amp;quot;, and that includes the symbol &amp;quot;a&amp;quot;. Thus, if the automaton receives an &amp;quot;a&amp;quot;, the thread in the first node splits into one for the second node and one that keeps looping on the starting node. When this split occurs, one of the threads will keep walking to the right while the symbols of the string are matching the forward edges, but if at any point they don&#x27;t match, the thread dies. Take a moment to appreciate how this simple NFA solves the matching problem.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;an-example&quot;&gt;An Example&lt;a class=&quot;zola-anchor&quot; href=&quot;#an-example&quot; aria-label=&quot;Anchor link for: an-example&quot;&gt;§&lt;&#x2F;a&gt;
+&lt;&#x2F;h2&gt;
+&lt;p&gt;Let&#x27;s look at an automaton that matches the pattern &amp;quot;abaa&amp;quot;. The nodes filled in red represent alive threads. &lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;images&#x2F;abaa.png&quot; alt=&quot;abaa&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;We&#x27;ll input the string &amp;quot;abaab&amp;quot; and see how the threads behave. First, let&#x27;s input the letter &amp;quot;a&amp;quot;.&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;images&#x2F;abaa1.png&quot; alt=&quot;abaa1&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;The thread we had before split into two, and now the one on the right will try to walk to the right as far as it can. Now we input the second character of our string, &amp;quot;b&amp;quot;.&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;images&#x2F;abaa2.png&quot; alt=&quot;abaa2&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;Nothing surprising here. Let&#x27;s input &amp;quot;a&amp;quot;.&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;images&#x2F;abaa3.png&quot; alt=&quot;abaa3&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;Now there are 3 threads, look at them go! Now input another &amp;quot;a&amp;quot;.&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;images&#x2F;abaa4.png&quot; alt=&quot;abaa4&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;Notice that the thread that was on the second node didn&#x27;t have any edge to follow, so it died, but then the first node split and another thread is now at the second state. Also, we have a filled accepting state, so there&#x27;s a match with the pattern &amp;quot;abaa&amp;quot;! One last input, &amp;quot;b&amp;quot;.&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;images&#x2F;abaa5.png&quot; alt=&quot;abaa5&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;We already have a thread matching the &amp;quot;b&amp;quot; from &amp;quot;abaa&amp;quot;, even if this first &amp;quot;a&amp;quot; overlaps with our first match. This kind of behaviour allows us to match overlapping patterns efficiently.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;running-the-automaton&quot;&gt;Running the Automaton&lt;a class=&quot;zola-anchor&quot; href=&quot;#running-the-automaton&quot; aria-label=&quot;Anchor link for: running-the-automaton&quot;&gt;§&lt;&#x2F;a&gt;
+&lt;&#x2F;h2&gt;
+&lt;p&gt;The naive way to run this automaton is to keep a set of threads and advance them individually. This is, however, not efficient at all. Imagine the pattern is something like &amp;quot;aaaaaa&amp;quot;, and we match a string &amp;quot;aaaaaaaaaaaaaaaaa&amp;quot;. At every iteration a new thread would be spawned and every other thread would advance, with no deaths. This gives us a time complexity of O(|S| × |P|). We can do better by exploiting some properties.&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;how-many-states-are-reachable&quot;&gt;How many states are reachable?&lt;a class=&quot;zola-anchor&quot; href=&quot;#how-many-states-are-reachable&quot; aria-label=&quot;Anchor link for: how-many-states-are-reachable&quot;&gt;§&lt;&#x2F;a&gt;
+&lt;&#x2F;h3&gt;
+&lt;p&gt;Theres&#x27; potential to do better than the naive simulation by analyzing the subset construction of our NFA. Indeed, only &lt;code&gt;|P|+1&lt;&#x2F;code&gt; states would be reachable in it! The proof is as follows: imagine we&#x27;ve input some string to the automaton and there&#x27;s some set of alive threads. Let &lt;code&gt;u&lt;&#x2F;code&gt; be the most advanced (closest to the right) thread alive -- we&#x27;ll call it the &amp;quot;leader&amp;quot; thread --, and let &lt;code&gt;n&lt;&#x2F;code&gt; be the number of forward edges (the ones that aren&#x27;t the loop) it followed. There are no threads to the right of &lt;code&gt;u&lt;&#x2F;code&gt;, so we only need to consider the last &lt;code&gt;n&lt;&#x2F;code&gt; symbols the automaton has seen, and there&#x27;s only one length-n string possible because there&#x27;s only one path the thread could have followed. Because of that, the alive threads to the left of &lt;code&gt;u&lt;&#x2F;code&gt; are uniquely determined! In other words, if we know the leader, there&#x27;s only one possible set of alive threads to the left of it. With this, it&#x27;s possible to conclude that there&#x27;s exactly one reachable subset in the subset construction for every leader state, which gives us &lt;code&gt;|P|+1&lt;&#x2F;code&gt; states in total.&lt;&#x2F;p&gt;
+&lt;p&gt;An idea one could have now is: when simulating the automaton, what if we only keep track of the leader thread, instead of the entire alive subset? This is exactly what we&#x27;ll do, but there&#x27;s a problem: what if the leader dies? We need to know who will occupy his place. Before that, though, we&#x27;ll need one more concept.&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;left-set&quot;&gt;Left-set&lt;a class=&quot;zola-anchor&quot; href=&quot;#left-set&quot; aria-label=&quot;Anchor link for: left-set&quot;&gt;§&lt;&#x2F;a&gt;
+&lt;&#x2F;h3&gt;
+&lt;p&gt;It turns out that &amp;quot;there&#x27;s only one possible set of alive threads to the left of the leader&amp;quot; does not apply exclusively to the leader. In fact, if we know some thread is alive, all of the threads to the left of it can be uniquely determined. The argument is very similar to the one shown before, here&#x27;s a sketch: if a thread is alive in node &lt;code&gt;n&lt;&#x2F;code&gt;, then there&#x27;s one possible string of length &lt;code&gt;n&lt;&#x2F;code&gt; that must have been fed to the automaton in the last &lt;code&gt;n&lt;&#x2F;code&gt; steps, thus the threads in smaller positions must have come from this string.&lt;&#x2F;p&gt;
+&lt;p&gt;Now we can finally know what to do in the case of a failed match.&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;dealing-with-failure&quot;&gt;Dealing with failure&lt;a class=&quot;zola-anchor&quot; href=&quot;#dealing-with-failure&quot; aria-label=&quot;Anchor link for: dealing-with-failure&quot;&gt;§&lt;&#x2F;a&gt;
+&lt;&#x2F;h3&gt;
+&lt;p&gt;Suppose we&#x27;ve built the automaton for &amp;quot;abababax&amp;quot; and fed &amp;quot;abababa&amp;quot; to it. &lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;images&#x2F;abababa.png&quot; alt=&quot;abababax&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;What would happen if we input the letter &amp;quot;b&amp;quot;? Well, the leader can&#x27;t go forward, so it dies. The thread immediately to the left of the leader, however, can go forward, and thus becomes the new leader. We&#x27;ll call this &amp;quot;thread immediately to the left of a thread&amp;quot; the &amp;quot;neighbor&amp;quot;. This idea outlines a possible efficient way of simulating our NFA. We&#x27;ll keep track of the leader at every step. How? There are two cases:&lt;&#x2F;p&gt;
+&lt;ol&gt;
+&lt;li&gt;The leader matches the input and goes forward. This case is easy, just increment the current leader.&lt;&#x2F;li&gt;
+&lt;li&gt;The leader fails to match and dies. Then, the neighbor of the leader (call him &lt;code&gt;n0&lt;&#x2F;code&gt;) may or may not survive. If it does, the new leader is &lt;code&gt;n0+1&lt;&#x2F;code&gt;. If it dies, then maybe the neighbor of &lt;code&gt;n0&lt;&#x2F;code&gt; (call him &lt;code&gt;n1&lt;&#x2F;code&gt;) survives. If it does, the new leader is &lt;code&gt;n1+1&lt;&#x2F;code&gt;. If it dies, then maybe the neighbor of &lt;code&gt;n1&lt;&#x2F;code&gt; survives. You get the idea. If we could know the neighbor of a thread in &lt;code&gt;O(1)&lt;&#x2F;code&gt;, the entire matching process would take time &lt;code&gt;O(|S|)&lt;&#x2F;code&gt;. Yes, even if we walk through neighbors one by one as they die, the algorithm runs in linear time. To see why, consider that we spawn at most one thread per step, so the total number of dead threads is bounded by &lt;code&gt;|S|&lt;&#x2F;code&gt;. It&#x27;s like pushing threads to a queue when they are spawned and popping the queue when they die.&lt;&#x2F;li&gt;
+&lt;&#x2F;ol&gt;
+&lt;h3 id=&quot;precalculating-the-neighbor&quot;&gt;Precalculating the Neighbor&lt;a class=&quot;zola-anchor&quot; href=&quot;#precalculating-the-neighbor&quot; aria-label=&quot;Anchor link for: precalculating-the-neighbor&quot;&gt;§&lt;&#x2F;a&gt;
+&lt;&#x2F;h3&gt;
+</content>
+	</entry>
+	<entry xml:lang="en">
+		<title>About Me</title>
+		<published>1971-01-01T00:00:00+00:00</published>
+		<updated>1971-01-01T00:00:00+00:00</updated>
+		<link href="https://leoriether.github.io/about/" type="text/html"/>
+		<id>https://leoriether.github.io/about/</id>
+		<content type="html">&lt;p&gt;Hi! I&#x27;m Leonardo, some random from the internet.&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;music-timeline&quot;&gt;Music Timeline&lt;a class=&quot;zola-anchor&quot; href=&quot;#music-timeline&quot; aria-label=&quot;Anchor link for: music-timeline&quot;&gt;§&lt;&#x2F;a&gt;
+&lt;&#x2F;h3&gt;
+&lt;ul&gt;
+&lt;li&gt;soha - A Reflexion :: Math Rock&lt;&#x2F;li&gt;
+&lt;li&gt;Agatha - Cannibalism :: Math Rock&lt;&#x2F;li&gt;
+&lt;li&gt;Manuel Göttsching - E2-E4 :: Minimal Techno?&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+</content>
+	</entry>
+</feed>

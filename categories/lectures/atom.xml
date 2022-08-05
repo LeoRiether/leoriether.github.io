@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en">
+	<title> - lectures</title>
+	<link href="https://leoriether.github.io/categories/lectures/atom.xml" rel="self" type="application/atom+xml"/>
+  <link href="https://leoriether.github.io"/>
+	<generator uri="https://www.getzola.org/">Zola</generator>
+	<updated>2022-08-02T00:00:00+00:00</updated>
+	<id>https://leoriether.github.io/categories/lectures/atom.xml</id>
+	<entry xml:lang="en">
+		<title>Árvores Para Programação Competitiva</title>
+		<published>2022-08-02T00:00:00+00:00</published>
+		<updated>2022-08-02T00:00:00+00:00</updated>
+		<link href="https://leoriether.github.io/posts/trees/" type="text/html"/>
+		<id>https://leoriether.github.io/posts/trees/</id>
+		<content type="html">&lt;blockquote&gt;
+&lt;p&gt;link da aula: &lt;a href=&quot;https:&#x2F;&#x2F;leoriether.github.io&#x2F;posts&#x2F;trees&quot;&gt;https:&#x2F;&#x2F;leoriether.github.io&#x2F;posts&#x2F;trees&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;p&gt;O que é uma árvore?&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;Grafo com &lt;code&gt;N&lt;&#x2F;code&gt; nós e &lt;code&gt;N-1&lt;&#x2F;code&gt; arestas&lt;&#x2F;li&gt;
+&lt;li&gt;Conexo&lt;&#x2F;li&gt;
+&lt;li&gt;Existe um caminho único entre quaisquer dois vértices&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;&lt;em&gt;Escolha dois.&lt;&#x2F;em&gt;&lt;&#x2F;p&gt;
+&lt;hr &#x2F;&gt;
+&lt;p&gt;Uma árvore pode ou não ter raíz. Se não tiver, é bem provável que a gente possa
+escolher uma raíz qualquer!&lt;&#x2F;p&gt;
+&lt;h1 id=&quot;subarvores&quot;&gt;★ Subárvores&lt;a class=&quot;zola-anchor&quot; href=&quot;#subarvores&quot; aria-label=&quot;Anchor link for: subarvores&quot;&gt;§&lt;&#x2F;a&gt;
+&lt;&#x2F;h1&gt;
+&lt;h2 id=&quot;dfs&quot;&gt;DFS&lt;a class=&quot;zola-anchor&quot; href=&quot;#dfs&quot; aria-label=&quot;Anchor link for: dfs&quot;&gt;§&lt;&#x2F;a&gt;
+&lt;&#x2F;h2&gt;
+&lt;p&gt;Muito útil para quando vc quer&lt;&#x2F;p&gt;
+&lt;ol&gt;
+&lt;li&gt;informação das subárvores pra calcular algo pro vértice, ou&lt;&#x2F;li&gt;
+&lt;li&gt;informação do caminho &lt;code&gt;raíz -&amp;gt; u&lt;&#x2F;code&gt; pra calcular algo pra &lt;code&gt;u&lt;&#x2F;code&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;por que no los dos? (acho que nunca vi problema que usa os dois ao mesmo
+tempo, mas fiquem de olho que eu posso settar um a qualquer momento)&lt;&#x2F;li&gt;
+&lt;li&gt;fazer basicamente qualquer coisa em árvore (basicamente suas duas únicas
+opções são DFS ou BFS)&lt;&#x2F;li&gt;
+&lt;&#x2F;ol&gt;
+&lt;pre data-lang=&quot;cpp&quot; style=&quot;background-color:#0f1419;color:#bfbab0;&quot; class=&quot;language-cpp &quot;&gt;&lt;code class=&quot;language-cpp&quot; data-lang=&quot;cpp&quot;&gt;&lt;span&gt;vector&amp;lt;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff7733;&quot;&gt;int&lt;&#x2F;span&gt;&lt;span&gt;&amp;gt; g[N]&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bfbab0cc;&quot;&gt;;
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff7733;&quot;&gt;void &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ffb454;&quot;&gt;dfs&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff7733;&quot;&gt;int &lt;&#x2F;span&gt;&lt;span style=&quot;color:#f29718;&quot;&gt;u&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bfbab0cc;&quot;&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff7733;&quot;&gt;int &lt;&#x2F;span&gt;&lt;span style=&quot;color:#f29718;&quot;&gt;p &lt;&#x2F;span&gt;&lt;span style=&quot;color:#f29668;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#f29718;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;) {
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff7733;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff7733;&quot;&gt;int&lt;&#x2F;span&gt;&lt;span&gt; v &lt;&#x2F;span&gt;&lt;span style=&quot;color:#f29668;&quot;&gt;:&lt;&#x2F;span&gt;&lt;span&gt; g[u]) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff7733;&quot;&gt;if &lt;&#x2F;span&gt;&lt;span&gt;(v &lt;&#x2F;span&gt;&lt;span style=&quot;color:#f29668;&quot;&gt;!=&lt;&#x2F;span&gt;&lt;span&gt; p) {
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ffb454;&quot;&gt;dfs&lt;&#x2F;span&gt;&lt;span&gt;(v&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bfbab0cc;&quot;&gt;,&lt;&#x2F;span&gt;&lt;span&gt; u)&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bfbab0cc;&quot;&gt;;
+&lt;&#x2F;span&gt;&lt;span&gt;    }
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;blockquote&gt;
+&lt;p&gt;tamanho de subárvore: &lt;a href=&quot;https:&#x2F;&#x2F;cses.fi&#x2F;problemset&#x2F;task&#x2F;1674&quot;&gt;https:&#x2F;&#x2F;cses.fi&#x2F;problemset&#x2F;task&#x2F;1674&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;h2 id=&quot;dfs-time-preorder-time-euler-tour&quot;&gt;DFS Time &#x2F; Preorder Time &#x2F; Euler Tour&lt;a class=&quot;zola-anchor&quot; href=&quot;#dfs-time-preorder-time-euler-tour&quot; aria-label=&quot;Anchor link for: dfs-time-preorder-time-euler-tour&quot;&gt;§&lt;&#x2F;a&gt;
+&lt;&#x2F;h2&gt;
+&lt;blockquote&gt;
+&lt;p&gt;A única estrutura mais fácil que uma árvore é um &lt;strong&gt;array&lt;&#x2F;strong&gt; &lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;p&gt;Acho que o único jeito de explicar isso é fazendo uns exemplos? 🤔&lt;&#x2F;p&gt;
+&lt;h1 id=&quot;caminhos&quot;&gt;★ Caminhos&lt;a class=&quot;zola-anchor&quot; href=&quot;#caminhos&quot; aria-label=&quot;Anchor link for: caminhos&quot;&gt;§&lt;&#x2F;a&gt;
+&lt;&#x2F;h1&gt;
+&lt;h2 id=&quot;lowest-common-ancestor-lca&quot;&gt;Lowest Common Ancestor (LCA)&lt;a class=&quot;zola-anchor&quot; href=&quot;#lowest-common-ancestor-lca&quot; aria-label=&quot;Anchor link for: lowest-common-ancestor-lca&quot;&gt;§&lt;&#x2F;a&gt;
+&lt;&#x2F;h2&gt;
+&lt;ul&gt;
+&lt;li&gt;O que é?&lt;&#x2F;li&gt;
+&lt;li&gt;Ideia: &lt;strong&gt;todo caminho entre &lt;code&gt;u&lt;&#x2F;code&gt; e &lt;code&gt;v&lt;&#x2F;code&gt; em uma árvore pode ser dividido em dois
+caminhos: &lt;code&gt;u -&amp;gt; LCA(u, v)&lt;&#x2F;code&gt; + &lt;code&gt;v -&amp;gt; LCA(u, v)&lt;&#x2F;code&gt;&lt;&#x2F;strong&gt;&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;h3 id=&quot;as-vezes-voce-so-precisa-saber-que-o-lca-existe&quot;&gt;Às vezes você só precisa saber que o LCA existe...&lt;a class=&quot;zola-anchor&quot; href=&quot;#as-vezes-voce-so-precisa-saber-que-o-lca-existe&quot; aria-label=&quot;Anchor link for: as-vezes-voce-so-precisa-saber-que-o-lca-existe&quot;&gt;§&lt;&#x2F;a&gt;
+&lt;&#x2F;h3&gt;
+&lt;h4 id=&quot;diametro&quot;&gt;Diâmetro&lt;a class=&quot;zola-anchor&quot; href=&quot;#diametro&quot; aria-label=&quot;Anchor link for: diametro&quot;&gt;§&lt;&#x2F;a&gt;
+&lt;&#x2F;h4&gt;
+&lt;blockquote&gt;
+&lt;p&gt;link: &lt;a href=&quot;https:&#x2F;&#x2F;cses.fi&#x2F;problemset&#x2F;task&#x2F;1131&quot;&gt;https:&#x2F;&#x2F;cses.fi&#x2F;problemset&#x2F;task&#x2F;1131&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;p&gt;Truque: transformar a árvore em binária&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;mas-outras-vezes-voce-precisa-calcula-lo&quot;&gt;...mas outras vezes você precisa calculá-lo&lt;a class=&quot;zola-anchor&quot; href=&quot;#mas-outras-vezes-voce-precisa-calcula-lo&quot; aria-label=&quot;Anchor link for: mas-outras-vezes-voce-precisa-calcula-lo&quot;&gt;§&lt;&#x2F;a&gt;
+&lt;&#x2F;h3&gt;
+&lt;p&gt;Problema: Q queries de encontrar a distância entre dois vértices&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;binary-lifting&quot;&gt;Binary lifting&lt;a class=&quot;zola-anchor&quot; href=&quot;#binary-lifting&quot; aria-label=&quot;Anchor link for: binary-lifting&quot;&gt;§&lt;&#x2F;a&gt;
+&lt;&#x2F;h3&gt;
+&lt;blockquote&gt;
+&lt;p&gt;cses: &lt;a href=&quot;https:&#x2F;&#x2F;cses.fi&#x2F;problemset&#x2F;task&#x2F;1687&quot;&gt;https:&#x2F;&#x2F;cses.fi&#x2F;problemset&#x2F;task&#x2F;1687&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;h2 id=&quot;problema-facinho-mas-tricky-do-cses&quot;&gt;Problema facinho mas tricky do cses&lt;a class=&quot;zola-anchor&quot; href=&quot;#problema-facinho-mas-tricky-do-cses&quot; aria-label=&quot;Anchor link for: problema-facinho-mas-tricky-do-cses&quot;&gt;§&lt;&#x2F;a&gt;
+&lt;&#x2F;h2&gt;
+&lt;blockquote&gt;
+&lt;p&gt;link: &lt;a href=&quot;https:&#x2F;&#x2F;cses.fi&#x2F;problemset&#x2F;task&#x2F;1138&quot;&gt;https:&#x2F;&#x2F;cses.fi&#x2F;problemset&#x2F;task&#x2F;1138&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;h2 id=&quot;problema-chefao-empresa-de-festas&quot;&gt;Problema Chefão: Empresa de Festas&lt;a class=&quot;zola-anchor&quot; href=&quot;#problema-chefao-empresa-de-festas&quot; aria-label=&quot;Anchor link for: problema-chefao-empresa-de-festas&quot;&gt;§&lt;&#x2F;a&gt;
+&lt;&#x2F;h2&gt;
+&lt;blockquote&gt;
+&lt;p&gt;link: &lt;a href=&quot;http:&#x2F;&#x2F;maratona.sbc.org.br&#x2F;hist&#x2F;2020&#x2F;primfase20&#x2F;maratona20.pdf&quot;&gt;http:&#x2F;&#x2F;maratona.sbc.org.br&#x2F;hist&#x2F;2020&#x2F;primfase20&#x2F;maratona20.pdf&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;details&gt;
+&lt;summary&gt;Dica&lt;&#x2F;summary&gt;
+A gente pode resolver offline!&lt;&#x2F;details&gt;
+&lt;h1 id=&quot;coisas-que-so-vou-falar-se-der-tempo&quot;&gt;Coisas que só vou falar se der tempo&lt;a class=&quot;zola-anchor&quot; href=&quot;#coisas-que-so-vou-falar-se-der-tempo&quot; aria-label=&quot;Anchor link for: coisas-que-so-vou-falar-se-der-tempo&quot;&gt;§&lt;&#x2F;a&gt;
+&lt;&#x2F;h1&gt;
+&lt;h2 id=&quot;resolver-offline&quot;&gt;Resolver offline&lt;a class=&quot;zola-anchor&quot; href=&quot;#resolver-offline&quot; aria-label=&quot;Anchor link for: resolver-offline&quot;&gt;§&lt;&#x2F;a&gt;
+&lt;&#x2F;h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Muitas vezes é mais fácil resolver um problema &lt;strong&gt;offline&lt;&#x2F;strong&gt; em árvore, porque
+podemos reaproveitar os resultados das subárvores para calcular o resultado de
+um nó!&lt;&#x2F;li&gt;
+&lt;li&gt;Outras vezes, você pode resolver offline mantendo uma estrutura de dados sobre
+um caminho do pai até &lt;code&gt;u&lt;&#x2F;code&gt;&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;h2 id=&quot;rerooting&quot;&gt;Rerooting&lt;a class=&quot;zola-anchor&quot; href=&quot;#rerooting&quot; aria-label=&quot;Anchor link for: rerooting&quot;&gt;§&lt;&#x2F;a&gt;
+&lt;&#x2F;h2&gt;
+&lt;blockquote&gt;
+&lt;p&gt;problema: &lt;a href=&quot;https:&#x2F;&#x2F;cses.fi&#x2F;problemset&#x2F;task&#x2F;1132&quot;&gt;https:&#x2F;&#x2F;cses.fi&#x2F;problemset&#x2F;task&#x2F;1132&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;problema: &lt;a href=&quot;https:&#x2F;&#x2F;cses.fi&#x2F;problemset&#x2F;task&#x2F;1133&#x2F;&quot;&gt;https:&#x2F;&#x2F;cses.fi&#x2F;problemset&#x2F;task&#x2F;1133&#x2F;&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;h2 id=&quot;centroid-decomposition&quot;&gt;Centroid Decomposition&lt;a class=&quot;zola-anchor&quot; href=&quot;#centroid-decomposition&quot; aria-label=&quot;Anchor link for: centroid-decomposition&quot;&gt;§&lt;&#x2F;a&gt;
+&lt;&#x2F;h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Modo de decompor a árvore&lt;&#x2F;li&gt;
+&lt;li&gt;De forma parecida com o LCA, todo caminho entre dois vértices **em subárvores&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;h1 id=&quot;ler-mais&quot;&gt;★ Ler Mais&lt;a class=&quot;zola-anchor&quot; href=&quot;#ler-mais&quot; aria-label=&quot;Anchor link for: ler-mais&quot;&gt;§&lt;&#x2F;a&gt;
+&lt;&#x2F;h1&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;codeforces.com&#x2F;blog&#x2F;entry&#x2F;44351&quot;&gt;Small to Large &#x2F; DSU on Tree &#x2F; Sack&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;cp-algorithms.com&#x2F;graph&#x2F;hld.html#proof-of-correctness&quot;&gt;Decomposição Heavy-Light&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;codeforces.com&#x2F;blog&#x2F;entry&#x2F;100910&quot;&gt;7th Litte Technique&lt;&#x2F;a&gt; (nos
+comentários você encontra mais uns 2 ou 3 truques relacionados!)&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;www.youtube.com&#x2F;watch?v=XZLN6NxEQWo&quot;&gt;Árvores Link-Cut&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;codeforces.com&#x2F;blog&#x2F;entry&#x2F;76955&quot;&gt;Virtual Trees&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+</content>
+	</entry>
+</feed>

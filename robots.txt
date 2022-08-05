@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://leoriether.github.io/sitemap.xml
