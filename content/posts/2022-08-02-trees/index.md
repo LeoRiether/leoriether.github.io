@@ -28,6 +28,8 @@ Muito útil para quando vc quer
 2. informação do caminho `raíz -> u` pra calcular algo pra `u`
 3. por que no los dos? (acho que nunca vi problema que usa os dois ao mesmo
    tempo, mas fiquem de olho que eu posso settar um a qualquer momento)
+4. fazer basicamente qualquer coisa em árvore (basicamente suas duas únicas
+   opções são DFS ou BFS)
 
 ```cpp
 vector<int> g[N];
@@ -39,6 +41,8 @@ void dfs(int u, int p = 0) {
 }
 ```
 
+> tamanho de subárvore: [https://cses.fi/problemset/task/1674](https://cses.fi/problemset/task/1674)
+
 ## DFS Time / Preorder Time / Euler Tour 
 
 > A única estrutura mais fácil que uma árvore é um **array** 
@@ -49,6 +53,8 @@ Acho que o único jeito de explicar isso é fazendo uns exemplos? 🤔
 ## Lowest Common Ancestor (LCA)
 
 - O que é?
+- Ideia: **todo caminho entre `u` e `v` em uma árvore pode ser dividido em dois
+  caminhos: `u -> LCA(u, v)` + `v -> LCA(u, v)`**
 
 ### Às vezes você só precisa saber que o LCA existe...
 #### Diâmetro
@@ -58,7 +64,7 @@ Truque: transformar a árvore em binária
 
 ### ...mas outras vezes você precisa calculá-lo
 
-É aqui que eu falo como a gente calcula LCA?
+Problema: Q queries de encontrar a distância entre dois vértices
 
 ### Binary lifting
 > cses: [https://cses.fi/problemset/task/1687](https://cses.fi/problemset/task/1687)
@@ -96,3 +102,4 @@ A gente pode resolver offline!</details>
 - [7th Litte Technique](https://codeforces.com/blog/entry/100910) (nos
   comentários você encontra mais uns 2 ou 3 truques relacionados!)
 - [Árvores Link-Cut](https://www.youtube.com/watch?v=XZLN6NxEQWo)
+- [Virtual Trees](https://codeforces.com/blog/entry/76955)
