@@ -116,8 +116,6 @@ it easy to find which test failed! This is a pain point reported in How to Test:
 Indeed, in Rust's standard testing lib, there's no way to run subtests and have
 them reported neatly, unfortunately.
 
-> WIP: maybe I should talk about mocking in this section :)
-
 ## Snapshot testing
 
 Also known as golden tests or expect tests, snapshot testing is example-based
@@ -219,7 +217,12 @@ also making the concurrency deterministic (randomized with a known seed) in
 the process (actually, I'm not sure it's fully deterministic? Not sure about
 this part, please go watch the video :).
 
-> TODO: talk about QuickCheck, Go's testing/quick, maybe other libs
+Surprisingly (for me at least), Go's standard testing library has a
+property-testing framework called [testing/quick](https://pkg.go.dev/testing/quick),
+based on Haskell's [QuickCheck](https://hackage.haskell.org/package/QuickCheck).
+In Go's version, you write a `func (x Input) bool` and the library generates
+values of `x` to try and make it return `false`, in which case the test would
+fail.
 
 ## Metamorphic Testing
 
@@ -269,6 +272,10 @@ continue calling them weird tests :)
 These are a great way of "documenting" processes and standards in a given
 project! It helps both new team members and veterans that may have forgotten a
 thing or two.
+
+As a side note, I think running linters and format-checkers could be considered
+"weird tests" as well. These are standard practice, why not make your own lints
+as well?
 
 ## Formal Methods
 
@@ -340,10 +347,25 @@ find the resources for this on your own.
 ## Conclusion
 
 The main takeaway of this article is that you should read [How to Test](https://matklad.github.io/2021/05/31/how-to-test.html)
-and the other posts by matklad -- highly recommend [Basic Things](https://matklad.github.io/2024/03/22/basic-things.html) as well.
+and other posts by matklad -- highly recommend [Basic Things](https://matklad.github.io/2024/03/22/basic-things.html) as well.
 
 Aside from that, we've discussed testing techniques that require a test oracle,
 like example-based, snapshot and model-based testing; as well as techniques that
 don't, such as property, metamorphic and cross-branch testing.
 
-These are good methods to apply to test the behavior of your code, but <TODO:>
+These are good methods to apply to test the behavior of code, but you can test
+properties of the code itself as well! Like custom linters, weird tests verify
+that everyone is following a convention, or hasn't forgotten to add a thing
+where it needs to be added, or didn't commit a typo in the docs, etc etc. These
+tests can aid in knowledge distribution (if you break a test, it may specify the
+way to fix it) and eases cognitive load (the tests can remind you of how to do
+things). 
+
+But sometimes the best test is no test at all! Some tests do more harm than
+good and can give you a false sense of security while simultaneously making the
+codebase harder to maintain. By testing features and system boundaries, it's
+easier to maintain software that does what it's supposed to while minimizing
+friction for extension and modification.
+
+And that's it, folks! Happy testing :)
+
