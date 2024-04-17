@@ -9,11 +9,23 @@ tags = ["kmp", "nfas", "automata"]
 Originally written in [github](https://gist.github.com/LeoRiether/c61b7f709b7826f47bc67f0c5d0d9b6b).
 This article assumes you already know DFAs and NFAs (including subset construction).
 
+You can follow the examples and try some other ones at [KMP Simulator](http://leoriether.github.io/kmp-simulator)
+
 ## The Problem
-We want to solve the string matching problem: given two strings `S` and `P`, find all substrings of `S` that match the pattern `P`. There are other uses for the concepts shown here, but we'll focus on this one first.
+We want to solve the string matching problem: given two strings `S` and `P`,
+find all substrings of `S` that match the pattern `P`. There are other uses for
+the concepts shown here, but we'll focus on this one first.
 
 ## A Simple Solution
-There's a pretty simple NFA construction that solves this exact problem. We'll "feed" this automaton the characters of `S` as input, and if at any point a thread is at the accepting state, we'll know there's a substring that matches `P`. Let the starting state have an edge for every character of the alphabet (the alphabet of the automaton, not necessarily the english alphabet). This loop will create a thread at every input and leave it there, at the starting node, ready to match the pattern when the other inputs come. Next, we'll make a path containing the characters of the pattern `P` at every edge. Here's an example of an NFA that matches the pattern "abacaba":
+There's a pretty simple NFA construction that solves this exact problem. We'll
+"feed" this automaton the characters of `S` as input, and if at any point a
+thread is at the accepting state, we'll know there's a substring that matches
+`P`. Let the starting state have an edge for every character of the alphabet
+(the alphabet of the automaton, not necessarily the english alphabet). This
+loop will create a thread at every input and leave it there, at the starting
+node, ready to match the pattern when the other inputs come. Next, we'll make a
+path containing the characters of the pattern `P` at every edge. Here's an
+example of an NFA that matches the pattern "abacaba":
 
 ![abacabautomaton](images/example.png)
 
@@ -69,3 +81,15 @@ What would happen if we input the letter "b"? Well, the leader can't go forward,
 2. The leader fails to match and dies. Then, the neighbor of the leader (call him `n0`) may or may not survive. If it does, the new leader is `n0+1`. If it dies, then maybe the neighbor of `n0` (call him `n1`) survives. If it does, the new leader is `n1+1`. If it dies, then maybe the neighbor of `n1` survives. You get the idea. If we could know the neighbor of a thread in `O(1)`, the entire matching process would take time `O(|S|)`. Yes, even if we walk through neighbors one by one as they die, the algorithm runs in linear time. To see why, consider that we spawn at most one thread per step, so the total number of dead threads is bounded by `|S|`. It's like pushing threads to a queue when they are spawned and popping the queue when they die.
 
 ### Precalculating the Neighbor 
+When building our automaton, we'll precalculate an array `int neighbor[N]`,
+where `neighbor[u]` indicates the neighbor of `u`, in the case where `u` is the
+leader. If we do that, we'll be able to simulate our automaton as described in
+"Dealing with failure" in `O(|S|)`!
+
+It turns out precalculating the neighbor is very similar to what we've seen in
+"Dealing with failure". Let's compute the neighbor array from left to right.
+Suppose we've already computed the result for the first `k` vertices. How do we
+compute it for `k+1`? The only way the leader could move from `k` to `k+1` is
+to go through the edge between them, right?
+
+1.  
