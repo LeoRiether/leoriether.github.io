@@ -1,4 +1,3 @@
-+++
 title = "Testing Resources -- A Literature Review"
 date = 2024-04-04
 [taxonomies]
@@ -314,13 +313,37 @@ As highlighted in the post, tests have to be maintained just like the rest of
 the code in your codebase. It can be easy to add tests for the sake of adding
 them, but this can do more harm than good. Tests that just mirror the
 implementation, for example, can end up needing a lot of maintenance without
-adding much benefit at all.  
+adding much benefit at all.
 
 Another good post is [Testing on the Toilet: Testing State vs. Testing Interactions](https://testing.googleblog.com/2013/03/testing-on-toilet-testing-state-vs.html)
 on the Google Testing Blog. The second test in it is an example of a test that
 can give a false sense of security because even though the code is technically
 tested, an incorrect implementation would still pass. 
 
+## Test Scoping
+
+It's common to restrict the scope of what you're testing by replacing
+dependencies with [fakes, stubs or mocks](https://martinfowler.com/articles/mocksArentStubs.html).
+
+As supported by [Thoughts on Testing](https://www.brandons.me/blog/thoughts-on-testing) and (again) [How to Test](https://matklad.github.io/2021/05/31/how-to-test.html), tests with a
+really small scope (many unit tests fall into this category) tend to test very
+little, but the amount of tests you write is large, increasing maintenance
+burden while providing less security and confidence in the code. A good idea
+seems to be [Testing at the boundaries](https://www.tedinski.com/2019/03/19/testing-at-the-boundaries.html),
+alongside [Testing Features, Not Code](https://matklad.github.io/2021/05/31/how-to-test.html#Test-Features-Not-Code).
+This keeps the implementation flexible and the public API more rigid.
+
+Some people will argue for the complete opposite side of the discussion and
+defend unit tests that mock everything, but I am not one of them, you'll have to
+find the resources for this on your own.
+
 ## Conclusion
 
-> TODO: 
+The main takeaway of this article is that you should read [How to Test](https://matklad.github.io/2021/05/31/how-to-test.html)
+and the other posts by matklad -- highly recommend [Basic Things](https://matklad.github.io/2024/03/22/basic-things.html) as well.
+
+Aside from that, we've discussed testing techniques that require a test oracle,
+like example-based, snapshot and model-based testing; as well as techniques that
+don't, such as property, metamorphic and cross-branch testing.
+
+These are good methods to apply to test the behavior of your code, but <TODO:>
