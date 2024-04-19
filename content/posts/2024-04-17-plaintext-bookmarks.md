@@ -32,9 +32,11 @@ throwing every article or youtube video I have a slight chance of wanting to
 revisit later isn't exactly organized, a list of links in chronological order
 that I can easily Ctrl+F if needed actually works quite well! All the other
 benefits of a local file that's not inside a browser apply here too, making it
-easy to backup and avoding the need to export/import them. Keybinds help in
-making it easy to open the file to add a new link, but obviously pressing Ctrl+D
-is easier, so I'll at least concede that point to the browsers.
+easy to backup and avoding the need to export/import them. Plus -- and that's a
+really nice plus -- I can run a **fuzzy finder** in the file to find things and
+I find that works much better than trying to find bookmarks elsewhere. Keybinds
+help in making it easy to open the file to add a new link, but obviously
+pressing Ctrl+D is easier, so I'll at least concede that point to the browsers.
 
 If I do regret choosing this format one day, markdown is just so simple I could
 hack a quick script to convert it to another format and call it a day. Will I
