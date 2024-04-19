@@ -18,9 +18,7 @@ This is a post about how I finally started using macros in neovim, after many
 times of trying them and giving up. If you don't use vim macros yet or would
 like to learn more, I definitely recommend watching
 [That One Micro Talk on Macros (NeovimConf 2023)](https://www.youtube.com/watch?v=5x3dXo8aDCI) by Jesse Leite.
-This is the video that introduced me to this wonderful mapping.
-
-Without any further ado, here it is:
+In the video, Jesse introduces this wonderful mapping:
 
 ```lua
 vim.keymap.set('n', 'Q', '@qj', {remap=true})
@@ -32,9 +30,10 @@ Ok, that was for neovim. In vimscript, it's
 nmap Q @qj
 ```
 
-That's it! It just runs the macro `q` and goes down a line. And honestly I'm
-thinking about changing it to map to `@q` only and it would still be the most
-important mapping in my config. Let me explain.
+And that's it! The most important mapping in my config! It just runs the macro
+`q` and goes down a line. Honestly I'm thinking about changing it to map to
+`@q` only and it would still be the most important mapping in my config. Let me
+explain.
 
 ## The Problems With Macros
 
