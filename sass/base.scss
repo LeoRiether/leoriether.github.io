@@ -160,7 +160,7 @@ pre {
   padding: 1.5rem 1.2rem;
   border-radius: 0.3rem;
   overflow: auto;
-  background: rgba(0, 0, 0, 25%) !important;
+  background: $translucent-black !important;
 
   + pre {
     border-top: 0;
@@ -174,7 +174,7 @@ pre {
 
 code {
   padding: 0.1rem 0.6rem;
-  background: rgba(0, 0, 0, 25%);
+  background: $translucent-black;
 }
 
 .post {
@@ -192,13 +192,13 @@ code {
       height: 134%;
       left: -100vw;
       top: -17%;
-      background: rgba(0, 0, 0, 25%);
+      background: $translucent-black;
     }
   }
 
   blockquote {
     font-family: 'Fira Code', monospace;
-    background: rgba(0, 0, 0, 25%);
+    background: $translucent-black;
     margin: 0;
     padding: 1rem 4rem;
     border-left: 0;
