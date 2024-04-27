@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>WIP</title>
+        <link rel="stylesheet" href="/base.css">
+    </head>
+    <body class="flex flex-col">
+        <header class="flex justify-center">
+            <div class="flex justify-space-between post-width">
+                <h1 class="p-y-4 m-0">
+                    <a href="/" class="color-light inline-v-center-hack">{{ config.extra.logo_text }}</a>
+                </h1>
+                <nav class="p-y-4 m-0">
+                    {% for link in config.extra.main_menu %}
+                    <a href="{{ link.url }}" class="text-normal m-x-0-5 inline-v-center-hack color-light">{{ link.url }}</a>
+                    {% endfor %}
+                </nav>
+            </div>
+        </header>
+        <section class="flex justify-center flex-grow">
+            <div class="post-width">
+                {% block content %}{% endblock %}
+            </div>
+        </section>
+        <footer></footer>
+    </body>
+</html>

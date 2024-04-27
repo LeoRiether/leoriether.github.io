@@ -144,7 +144,7 @@ service ThingService {
 ```
 
 and replayed the macro for the other 3 rpcs, remembering to yank the first word
-to paste on the `ThingRequest` and `ThingResponse`.
+to paste before `ThingRequest` and `ThingResponse`.
 
 ### Adding a property to certain items in a yaml
 

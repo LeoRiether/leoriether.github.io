@@ -1,7 +1,6 @@
 base_url = "https://leoriether.github.io"
-theme = "zerm"
 taxonomies = [
-    {name="categories", feed=true},
+    {name="categories", feed=false},
     {name="tags", feed=true},
 ]
 
@@ -20,16 +19,13 @@ highlight_theme = "two-dark"
 
 
 [extra]
-author = "Leonardo Alves Riether"
+author = "leoriether"
 logo_text = "WIP"
-theme_color = "blue"
 
 main_menu = [
     {url="/posts", name="posts"},
-    {url="/categories", name="categories"},
     {url="/tags", name="tags"},
-    {url="/snippets", name="snippets"},
-    {url="/about", name="about me"},
+    {url="/about", name="about"},
 ]
 
 show_author = true
