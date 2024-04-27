@@ -15,7 +15,7 @@ feed_filename = "atom.xml"
 
 [markdown]
 highlight_code = true
-highlight_theme = "two-dark"
+highlight_theme = "1337"
 
 
 [extra]

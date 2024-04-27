@@ -26,7 +26,7 @@ vim.keymap.set('n', 'Q', '@qj', {remap=true})
 
 Ok, that was for neovim. In vimscript, it's
 
-```vimscript
+```vim
 nmap Q @qj
 ```
 
@@ -62,7 +62,7 @@ scenarios, including:
 
 Suppose I had a gRPC service like the one below
 
-```protobuf
+```proto
 service ThingService {
   rpc AddThing(AddThingRequest) returns (AddThingResponse)
   rpc DeleteThing(DeleteThingRequest) returns (DeleteThingResponse)
@@ -123,7 +123,7 @@ func (s *ThingService) GetThing(
 
 That whole service definition is very repetitive! I actually initially wrote
 
-```protobuf
+```proto
 service ThingService {
   Add
   Delete
@@ -134,7 +134,7 @@ service ThingService {
 
 Recorded a macro to modify the first rpc into
 
-```protobuf
+```proto
 service ThingService {
   rpc AddThing(AddThingRequest) returns (AddThingResponse)
   Delete
