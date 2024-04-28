@@ -124,7 +124,7 @@ testing with a twist. When a snapshot test breaks, instead of manually fixing
 the expected values there's a mode of running the tests that **updates the
 expectations based on the real outputs**, potentially saving you a lot of time.
 
-Althout matklad recommends this technique in [How to Test -- Expect-Tests](https://matklad.github.io/2021/05/31/how-to-test.html#Expect-Tests),
+Although matklad recommends this technique in [How to Test -- Expect-Tests](https://matklad.github.io/2021/05/31/how-to-test.html#Expect-Tests),
 I'll be using the (very recent!) library [selfie](https://selfie.dev/), which
 runs in the JVM, for an example. With selfie, you'd write a test like this
 (blatantly stolen from their frontpage):
@@ -348,7 +348,7 @@ find the resources for this on your own.
 ## Conclusion
 
 The main takeaway of this article is that you should read [How to Test](https://matklad.github.io/2021/05/31/how-to-test.html)
-and other posts by matklad -- highly recommend [Basic Things](https://matklad.github.io/2024/03/22/basic-things.html) as well.
+and other posts by matklad – highly recommend [Basic Things](https://matklad.github.io/2024/03/22/basic-things.html) as well.
 
 Aside from that, we've discussed testing techniques that require a test oracle,
 like example-based, snapshot and model-based testing; as well as techniques that
