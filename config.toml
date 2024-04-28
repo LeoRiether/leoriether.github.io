@@ -4,6 +4,7 @@ taxonomies = [
     {name="categories", feed=false},
     {name="tags", feed=true},
 ]
+default_language = "en"
 
 compile_sass = true
 
