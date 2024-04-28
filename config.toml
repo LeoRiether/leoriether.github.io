@@ -1,3 +1,4 @@
+title = "WIP"
 base_url = "https://leoriether.github.io"
 taxonomies = [
     {name="categories", feed=false},
@@ -20,7 +21,6 @@ highlight_theme = "1337"
 
 [extra]
 author = "leoriether"
-logo_text = "WIP"
 
 main_menu = [
     {url="/posts", name="posts"},

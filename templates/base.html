@@ -3,14 +3,19 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>WIP</title>
+        {%- block title -%}
+        <title>{{ config.title }}</title>
+        {%- endblock title -%}
         <link rel="stylesheet" href="/base.css">
     </head>
     <body class="flex flex-col">
         <header class="flex justify-center">
             <div class="flex justify-space-between post-width">
                 <h1 class="p-y-4 m-0">
-                    <a href="/" class="color-light inline-v-center-hack">{{ config.extra.logo_text }}</a>
+                    <a href="/" class="color-light inline-v-center-hack">
+                        {{ config.title }}
+                    </a>
+                    <span class="text-normal"> by {{ config.extra.author }} </span>
                 </h1>
                 <nav class="p-y-4 m-0">
                     {% for link in config.extra.main_menu %}
