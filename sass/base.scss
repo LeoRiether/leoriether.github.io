@@ -15,6 +15,12 @@ body, html {
   min-height: 100vh;
 }
 
+textarea, input {
+  font: inherit;
+  letter-spacing: inherit;
+  word-spacing: inherit;
+}
+
 header {
   background: $dark-accent;
   margin-bottom: 4rem;
@@ -121,7 +127,7 @@ h5 {
   font-size: 1.4rem;
 }
 
-p, .text-normal, .post ul {
+p, .text-normal, .post ul, .post ol {
   font-size: 1.1rem;
 
   @media(max-width: $phone-max-width){
