@@ -270,3 +270,19 @@ code {
   color: $light;
 }
 
+.utterances {
+  max-width: 100%;
+}
+
+.divider {
+  display: block;
+  overflow: hidden;
+  content: " ";
+  position: relative;
+  width: 200vw;
+  height: 12px;
+  left: -100vw;
+  top: 0;
+  margin: 2.5rem 0;
+  background: $translucent-black;
+}
