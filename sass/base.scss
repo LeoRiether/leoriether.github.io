@@ -24,7 +24,11 @@ textarea, input {
 header {
   background: $dark-accent;
   margin-bottom: 4rem;
-  box-shadow: 0 1px 3rem rgba(0, 0, 0, 0.2)
+  box-shadow: 0 1px 3rem rgba(0, 0, 0, 0.2);
+
+  @media(max-width: $phone-max-width) {
+    margin-bottom: 3rem;
+  }
 }
 
 footer {
@@ -109,14 +113,23 @@ footer {
 
 h1 {
   font-size: 2.8rem;
+  @media(max-width: $phone-max-width) {
+    font-size: 2.4rem;
+  }
 }
 
 h2 {
   font-size: 2.4rem;
+  @media(max-width: $phone-max-width) {
+    font-size: 2.1rem;
+  }
 }
 
 h3 {
   font-size: 2.2rem;
+  @media(max-width: $phone-max-width) {
+    font-size: 1.9rem;
+  }
 }
 
 h4 {
@@ -130,14 +143,18 @@ h5 {
 p, .text-normal, .post ul, .post ol {
   font-size: 1.1rem;
 
-  @media(max-width: $phone-max-width){
+  @media(max-width: $phone-max-width) {
       font-size: 1rem;
   }
 }
 
-@media(max-width: $phone-max-width){
+@media(max-width: $phone-max-width) {
   .mobile-flex-col {
     flex-direction: column;
+  }
+
+  .mobile-p-y-2 {
+    padding: 2rem 0;
   }
 
   .mobile-p-top-0 {
