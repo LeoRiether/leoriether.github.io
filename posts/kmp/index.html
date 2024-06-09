@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WIP | An Alternative Interpretation for the KMP Algorithm</title>
+<link rel="stylesheet" href="/base.css">
+    </head>
+    <body class="flex flex-col">
+        <header class="flex justify-center">
+            <div class="flex justify-space-between post-width mobile-flex-col">
+                <h1 class="p-y-4 m-0 mobile-p-bot-0 mobile-p-y-2">
+                    <a href="/" class="color-light inline-v-center-hack">
+                        WIP
+                    </a>
+                    <span class="text-normal"> by leoriether </span>
+                </h1>
+                <nav class="p-y-4 m-0 mobile-p-top-0 mobile-p-y-2">
+                    
+                    <a href="&#x2F;posts" class="text-normal m-x-0-5 inline-v-center-hack color-light">&#x2F;posts</a>
+                    
+                    <a href="&#x2F;tags" class="text-normal m-x-0-5 inline-v-center-hack color-light">&#x2F;tags</a>
+                    
+                    <a href="&#x2F;about" class="text-normal m-x-0-5 inline-v-center-hack color-light">&#x2F;about</a>
+                    
+                </nav>
+            </div>
+        </header>
+        <section class="flex justify-center flex-grow">
+            <div class="post-width">
+                
+<article class="post">
+    <h1 class="m-y-small"> An Alternative Interpretation for the KMP Algorithm </h1>
+    <h5 class="m-y-small m-bot-3">‹‹ 2021-05-24 ›› </h5>
+    <p>Originally written in <a href="https://gist.github.com/LeoRiether/c61b7f709b7826f47bc67f0c5d0d9b6b">github</a>.
+This article assumes you already know DFAs and NFAs (including subset construction).</p>
+<p>You can follow the examples and try some other ones at <a href="http://leoriether.github.io/kmp-simulator">KMP Simulator</a></p>
+<h2 id="the-problem">The Problem<a class="zola-anchor" href="#the-problem" aria-label="Anchor link for: the-problem">#</a>
+</h2>
+<p>We want to solve the string matching problem: given two strings <code>S</code> and <code>P</code>,
+find all substrings of <code>S</code> that match the pattern <code>P</code>. There are other uses for
+the concepts shown here, but we'll focus on this one first.</p>
+<h2 id="a-simple-solution">A Simple Solution<a class="zola-anchor" href="#a-simple-solution" aria-label="Anchor link for: a-simple-solution">#</a>
+</h2>
+<p>There's a pretty simple NFA construction that solves this exact problem. We'll
+&quot;feed&quot; this automaton the characters of <code>S</code> as input, and if at any point a
+thread is at the accepting state, we'll know there's a substring that matches
+<code>P</code>. Let the starting state have an edge for every character of the alphabet
+(the alphabet of the automaton, not necessarily the english alphabet). This
+loop will create a thread at every input and leave it there, at the starting
+node, ready to match the pattern when the other inputs come. Next, we'll make a
+path containing the characters of the pattern <code>P</code> at every edge. Here's an
+example of an NFA that matches the pattern &quot;abacaba&quot;:</p>
+<p><img src="https://leoriether.github.io/posts/kmp/images/example.png" alt="abacabautomaton" /></p>
+<p>Notice that the Σ edge in the first node represents &quot;an edge for every symbol of the alphabet&quot;, and that includes the symbol &quot;a&quot;. Thus, if the automaton receives an &quot;a&quot;, the thread in the first node splits into one for the second node and one that keeps looping on the starting node. When this split occurs, one of the threads will keep walking to the right while the symbols of the string are matching the forward edges, but if at any point they don't match, the thread dies. Take a moment to appreciate how this simple NFA solves the matching problem.</p>
+<h2 id="an-example">An Example<a class="zola-anchor" href="#an-example" aria-label="Anchor link for: an-example">#</a>
+</h2>
+<p>Let's look at an automaton that matches the pattern &quot;abaa&quot;. The nodes filled in red represent alive threads. </p>
+<p><img src="https://leoriether.github.io/posts/kmp/images/abaa.png" alt="abaa" /></p>
+<p>We'll input the string &quot;abaab&quot; and see how the threads behave. First, let's input the letter &quot;a&quot;.</p>
+<p><img src="https://leoriether.github.io/posts/kmp/images/abaa1.png" alt="abaa1" /></p>
+<p>The thread we had before split into two, and now the one on the right will try to walk to the right as far as it can. Now we input the second character of our string, &quot;b&quot;.</p>
+<p><img src="https://leoriether.github.io/posts/kmp/images/abaa2.png" alt="abaa2" /></p>
+<p>Nothing surprising here. Let's input &quot;a&quot;.</p>
+<p><img src="https://leoriether.github.io/posts/kmp/images/abaa3.png" alt="abaa3" /></p>
+<p>Now there are 3 threads, look at them go! Now input another &quot;a&quot;.</p>
+<p><img src="https://leoriether.github.io/posts/kmp/images/abaa4.png" alt="abaa4" /></p>
+<p>Notice that the thread that was on the second node didn't have any edge to follow, so it died, but then the first node split and another thread is now at the second state. Also, we have a filled accepting state, so there's a match with the pattern &quot;abaa&quot;! One last input, &quot;b&quot;.</p>
+<p><img src="https://leoriether.github.io/posts/kmp/images/abaa5.png" alt="abaa5" /></p>
+<p>We already have a thread matching the &quot;b&quot; from &quot;abaa&quot;, even if this first &quot;a&quot; overlaps with our first match. This kind of behaviour allows us to match overlapping patterns efficiently.</p>
+<h2 id="running-the-automaton">Running the Automaton<a class="zola-anchor" href="#running-the-automaton" aria-label="Anchor link for: running-the-automaton">#</a>
+</h2>
+<p>The naive way to run this automaton is to keep a set of threads and advance them individually. This is, however, not efficient at all. Imagine the pattern is something like &quot;aaaaaa&quot;, and we match a string &quot;aaaaaaaaaaaaaaaaa&quot;. At every iteration a new thread would be spawned and every other thread would advance, with no deaths. This gives us a time complexity of O(|S| × |P|). We can do better by exploiting some properties.</p>
+<h3 id="how-many-states-are-reachable">How many states are reachable?<a class="zola-anchor" href="#how-many-states-are-reachable" aria-label="Anchor link for: how-many-states-are-reachable">#</a>
+</h3>
+<p>Theres' potential to do better than the naive simulation by analyzing the subset construction of our NFA. Indeed, only <code>|P|+1</code> states would be reachable in it! The proof is as follows: imagine we've input some string to the automaton and there's some set of alive threads. Let <code>u</code> be the most advanced (closest to the right) thread alive -- we'll call it the &quot;leader&quot; thread --, and let <code>n</code> be the number of forward edges (the ones that aren't the loop) it followed. There are no threads to the right of <code>u</code>, so we only need to consider the last <code>n</code> symbols the automaton has seen, and there's only one length-n string possible because there's only one path the thread could have followed. Because of that, the alive threads to the left of <code>u</code> are uniquely determined! In other words, if we know the leader, there's only one possible set of alive threads to the left of it. With this, it's possible to conclude that there's exactly one reachable subset in the subset construction for every leader state, which gives us <code>|P|+1</code> states in total.</p>
+<p>An idea one could have now is: when simulating the automaton, what if we only keep track of the leader thread, instead of the entire alive subset? This is exactly what we'll do, but there's a problem: what if the leader dies? We need to know who will occupy his place. Before that, though, we'll need one more concept.</p>
+<h3 id="left-set">Left-set<a class="zola-anchor" href="#left-set" aria-label="Anchor link for: left-set">#</a>
+</h3>
+<p>It turns out that &quot;there's only one possible set of alive threads to the left of the leader&quot; does not apply exclusively to the leader. In fact, if we know some thread is alive, all of the threads to the left of it can be uniquely determined. The argument is very similar to the one shown before, here's a sketch: if a thread is alive in node <code>n</code>, then there's one possible string of length <code>n</code> that must have been fed to the automaton in the last <code>n</code> steps, thus the threads in smaller positions must have come from this string.</p>
+<p>Now we can finally know what to do in the case of a failed match.</p>
+<h3 id="dealing-with-failure">Dealing with failure<a class="zola-anchor" href="#dealing-with-failure" aria-label="Anchor link for: dealing-with-failure">#</a>
+</h3>
+<p>Suppose we've built the automaton for &quot;abababax&quot; and fed &quot;abababa&quot; to it. </p>
+<p><img src="https://leoriether.github.io/posts/kmp/images/abababa.png" alt="abababax" /></p>
+<p>What would happen if we input the letter &quot;b&quot;? Well, the leader can't go forward, so it dies. The thread immediately to the left of the leader, however, can go forward, and thus becomes the new leader. We'll call this &quot;thread immediately to the left of a thread&quot; the &quot;neighbor&quot;. This idea outlines a possible efficient way of simulating our NFA. We'll keep track of the leader at every step. How? There are two cases:</p>
+<ol>
+<li>The leader matches the input and goes forward. This case is easy, just increment the current leader.</li>
+<li>The leader fails to match and dies. Then, the neighbor of the leader (call him <code>n0</code>) may or may not survive. If it does, the new leader is <code>n0+1</code>. If it dies, then maybe the neighbor of <code>n0</code> (call him <code>n1</code>) survives. If it does, the new leader is <code>n1+1</code>. If it dies, then maybe the neighbor of <code>n1</code> survives. You get the idea. If we could know the neighbor of a thread in <code>O(1)</code>, the entire matching process would take time <code>O(|S|)</code>. Yes, even if we walk through neighbors one by one as they die, the algorithm runs in linear time. To see why, consider that we spawn at most one thread per step, so the total number of dead threads is bounded by <code>|S|</code>. It's like pushing threads to a queue when they are spawned and popping the queue when they die.</li>
+</ol>
+<h3 id="precalculating-the-neighbor">Precalculating the Neighbor<a class="zola-anchor" href="#precalculating-the-neighbor" aria-label="Anchor link for: precalculating-the-neighbor">#</a>
+</h3>
+<p>When building our automaton, we'll precalculate an array <code>int neighbor[N]</code>,
+where <code>neighbor[u]</code> indicates the neighbor of <code>u</code>, in the case where <code>u</code> is the
+leader. If we do that, we'll be able to simulate our automaton as described in
+&quot;Dealing with failure&quot; in <code>O(|S|)</code>!</p>
+<p>It turns out precalculating the neighbor is very similar to what we've seen in
+&quot;Dealing with failure&quot;. Let's compute the neighbor array from left to right.
+Suppose we've already computed the result for the first <code>k</code> vertices. How do we
+compute it for <code>k+1</code>? The only way the leader could move from <code>k</code> to <code>k+1</code> is
+to go through the edge between them, right?</p>
+<ol>
+<li></li>
+</ol>
+
+</article>
+
+<span class="divider"></span>
+<script src="https://utteranc.es/client.js"
+        repo="LeoRiether/leoriether.github.io"
+        issue-term="pathname"
+        label="utterances-post"
+        theme="dark-blue"
+        crossorigin="anonymous"
+        async>
+</script>
+
+            </div>
+        </section>
+        <footer></footer>
+    </body>
+</html>

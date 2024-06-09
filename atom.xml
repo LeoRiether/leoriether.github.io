@@ -1,0 +1,1227 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en">
+    <title>WIP</title>
+    <link rel="self" type="application/atom+xml" href="https://leoriether.github.io/atom.xml"/>
+    <link rel="alternate" type="text/html" href="https://leoriether.github.io"/>
+    <generator uri="https://www.getzola.org/">Zola</generator>
+    <updated>2024-06-06T00:00:00+00:00</updated>
+    <id>https://leoriether.github.io/atom.xml</id>
+    <entry xml:lang="en">
+        <title>The Relational Model Had It All Figured Out From the Start</title>
+        <published>2024-06-06T00:00:00+00:00</published>
+        <updated>2024-06-06T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://leoriether.github.io/posts/the-relational-model-had-it-all-figured-out/"/>
+        <id>https://leoriether.github.io/posts/the-relational-model-had-it-all-figured-out/</id>
+        
+        <content type="html" xml:base="https://leoriether.github.io/posts/the-relational-model-had-it-all-figured-out/">&lt;p&gt;This is a post about the Zen of Python, system boundaries, software design, relational databases,
+ECS, and how everything became connected when I realized the mistake I made at work.&lt;&#x2F;p&gt;
+&lt;p&gt;The main character is a gRPC API, who we&#x27;ll call Bob so as not to reveal real details. Bob
+internally manages entities called &lt;code&gt;Tree&lt;&#x2F;code&gt;s. We don&#x27;t want to complicate it right now, so every
+&lt;code&gt;Tree&lt;&#x2F;code&gt; has exactly one &lt;code&gt;Branch&lt;&#x2F;code&gt;, and that&#x27;s it. How does a user of the API retrieve existing
+&lt;code&gt;Tree&lt;&#x2F;code&gt;s? Simple:&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;proto&quot; style=&quot;background-color:#191919;color:#f8f8f2;&quot; class=&quot;language-proto &quot;&gt;&lt;code class=&quot;language-proto&quot; data-lang=&quot;proto&quot;&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;service &lt;&#x2F;span&gt;&lt;span style=&quot;text-decoration:underline;color:#8cdaff;&quot;&gt;Bob &lt;&#x2F;span&gt;&lt;span&gt;{
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;rpc &lt;&#x2F;span&gt;&lt;span style=&quot;color:#8cdaff;&quot;&gt;GetTree&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e9fdac;&quot;&gt;GetTreeRequest&lt;&#x2F;span&gt;&lt;span&gt;) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;returns &lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e9fdac;&quot;&gt;GetTreeResponse&lt;&#x2F;span&gt;&lt;span&gt;);
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;rpc &lt;&#x2F;span&gt;&lt;span style=&quot;color:#8cdaff;&quot;&gt;GetAllTrees&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e9fdac;&quot;&gt;GetAllTreesRequest&lt;&#x2F;span&gt;&lt;span&gt;) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;returns &lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e9fdac;&quot;&gt;GetAllTreesResponse&lt;&#x2F;span&gt;&lt;span&gt;);
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;message &lt;&#x2F;span&gt;&lt;span style=&quot;text-decoration:underline;color:#8cdaff;&quot;&gt;GetTreeRequest &lt;&#x2F;span&gt;&lt;span&gt;{
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e9fdac;&quot;&gt;int &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;id &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#fdb082;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;;
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;message &lt;&#x2F;span&gt;&lt;span style=&quot;text-decoration:underline;color:#8cdaff;&quot;&gt;GetTreeResponse &lt;&#x2F;span&gt;&lt;span&gt;{
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e9fdac;&quot;&gt;Tree &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;tree &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#fdb082;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;; 
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;message &lt;&#x2F;span&gt;&lt;span style=&quot;text-decoration:underline;color:#8cdaff;&quot;&gt;GetAllTreesRequest &lt;&#x2F;span&gt;&lt;span&gt;{}
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;message &lt;&#x2F;span&gt;&lt;span style=&quot;text-decoration:underline;color:#8cdaff;&quot;&gt;GetAllTreesResponse &lt;&#x2F;span&gt;&lt;span&gt;{
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;repeated &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e9fdac;&quot;&gt;Tree &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;trees &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#fdb082;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;; 
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;message &lt;&#x2F;span&gt;&lt;span style=&quot;text-decoration:underline;color:#8cdaff;&quot;&gt;Tree &lt;&#x2F;span&gt;&lt;span&gt;{
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e9fdac;&quot;&gt;int &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;id &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#fdb082;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#fbe3bf;&quot;&gt;bool &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;is_healthy &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#fdb082;&quot;&gt;2&lt;&#x2F;span&gt;&lt;span&gt;; 
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e9fdac;&quot;&gt;Branch &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;main_branch &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#fdb082;&quot;&gt;3&lt;&#x2F;span&gt;&lt;span&gt;;
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;message &lt;&#x2F;span&gt;&lt;span style=&quot;text-decoration:underline;color:#8cdaff;&quot;&gt;Branch &lt;&#x2F;span&gt;&lt;span&gt;{
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e9fdac;&quot;&gt;int &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;id &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#fdb082;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e9fdac;&quot;&gt;int &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;angle &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#fdb082;&quot;&gt;2&lt;&#x2F;span&gt;&lt;span&gt;;
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;Great! Let&#x27;s write some others methods to create and update trees (which we
+won&#x27;t discuss here), implement everything and then publish the API so everyone
+uses it!&lt;&#x2F;p&gt;
+&lt;p&gt;We&#x27;re storing trees on Postgres, the queries are really easy:&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;sql&quot; style=&quot;background-color:#191919;color:#f8f8f2;&quot; class=&quot;language-sql &quot;&gt;&lt;code class=&quot;language-sql&quot; data-lang=&quot;sql&quot;&gt;&lt;span style=&quot;color:#6d6d6d;&quot;&gt;-- schema:
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;create table &lt;&#x2F;span&gt;&lt;span style=&quot;color:#8cdaff;&quot;&gt;tree&lt;&#x2F;span&gt;&lt;span&gt; (
+&lt;&#x2F;span&gt;&lt;span&gt;    id         &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;serial &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;primary key&lt;&#x2F;span&gt;&lt;span&gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;    is_healthy bool
+&lt;&#x2F;span&gt;&lt;span&gt;);
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;create table &lt;&#x2F;span&gt;&lt;span style=&quot;color:#8cdaff;&quot;&gt;branch&lt;&#x2F;span&gt;&lt;span&gt; (
+&lt;&#x2F;span&gt;&lt;span&gt;    id      &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;serial &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;primary key&lt;&#x2F;span&gt;&lt;span&gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;    angle   &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;int
+&lt;&#x2F;span&gt;&lt;span&gt;    tree_id &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;int    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;references&lt;&#x2F;span&gt;&lt;span&gt; tree (id), &lt;&#x2F;span&gt;&lt;span style=&quot;color:#6d6d6d;&quot;&gt;-- it&amp;#39;s in this table for a good reason,
+&lt;&#x2F;span&gt;&lt;span&gt;                                         &lt;&#x2F;span&gt;&lt;span style=&quot;color:#6d6d6d;&quot;&gt;-- which also won&amp;#39;t be discussed
+&lt;&#x2F;span&gt;&lt;span&gt;);
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;create unique index &lt;&#x2F;span&gt;&lt;span style=&quot;color:#8cdaff;&quot;&gt;unique_branch_tree
+&lt;&#x2F;span&gt;&lt;span&gt;    on branch (tree_id);
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#6d6d6d;&quot;&gt;-- GetTree:
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;SELECT&lt;&#x2F;span&gt;&lt;span&gt; tree.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;*&lt;&#x2F;span&gt;&lt;span&gt;, branch.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;*
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;FROM&lt;&#x2F;span&gt;&lt;span&gt; tree
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;JOIN&lt;&#x2F;span&gt;&lt;span&gt; branch ON &lt;&#x2F;span&gt;&lt;span style=&quot;color:#fdb082;&quot;&gt;branch&lt;&#x2F;span&gt;&lt;span&gt;.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#fdb082;&quot;&gt;tree_id &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#fdb082;&quot;&gt;tree&lt;&#x2F;span&gt;&lt;span&gt;.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#fdb082;&quot;&gt;id
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;WHERE &lt;&#x2F;span&gt;&lt;span style=&quot;color:#fdb082;&quot;&gt;tree&lt;&#x2F;span&gt;&lt;span&gt;.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#fdb082;&quot;&gt;id &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;=&lt;&#x2F;span&gt;&lt;span&gt; $&lt;&#x2F;span&gt;&lt;span style=&quot;color:#fdb082;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;;
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;Now that we&#x27;re done, there&#x27;s a new requirement: every branch can now have multiple leaves. Because
+of the big amount of leaves though, &lt;code&gt;GetAllTrees&lt;&#x2F;code&gt; should &lt;strong&gt;not&lt;&#x2F;strong&gt; return any leaves. Users of
+&lt;code&gt;GetAllTrees&lt;&#x2F;code&gt; don&#x27;t need to know about the leaves and it would waste too much network. &lt;code&gt;GetTree&lt;&#x2F;code&gt;,
+however, should return the leaves. How do we change the gRPC interface to reflect that? Adding a
+&lt;code&gt;repeated Leaf leaves = 3;&lt;&#x2F;code&gt; on the &lt;code&gt;Branch&lt;&#x2F;code&gt; message won&#x27;t work because &lt;code&gt;GetAllTrees&lt;&#x2F;code&gt; uses it. I
+guess we could wrap a &lt;code&gt;Branch&lt;&#x2F;code&gt; with another message that also includes leaves? How does that look?&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;proto&quot; style=&quot;background-color:#191919;color:#f8f8f2;&quot; class=&quot;language-proto &quot;&gt;&lt;code class=&quot;language-proto&quot; data-lang=&quot;proto&quot;&gt;&lt;span style=&quot;color:#6d6d6d;&quot;&gt;&#x2F;&#x2F; We need to add this message
+&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;message &lt;&#x2F;span&gt;&lt;span style=&quot;text-decoration:underline;color:#8cdaff;&quot;&gt;BranchWithLeaves &lt;&#x2F;span&gt;&lt;span&gt;{
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e9fdac;&quot;&gt;Branch &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;branch &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#fdb082;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;repeated &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e9fdac;&quot;&gt;Leaf &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;leaves &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#fdb082;&quot;&gt;2&lt;&#x2F;span&gt;&lt;span&gt;;
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#6d6d6d;&quot;&gt;&#x2F;&#x2F; And modify the response of GetTree...
+&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;message &lt;&#x2F;span&gt;&lt;span style=&quot;text-decoration:underline;color:#8cdaff;&quot;&gt;GetTreeResponse &lt;&#x2F;span&gt;&lt;span&gt;{
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e9fdac;&quot;&gt;Tree &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;tree &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#fdb082;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#6d6d6d;&quot;&gt;&#x2F;&#x2F; ...
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;Wait, how do we modify &lt;code&gt;GetTree&lt;&#x2F;code&gt;? There&#x27;s no way to put &lt;code&gt;BranchWithLeaves&lt;&#x2F;code&gt; as a field in &lt;code&gt;Tree&lt;&#x2F;code&gt;
+because it would affect &lt;code&gt;GetAllTrees&lt;&#x2F;code&gt;! Scrap that idea... Maybe put the leaves directly in the
+&lt;code&gt;GetTreeResponse&lt;&#x2F;code&gt;?&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;proto&quot; style=&quot;background-color:#191919;color:#f8f8f2;&quot; class=&quot;language-proto &quot;&gt;&lt;code class=&quot;language-proto&quot; data-lang=&quot;proto&quot;&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;message &lt;&#x2F;span&gt;&lt;span style=&quot;text-decoration:underline;color:#8cdaff;&quot;&gt;GetTreeResponse &lt;&#x2F;span&gt;&lt;span&gt;{
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e9fdac;&quot;&gt;Tree &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;tree &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#fdb082;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;repeated &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e9fdac;&quot;&gt;Leaf &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;main_branch_leaves &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#fdb082;&quot;&gt;2&lt;&#x2F;span&gt;&lt;span&gt;; 
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;Ah, nice, that works! No breaking change needed, users are unaffected, job done.&lt;&#x2F;p&gt;
+&lt;p&gt;But what&#x27;s that, right around the corner? Another requirement!? Now a tree can have many branches.
+Ok... &lt;code&gt;Tree&lt;&#x2F;code&gt; needs to change... But it&#x27;s easy to make at least, the users can continue using
+&lt;code&gt;main_branch&lt;&#x2F;code&gt; until they migrate to &lt;code&gt;branches&lt;&#x2F;code&gt;:&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;proto&quot; style=&quot;background-color:#191919;color:#f8f8f2;&quot; class=&quot;language-proto &quot;&gt;&lt;code class=&quot;language-proto&quot; data-lang=&quot;proto&quot;&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;message &lt;&#x2F;span&gt;&lt;span style=&quot;text-decoration:underline;color:#8cdaff;&quot;&gt;Tree &lt;&#x2F;span&gt;&lt;span&gt;{
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e9fdac;&quot;&gt;int &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;id &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#fdb082;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#fbe3bf;&quot;&gt;bool &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;is_healthy &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#fdb082;&quot;&gt;2&lt;&#x2F;span&gt;&lt;span&gt;; 
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e9fdac;&quot;&gt;Branch &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;main_branch &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#fdb082;&quot;&gt;3 &lt;&#x2F;span&gt;&lt;span&gt;[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#6699cc;&quot;&gt;deprecated &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff8942;&quot;&gt;true&lt;&#x2F;span&gt;&lt;span&gt;]; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#6d6d6d;&quot;&gt;&#x2F;&#x2F; deprecate this field...
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;repeated &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e9fdac;&quot;&gt;Branch &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;branches &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#fdb082;&quot;&gt;4&lt;&#x2F;span&gt;&lt;span&gt;;               &lt;&#x2F;span&gt;&lt;span style=&quot;color:#6d6d6d;&quot;&gt;&#x2F;&#x2F; ...and add this one
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;Now to update &lt;code&gt;GetTree&lt;&#x2F;code&gt;. Remember that the response looked like this:&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;proto&quot; style=&quot;background-color:#191919;color:#f8f8f2;&quot; class=&quot;language-proto &quot;&gt;&lt;code class=&quot;language-proto&quot; data-lang=&quot;proto&quot;&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;message &lt;&#x2F;span&gt;&lt;span style=&quot;text-decoration:underline;color:#8cdaff;&quot;&gt;GetTreeResponse &lt;&#x2F;span&gt;&lt;span&gt;{
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e9fdac;&quot;&gt;Tree &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;tree &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#fdb082;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;repeated &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e9fdac;&quot;&gt;Leaf &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;main_branch_leaves &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#fdb082;&quot;&gt;2&lt;&#x2F;span&gt;&lt;span&gt;; 
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;The tree has a list of branches, and every branch has a list of leaves,
+therefore we should add...&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;proto&quot; style=&quot;background-color:#191919;color:#f8f8f2;&quot; class=&quot;language-proto &quot;&gt;&lt;code class=&quot;language-proto&quot; data-lang=&quot;proto&quot;&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;message &lt;&#x2F;span&gt;&lt;span style=&quot;text-decoration:underline;color:#8cdaff;&quot;&gt;GetTreeResponse &lt;&#x2F;span&gt;&lt;span&gt;{
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e9fdac;&quot;&gt;Tree &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;tree &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#fdb082;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;repeated &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e9fdac;&quot;&gt;Leaf &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;main_branch_leaves &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#fdb082;&quot;&gt;2 &lt;&#x2F;span&gt;&lt;span&gt;[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#6699cc;&quot;&gt;deprecated &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff8942;&quot;&gt;true&lt;&#x2F;span&gt;&lt;span&gt;];
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;repeated &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e9fdac;&quot;&gt;LeafList &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;branches_leaves &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#fdb082;&quot;&gt;3&lt;&#x2F;span&gt;&lt;span&gt;; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#6d6d6d;&quot;&gt;&#x2F;&#x2F; the m-th leaf of the n-th branch
+&lt;&#x2F;span&gt;&lt;span&gt;                                           &lt;&#x2F;span&gt;&lt;span style=&quot;color:#6d6d6d;&quot;&gt;&#x2F;&#x2F; is accessed by
+&lt;&#x2F;span&gt;&lt;span&gt;                                           &lt;&#x2F;span&gt;&lt;span style=&quot;color:#6d6d6d;&quot;&gt;&#x2F;&#x2F; branches_leaves[n][m]
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;message &lt;&#x2F;span&gt;&lt;span style=&quot;text-decoration:underline;color:#8cdaff;&quot;&gt;LeafList &lt;&#x2F;span&gt;&lt;span&gt;{
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;repeated &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e9fdac;&quot;&gt;Leaf &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;leaves &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#fdb082;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;;
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;Yeah... That doesn&#x27;t look like a pleasant API to use at all. Branches are nested within the Tree,
+but leaves are outside (by necessity!) and iterating over this structure requires keeping track of
+indices and is harder than it should be.&lt;&#x2F;p&gt;
+&lt;p&gt;In fact, to add another &amp;quot;optional&amp;quot; nesting level -- like leaves that have cells but only in another
+route -- it would be necessary to add a list of list of list of cells in the &lt;code&gt;GetTreeResponse&lt;&#x2F;code&gt;,
+unless there&#x27;s another approach that&#x27;s not equally bad and I&#x27;m missing.&lt;&#x2F;p&gt;
+&lt;p&gt;Where did I go wrong? Could I have prevented this? It was at this moment I realized.. I literally saw
+&lt;a href=&quot;https:&#x2F;&#x2F;www.youtube.com&#x2F;watch?v=o9pEzgHorH0&quot;&gt;this video&lt;&#x2F;a&gt; yesterday and in the first minute, when
+the guy says &amp;quot;Flat is better than nested&amp;quot; when referring to a principle of the Zen of Python, I
+thought I understood what he meant, but now, only now I truly understood! &lt;strong&gt;The problem above only
+arises because Branch is nested within the Tree message&lt;&#x2F;strong&gt;! When making that decision, I implicitly
+required that Tree contained not only the current Branch, but everything a Branch would ever
+contain, today&#x27;s &lt;strong&gt;and tomorrow&#x27;s fields&lt;&#x2F;strong&gt;.&lt;&#x2F;p&gt;
+&lt;p&gt;How can a flat structure help? Let&#x27;s go back to the beginning, before those new requirements, the
+times when a Tree could only have a single Branch and leaves didn&#x27;t exist. Here&#x27;s the alternative
+design for the responses:&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;proto&quot; style=&quot;background-color:#191919;color:#f8f8f2;&quot; class=&quot;language-proto &quot;&gt;&lt;code class=&quot;language-proto&quot; data-lang=&quot;proto&quot;&gt;&lt;span style=&quot;color:#6d6d6d;&quot;&gt;&#x2F;&#x2F; Notice there&amp;#39;s no `Branch main_branch` inside the Tree.
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#6d6d6d;&quot;&gt;&#x2F;&#x2F; The Branch message is unchanged.
+&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;message &lt;&#x2F;span&gt;&lt;span style=&quot;text-decoration:underline;color:#8cdaff;&quot;&gt;Tree &lt;&#x2F;span&gt;&lt;span&gt;{
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e9fdac;&quot;&gt;int &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;id &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#fdb082;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#fbe3bf;&quot;&gt;bool &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;is_healthy &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#fdb082;&quot;&gt;2&lt;&#x2F;span&gt;&lt;span&gt;; 
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e9fdac;&quot;&gt;int &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;main_branch_id &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#fdb082;&quot;&gt;3&lt;&#x2F;span&gt;&lt;span&gt;; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#6d6d6d;&quot;&gt;&#x2F;&#x2F; not really necessary in this case, but here anyway
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;message &lt;&#x2F;span&gt;&lt;span style=&quot;text-decoration:underline;color:#8cdaff;&quot;&gt;GetTreeResponse &lt;&#x2F;span&gt;&lt;span&gt;{
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e9fdac;&quot;&gt;Tree &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;tree &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#fdb082;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e9fdac;&quot;&gt;Branch &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;main_branch &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#fdb082;&quot;&gt;2&lt;&#x2F;span&gt;&lt;span&gt;;
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;message &lt;&#x2F;span&gt;&lt;span style=&quot;text-decoration:underline;color:#8cdaff;&quot;&gt;GetAllTreesResponse &lt;&#x2F;span&gt;&lt;span&gt;{
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;repeated &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e9fdac;&quot;&gt;TreeBranchPair &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;tree_branch_pair &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#fdb082;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;;
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;message &lt;&#x2F;span&gt;&lt;span style=&quot;text-decoration:underline;color:#8cdaff;&quot;&gt;TreeBranchPair &lt;&#x2F;span&gt;&lt;span&gt;{
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e9fdac;&quot;&gt;Tree &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;tree &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#fdb082;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e9fdac;&quot;&gt;Branch &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;main_branch &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#fdb082;&quot;&gt;2&lt;&#x2F;span&gt;&lt;span&gt;;
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;The &lt;code&gt;TreeBranchPair&lt;&#x2F;code&gt; message is a bit ugly, sure, but I blame protobuf for this, capn&#x27;proto has a
+cleaner way of defining it.&lt;&#x2F;p&gt;
+&lt;p&gt;Is this any harder to use than our first design? Not really, trees and branches are still right next
+to each other, easily iterable in &lt;code&gt;GetAllTreesResponse&lt;&#x2F;code&gt;, without adding any cognitive load. There&#x27;s
+&lt;strong&gt;more code&lt;&#x2F;strong&gt;, yes, but it&#x27;s still simple.&lt;&#x2F;p&gt;
+&lt;p&gt;Let&#x27;s add the next requirement: a branch has multiple leaves, but &lt;code&gt;GetAllTrees&lt;&#x2F;code&gt; shouldn&#x27;t include
+them. Sure!&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;proto&quot; style=&quot;background-color:#191919;color:#f8f8f2;&quot; class=&quot;language-proto &quot;&gt;&lt;code class=&quot;language-proto&quot; data-lang=&quot;proto&quot;&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;message &lt;&#x2F;span&gt;&lt;span style=&quot;text-decoration:underline;color:#8cdaff;&quot;&gt;GetTreeResponse &lt;&#x2F;span&gt;&lt;span&gt;{
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e9fdac;&quot;&gt;Tree &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;tree &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#fdb082;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e9fdac;&quot;&gt;Branch &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;main_branch &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#fdb082;&quot;&gt;2&lt;&#x2F;span&gt;&lt;span&gt;;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;repeated &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e9fdac;&quot;&gt;Leaf &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;leaves &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#fdb082;&quot;&gt;3&lt;&#x2F;span&gt;&lt;span&gt;; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#6d6d6d;&quot;&gt;&#x2F;&#x2F; &amp;lt;- added this
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;That&#x27;s it! &lt;code&gt;GetAllTreesResponse&lt;&#x2F;code&gt; doesn&#x27;t change at all. Could we nest &lt;code&gt;repeated Leaf&lt;&#x2F;code&gt; inside the
+&lt;code&gt;Branch&lt;&#x2F;code&gt;? Sure we could, but we&#x27;ve seen how that can lead to problems down the line, and the current
+structure seems perfectly fine, no? &lt;&#x2F;p&gt;
+&lt;p&gt;Great, let&#x27;s try the final test: adding multiple branches per tree. There&#x27;s no way to do this
+without deprecating some things as far as I&#x27;m aware, but it&#x27;s possible to update the responses like
+this:&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;proto&quot; style=&quot;background-color:#191919;color:#f8f8f2;&quot; class=&quot;language-proto &quot;&gt;&lt;code class=&quot;language-proto&quot; data-lang=&quot;proto&quot;&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;message &lt;&#x2F;span&gt;&lt;span style=&quot;text-decoration:underline;color:#8cdaff;&quot;&gt;GetTreeResponse &lt;&#x2F;span&gt;&lt;span&gt;{
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e9fdac;&quot;&gt;Tree &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;tree &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#fdb082;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e9fdac;&quot;&gt;Branch &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;main_branch &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#fdb082;&quot;&gt;2 &lt;&#x2F;span&gt;&lt;span&gt;[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#6699cc;&quot;&gt;deprecated &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff8942;&quot;&gt;true&lt;&#x2F;span&gt;&lt;span&gt;];       &lt;&#x2F;span&gt;&lt;span style=&quot;color:#6d6d6d;&quot;&gt;&#x2F;&#x2F; deprecated this...
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;repeated &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e9fdac;&quot;&gt;Leaf &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;leaves &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#fdb082;&quot;&gt;3 &lt;&#x2F;span&gt;&lt;span&gt;[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#6699cc;&quot;&gt;deprecated &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff8942;&quot;&gt;true&lt;&#x2F;span&gt;&lt;span&gt;];     &lt;&#x2F;span&gt;&lt;span style=&quot;color:#6d6d6d;&quot;&gt;&#x2F;&#x2F; ...and this...
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;repeated &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e9fdac;&quot;&gt;BranchLeavesPair &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;branch_leaves_pair &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#fdb082;&quot;&gt;4&lt;&#x2F;span&gt;&lt;span&gt;; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#6d6d6d;&quot;&gt;&#x2F;&#x2F; ...and added this
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;message &lt;&#x2F;span&gt;&lt;span style=&quot;text-decoration:underline;color:#8cdaff;&quot;&gt;BranchLeavesPair &lt;&#x2F;span&gt;&lt;span&gt;{
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e9fdac;&quot;&gt;Branch &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;branch &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#fdb082;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;repeated &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e9fdac;&quot;&gt;Leaves &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#fdb082;&quot;&gt;2&lt;&#x2F;span&gt;&lt;span&gt;;
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;message &lt;&#x2F;span&gt;&lt;span style=&quot;text-decoration:underline;color:#8cdaff;&quot;&gt;GetAllTreesResponse &lt;&#x2F;span&gt;&lt;span&gt;{
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;repeated &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e9fdac;&quot;&gt;TreeBranchPair &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;tree_branch_pair &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#fdb082;&quot;&gt;1 &lt;&#x2F;span&gt;&lt;span&gt;[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#6699cc;&quot;&gt;deprecated &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff8942;&quot;&gt;true&lt;&#x2F;span&gt;&lt;span&gt;]; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#6d6d6d;&quot;&gt;&#x2F;&#x2F; big deprecation here!
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;repeated &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e9fdac;&quot;&gt;TreeBranchesPair &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;tree_branches_pair &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#fdb082;&quot;&gt;2&lt;&#x2F;span&gt;&lt;span&gt;;                 &lt;&#x2F;span&gt;&lt;span style=&quot;color:#6d6d6d;&quot;&gt;&#x2F;&#x2F; and added this
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;message &lt;&#x2F;span&gt;&lt;span style=&quot;text-decoration:underline;color:#8cdaff;&quot;&gt;TreeBranchesPair &lt;&#x2F;span&gt;&lt;span&gt;{
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e9fdac;&quot;&gt;Tree &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;tree &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#fdb082;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;repeated &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e9fdac;&quot;&gt;Branch &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;branches &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#fdb082;&quot;&gt;2&lt;&#x2F;span&gt;&lt;span&gt;;
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;We did it! The structure is a bit hard to visualize in protobuf, but this is the schema:&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;haskell&quot; style=&quot;background-color:#191919;color:#f8f8f2;&quot; class=&quot;language-haskell &quot;&gt;&lt;code class=&quot;language-haskell&quot; data-lang=&quot;haskell&quot;&gt;&lt;span style=&quot;color:#fdb082;&quot;&gt;GetTreeResponse&lt;&#x2F;span&gt;&lt;span&gt; {
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#fdb082;&quot;&gt;Tree&lt;&#x2F;span&gt;&lt;span&gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;    list &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;of&lt;&#x2F;span&gt;&lt;span&gt; {
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#fdb082;&quot;&gt;Branch&lt;&#x2F;span&gt;&lt;span&gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;        list &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;of &lt;&#x2F;span&gt;&lt;span style=&quot;color:#fdb082;&quot;&gt;Leaves
+&lt;&#x2F;span&gt;&lt;span&gt;    }
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#fdb082;&quot;&gt;GetAllTreesResponse&lt;&#x2F;span&gt;&lt;span&gt; {
+&lt;&#x2F;span&gt;&lt;span&gt;    list &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;of&lt;&#x2F;span&gt;&lt;span&gt; {
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#fdb082;&quot;&gt;Tree&lt;&#x2F;span&gt;&lt;span&gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;        list &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;of &lt;&#x2F;span&gt;&lt;span style=&quot;color:#fdb082;&quot;&gt;Branches
+&lt;&#x2F;span&gt;&lt;span&gt;    }
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;I think that&#x27;s much better :)&lt;&#x2F;p&gt;
+&lt;p&gt;Plus, this design is a ton more flexible. Imagine some new route doesn&#x27;t care about branches at all,
+only about trees and it&#x27;s leaves. It&#x27;s easy to define it like this:&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;haskell&quot; style=&quot;background-color:#191919;color:#f8f8f2;&quot; class=&quot;language-haskell &quot;&gt;&lt;code class=&quot;language-haskell&quot; data-lang=&quot;haskell&quot;&gt;&lt;span style=&quot;color:#fdb082;&quot;&gt;OnlyTreesAndLeavesPlease&lt;&#x2F;span&gt;&lt;span&gt; {
+&lt;&#x2F;span&gt;&lt;span&gt;    list &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;of&lt;&#x2F;span&gt;&lt;span&gt; {
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#fdb082;&quot;&gt;Tree&lt;&#x2F;span&gt;&lt;span&gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;        list &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;of &lt;&#x2F;span&gt;&lt;span style=&quot;color:#fdb082;&quot;&gt;Leaves
+&lt;&#x2F;span&gt;&lt;span&gt;    }
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;But notice we didn&#x27;t sacrifice today&#x27;s simplicity to accomodate for tomorrow&#x27;s vague and fuzzy
+possibilities. It&#x27;s simple whether &lt;code&gt;OnlyTreesAndLeavesPlease&lt;&#x2F;code&gt; is added or not.&lt;&#x2F;p&gt;
+&lt;p&gt;Another point here is that the only nesting that exists in these messages occurs because of repeated
+items. If a tree could only have one branch, which in turn could only have one leaf, the structure
+would be completely flat, like this:&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;haskell&quot; style=&quot;background-color:#191919;color:#f8f8f2;&quot; class=&quot;language-haskell &quot;&gt;&lt;code class=&quot;language-haskell&quot; data-lang=&quot;haskell&quot;&gt;&lt;span style=&quot;color:#fdb082;&quot;&gt;GetAllTreesResponse&lt;&#x2F;span&gt;&lt;span&gt; {
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#fdb082;&quot;&gt;Tree&lt;&#x2F;span&gt;&lt;span&gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#fdb082;&quot;&gt;Branch&lt;&#x2F;span&gt;&lt;span&gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#fdb082;&quot;&gt;Leaf
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;Side note: once all clients update their code to remove deprecated fields, we can &lt;code&gt;reserve&lt;&#x2F;code&gt; them,
+cleaning the protobuf code up.&lt;&#x2F;p&gt;
+&lt;p&gt;One caveat of this approach is that you always need to define all of the entities (trees, branches,
+leaves) that will be returned, leading to more code repetition. In my case, I think it was a well
+worthwhile tradeoff, but your mileage may vary.&lt;&#x2F;p&gt;
+&lt;hr &#x2F;&gt;
+&lt;p&gt;I&#x27;d like to interlude for a moment to talk about &lt;strong&gt;system boundaries&lt;&#x2F;strong&gt; and &lt;strong&gt;software design&lt;&#x2F;strong&gt;. Ted
+Kaminski describes it in detail in &lt;a href=&quot;https:&#x2F;&#x2F;www.tedinski.com&#x2F;2018&#x2F;02&#x2F;06&#x2F;system-boundaries.html&quot;&gt;System boundaries: the focus of design&lt;&#x2F;a&gt;,
+but I&#x27;ll give an overview.&lt;&#x2F;p&gt;
+&lt;p&gt;Why am I writing this long rant about a design mistake instead of just fixing it? Isn&#x27;t rapid
+iteration The Way to write software?&lt;&#x2F;p&gt;
+&lt;p&gt;Well, you&#x27;ll have to wait until I update this post to find out! This is WIP, after all :)&lt;&#x2F;p&gt;
+</content>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>The Most Important Vim Mapping (it just runs a macro)</title>
+        <published>2024-04-19T00:00:00+00:00</published>
+        <updated>2024-04-19T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://leoriether.github.io/posts/vim-macros/"/>
+        <id>https://leoriether.github.io/posts/vim-macros/</id>
+        
+        <content type="html" xml:base="https://leoriether.github.io/posts/vim-macros/">&lt;!--
+    Structure:
+    - &#x27;Q&#x27; mapping
+    - Macros vs multiple cursors 
+        - Macros are harder, but the `Q` mapping 
+        - There are definitely use cases for multiple cursors as well, macros have a learning curve and are harder to use
+    - Caveats
+        - You have to think about how the macro is going to play out the other times (there&#x27;s no preview)
+        - Sometimes you start doing something repetitive and only remember to record a macro after a few times (or don&#x27;t remember at all)
+--&gt;
+&lt;p&gt;This is a post about how I finally started using macros in neovim, after many
+times of trying them and giving up. If you don&#x27;t use vim macros yet or would
+like to learn more, I definitely recommend watching
+&lt;a href=&quot;https:&#x2F;&#x2F;www.youtube.com&#x2F;watch?v=5x3dXo8aDCI&quot;&gt;That One Micro Talk on Macros (NeovimConf 2023)&lt;&#x2F;a&gt; by Jesse Leite.
+In the video, Jesse introduces this wonderful mapping:&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;lua&quot; style=&quot;background-color:#191919;color:#f8f8f2;&quot; class=&quot;language-lua &quot;&gt;&lt;code class=&quot;language-lua&quot; data-lang=&quot;lua&quot;&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;vim&lt;&#x2F;span&gt;&lt;span&gt;.keymap.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;set&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#ffffff;&quot;&gt;&amp;#39;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#fbe3bf;&quot;&gt;n&lt;&#x2F;span&gt;&lt;span style=&quot;color:#ffffff;&quot;&gt;&amp;#39;&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ffffff;&quot;&gt;&amp;#39;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#fbe3bf;&quot;&gt;Q&lt;&#x2F;span&gt;&lt;span style=&quot;color:#ffffff;&quot;&gt;&amp;#39;&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ffffff;&quot;&gt;&amp;#39;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#fbe3bf;&quot;&gt;@qj&lt;&#x2F;span&gt;&lt;span style=&quot;color:#ffffff;&quot;&gt;&amp;#39;&lt;&#x2F;span&gt;&lt;span&gt;, {&lt;&#x2F;span&gt;&lt;span style=&quot;color:#fbe3bf;&quot;&gt;remap&lt;&#x2F;span&gt;&lt;span&gt;=&lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff8942;&quot;&gt;true&lt;&#x2F;span&gt;&lt;span&gt;})
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;Ok, that was for neovim. In vimscript, it&#x27;s&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;vim&quot; style=&quot;background-color:#191919;color:#f8f8f2;&quot; class=&quot;language-vim &quot;&gt;&lt;code class=&quot;language-vim&quot; data-lang=&quot;vim&quot;&gt;&lt;span style=&quot;color:#6699cc;&quot;&gt;nmap&lt;&#x2F;span&gt;&lt;span&gt; Q &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;@qj
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;And that&#x27;s it! The most important mapping in my config! It just runs the macro
+&lt;code&gt;q&lt;&#x2F;code&gt; and goes down a line. Honestly I&#x27;m thinking about changing it to map to
+&lt;code&gt;@q&lt;&#x2F;code&gt; only and it would still be the most important mapping in my config. Let me
+explain.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;the-problems-with-macros&quot;&gt;The Problems With Macros&lt;a class=&quot;zola-anchor&quot; href=&quot;#the-problems-with-macros&quot; aria-label=&quot;Anchor link for: the-problems-with-macros&quot;&gt;#&lt;&#x2F;a&gt;
+&lt;&#x2F;h2&gt;
+&lt;p&gt;It&#x27;s common to hear people talking about how &lt;em&gt;powerful&lt;&#x2F;em&gt; vim macros are, but I
+always thought they were too clunky. It&#x27;s easy to make a macro that will do
+unexpected things when replayed and &lt;code&gt;@q&lt;&#x2F;code&gt;&#x2F;&lt;code&gt;@@&lt;&#x2F;code&gt; are so awkward to type. This lead
+me to search for alternatives like dot-repeating and substitution with &lt;code&gt;:s&lt;&#x2F;code&gt;, but
+these only work in simple cases and can be repetitive.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;the-solution&quot;&gt;The Solution&lt;a class=&quot;zola-anchor&quot; href=&quot;#the-solution&quot; aria-label=&quot;Anchor link for: the-solution&quot;&gt;#&lt;&#x2F;a&gt;
+&lt;&#x2F;h2&gt;
+&lt;p&gt;Then, everything changed when NeovimConf published the talk. Only Jesse Leite,
+master of all macros, could teach us, and when the world needed him most, he was
+there. &lt;code&gt;Q&lt;&#x2F;code&gt; doesn&#x27;t only reduce the barrier to replay a macro, it completely
+destroys it. It&#x27;s impressive how much cheaper macros become when they&#x27;re so
+spammable!&lt;&#x2F;p&gt;
+&lt;p&gt;I also started getting much better at making macros that do well on replays, not
+because &lt;code&gt;Q&lt;&#x2F;code&gt; changes anything fundamentally, but because I was getting a lot more
+practice.&lt;&#x2F;p&gt;
+&lt;p&gt;Since I began using &lt;code&gt;Q&lt;&#x2F;code&gt;, I&#x27;ve used macros in a number of interesting
+scenarios, including:&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;transforming-grpc-service-definitions-into-go-functions&quot;&gt;Transforming gRPC service definitions into Go functions&lt;a class=&quot;zola-anchor&quot; href=&quot;#transforming-grpc-service-definitions-into-go-functions&quot; aria-label=&quot;Anchor link for: transforming-grpc-service-definitions-into-go-functions&quot;&gt;#&lt;&#x2F;a&gt;
+&lt;&#x2F;h3&gt;
+&lt;p&gt;Suppose I had a gRPC service like the one below&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;proto&quot; style=&quot;background-color:#191919;color:#f8f8f2;&quot; class=&quot;language-proto &quot;&gt;&lt;code class=&quot;language-proto&quot; data-lang=&quot;proto&quot;&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;service &lt;&#x2F;span&gt;&lt;span style=&quot;text-decoration:underline;color:#8cdaff;&quot;&gt;ThingService &lt;&#x2F;span&gt;&lt;span&gt;{
+&lt;&#x2F;span&gt;&lt;span&gt;  &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;rpc &lt;&#x2F;span&gt;&lt;span style=&quot;color:#8cdaff;&quot;&gt;AddThing&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e9fdac;&quot;&gt;AddThingRequest&lt;&#x2F;span&gt;&lt;span&gt;) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;returns &lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e9fdac;&quot;&gt;AddThingResponse&lt;&#x2F;span&gt;&lt;span&gt;)
+&lt;&#x2F;span&gt;&lt;span&gt;  &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;rpc &lt;&#x2F;span&gt;&lt;span style=&quot;color:#8cdaff;&quot;&gt;DeleteThing&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e9fdac;&quot;&gt;DeleteThingRequest&lt;&#x2F;span&gt;&lt;span&gt;) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;returns &lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e9fdac;&quot;&gt;DeleteThingResponse&lt;&#x2F;span&gt;&lt;span&gt;)
+&lt;&#x2F;span&gt;&lt;span&gt;  &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;rpc &lt;&#x2F;span&gt;&lt;span style=&quot;color:#8cdaff;&quot;&gt;RenameThing&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e9fdac;&quot;&gt;RenameThingRequest&lt;&#x2F;span&gt;&lt;span&gt;) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;returns &lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e9fdac;&quot;&gt;RenameThingResponse&lt;&#x2F;span&gt;&lt;span&gt;)
+&lt;&#x2F;span&gt;&lt;span&gt;  &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;rpc &lt;&#x2F;span&gt;&lt;span style=&quot;color:#8cdaff;&quot;&gt;GetThing&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e9fdac;&quot;&gt;GetThingRequest&lt;&#x2F;span&gt;&lt;span&gt;) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;returns &lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e9fdac;&quot;&gt;GetThingResponse&lt;&#x2F;span&gt;&lt;span&gt;)
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;To implement this service in Golang, I copied the 4 lines of rpcs (it was more
+like 7 in the real case) into a &lt;code&gt;.go&lt;&#x2F;code&gt; file and recorded a macro, turning it into&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;go&quot; style=&quot;background-color:#191919;color:#f8f8f2;&quot; class=&quot;language-go &quot;&gt;&lt;code class=&quot;language-go&quot; data-lang=&quot;go&quot;&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;func &lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fc9354;&quot;&gt;s &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;*&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;ThingService&lt;&#x2F;span&gt;&lt;span&gt;) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#8cdaff;&quot;&gt;AddThing&lt;&#x2F;span&gt;&lt;span&gt;(
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fc9354;&quot;&gt;ctx &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;context&lt;&#x2F;span&gt;&lt;span&gt;.&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;Context&lt;&#x2F;span&gt;&lt;span&gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fc9354;&quot;&gt;r &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;*&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;proto&lt;&#x2F;span&gt;&lt;span&gt;.&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;AddThingRequest
+&lt;&#x2F;span&gt;&lt;span&gt;) (&lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;*&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;proto&lt;&#x2F;span&gt;&lt;span&gt;.&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;AddThingResponse&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbe3bf;&quot;&gt;error&lt;&#x2F;span&gt;&lt;span&gt;) {
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;return &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff8942;&quot;&gt;nil&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff8942;&quot;&gt;nil
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;  &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;rpc DeleteThing&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;DeleteThingRequest&lt;&#x2F;span&gt;&lt;span&gt;) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;returns &lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;DeleteThingResponse&lt;&#x2F;span&gt;&lt;span&gt;)
+&lt;&#x2F;span&gt;&lt;span&gt;  &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;rpc RenameThing&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;RenameThingRequest&lt;&#x2F;span&gt;&lt;span&gt;) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;returns &lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;RenameThingResponse&lt;&#x2F;span&gt;&lt;span&gt;)
+&lt;&#x2F;span&gt;&lt;span&gt;  &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;rpc GetThing&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;GetThingRequest&lt;&#x2F;span&gt;&lt;span&gt;) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;returns &lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;GetThingResponse&lt;&#x2F;span&gt;&lt;span&gt;)
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;For the other three functions, the macro does its job&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;go&quot; style=&quot;background-color:#191919;color:#f8f8f2;&quot; class=&quot;language-go &quot;&gt;&lt;code class=&quot;language-go&quot; data-lang=&quot;go&quot;&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;func &lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fc9354;&quot;&gt;s &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;*&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;ThingService&lt;&#x2F;span&gt;&lt;span&gt;) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#8cdaff;&quot;&gt;AddThing&lt;&#x2F;span&gt;&lt;span&gt;(
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fc9354;&quot;&gt;ctx &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;context&lt;&#x2F;span&gt;&lt;span&gt;.&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;Context&lt;&#x2F;span&gt;&lt;span&gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fc9354;&quot;&gt;r &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;*&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;proto&lt;&#x2F;span&gt;&lt;span&gt;.&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;AddThingRequest&lt;&#x2F;span&gt;&lt;span&gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;) (&lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;*&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;proto&lt;&#x2F;span&gt;&lt;span&gt;.&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;AddThingResponse&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbe3bf;&quot;&gt;error&lt;&#x2F;span&gt;&lt;span&gt;) {
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;return &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff8942;&quot;&gt;nil&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff8942;&quot;&gt;nil
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;func &lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fc9354;&quot;&gt;s &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;*&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;ThingService&lt;&#x2F;span&gt;&lt;span&gt;) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#8cdaff;&quot;&gt;DeleteThing&lt;&#x2F;span&gt;&lt;span&gt;(
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fc9354;&quot;&gt;ctx &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;context&lt;&#x2F;span&gt;&lt;span&gt;.&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;Context&lt;&#x2F;span&gt;&lt;span&gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fc9354;&quot;&gt;r &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;*&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;proto&lt;&#x2F;span&gt;&lt;span&gt;.&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;DeleteThingRequest&lt;&#x2F;span&gt;&lt;span&gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;) (&lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;*&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;proto&lt;&#x2F;span&gt;&lt;span&gt;.&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;DeleteThingResponse&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbe3bf;&quot;&gt;error&lt;&#x2F;span&gt;&lt;span&gt;) {
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;return &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff8942;&quot;&gt;nil&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff8942;&quot;&gt;nil
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;func &lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fc9354;&quot;&gt;s &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;*&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;ThingService&lt;&#x2F;span&gt;&lt;span&gt;) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#8cdaff;&quot;&gt;RenameThing&lt;&#x2F;span&gt;&lt;span&gt;(
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fc9354;&quot;&gt;ctx &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;context&lt;&#x2F;span&gt;&lt;span&gt;.&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;Context&lt;&#x2F;span&gt;&lt;span&gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fc9354;&quot;&gt;r &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;*&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;proto&lt;&#x2F;span&gt;&lt;span&gt;.&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;RenameThingRequest&lt;&#x2F;span&gt;&lt;span&gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;) (&lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;*&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;proto&lt;&#x2F;span&gt;&lt;span&gt;.&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;RenameThingResponse&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbe3bf;&quot;&gt;error&lt;&#x2F;span&gt;&lt;span&gt;) {
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;return &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff8942;&quot;&gt;nil&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff8942;&quot;&gt;nil
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;func &lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fc9354;&quot;&gt;s &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;*&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;ThingService&lt;&#x2F;span&gt;&lt;span&gt;) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#8cdaff;&quot;&gt;GetThing&lt;&#x2F;span&gt;&lt;span&gt;(
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fc9354;&quot;&gt;ctx &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;context&lt;&#x2F;span&gt;&lt;span&gt;.&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;Context&lt;&#x2F;span&gt;&lt;span&gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fc9354;&quot;&gt;r &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;*&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;proto&lt;&#x2F;span&gt;&lt;span&gt;.&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;GetThingRequest&lt;&#x2F;span&gt;&lt;span&gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;) (&lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;*&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;proto&lt;&#x2F;span&gt;&lt;span&gt;.&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;GetThingResponse&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbe3bf;&quot;&gt;error&lt;&#x2F;span&gt;&lt;span&gt;) {
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;return &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff8942;&quot;&gt;nil&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff8942;&quot;&gt;nil
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;h3 id=&quot;writing-the-grpc-service-example-above&quot;&gt;Writing the gRPC service example above&lt;a class=&quot;zola-anchor&quot; href=&quot;#writing-the-grpc-service-example-above&quot; aria-label=&quot;Anchor link for: writing-the-grpc-service-example-above&quot;&gt;#&lt;&#x2F;a&gt;
+&lt;&#x2F;h3&gt;
+&lt;p&gt;That whole service definition is very repetitive! I actually initially wrote&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;proto&quot; style=&quot;background-color:#191919;color:#f8f8f2;&quot; class=&quot;language-proto &quot;&gt;&lt;code class=&quot;language-proto&quot; data-lang=&quot;proto&quot;&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;service &lt;&#x2F;span&gt;&lt;span style=&quot;text-decoration:underline;color:#8cdaff;&quot;&gt;ThingService &lt;&#x2F;span&gt;&lt;span&gt;{
+&lt;&#x2F;span&gt;&lt;span&gt;  Add
+&lt;&#x2F;span&gt;&lt;span&gt;  Delete
+&lt;&#x2F;span&gt;&lt;span&gt;  Rename
+&lt;&#x2F;span&gt;&lt;span&gt;  Get
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;Recorded a macro to modify the first rpc into&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;proto&quot; style=&quot;background-color:#191919;color:#f8f8f2;&quot; class=&quot;language-proto &quot;&gt;&lt;code class=&quot;language-proto&quot; data-lang=&quot;proto&quot;&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;service &lt;&#x2F;span&gt;&lt;span style=&quot;text-decoration:underline;color:#8cdaff;&quot;&gt;ThingService &lt;&#x2F;span&gt;&lt;span&gt;{
+&lt;&#x2F;span&gt;&lt;span&gt;  &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;rpc &lt;&#x2F;span&gt;&lt;span style=&quot;color:#8cdaff;&quot;&gt;AddThing&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e9fdac;&quot;&gt;AddThingRequest&lt;&#x2F;span&gt;&lt;span&gt;) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;returns &lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#e9fdac;&quot;&gt;AddThingResponse&lt;&#x2F;span&gt;&lt;span&gt;)
+&lt;&#x2F;span&gt;&lt;span&gt;  Delete
+&lt;&#x2F;span&gt;&lt;span&gt;  Rename
+&lt;&#x2F;span&gt;&lt;span&gt;  Get
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;and replayed the macro for the other 3 rpcs, remembering to yank the first word
+to paste before &lt;code&gt;ThingRequest&lt;&#x2F;code&gt; and &lt;code&gt;ThingResponse&lt;&#x2F;code&gt;.&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;adding-a-property-to-certain-items-in-a-yaml&quot;&gt;Adding a property to certain items in a yaml&lt;a class=&quot;zola-anchor&quot; href=&quot;#adding-a-property-to-certain-items-in-a-yaml&quot; aria-label=&quot;Anchor link for: adding-a-property-to-certain-items-in-a-yaml&quot;&gt;#&lt;&#x2F;a&gt;
+&lt;&#x2F;h3&gt;
+&lt;p&gt;In another case, I had a huge yaml and needed to modify about 30 list items by
+adding a new &lt;code&gt;flag: true&lt;&#x2F;code&gt; property to them. For this, I opened two buffers
+side-by-side -- yaml on the left, a list of IDs that should be modified on the
+right. The macro starts on the right, hovering the current ID, then goes to the
+left, searches and modifies an item and goes back to the right. By pressing &lt;code&gt;Q&lt;&#x2F;code&gt;
+multiple times, we jump around the yaml making changes one by one, but always
+going back to the next ID on the list!&lt;&#x2F;p&gt;
+&lt;p&gt;Maybe this could be done using the quickfix list as well, but the macro is so
+simple I would probably do it this way again, if I need.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;caveats&quot;&gt;Caveats&lt;a class=&quot;zola-anchor&quot; href=&quot;#caveats&quot; aria-label=&quot;Anchor link for: caveats&quot;&gt;#&lt;&#x2F;a&gt;
+&lt;&#x2F;h2&gt;
+&lt;p&gt;I argue macros are much more convenient after mapping &lt;code&gt;Q&lt;&#x2F;code&gt; to &lt;code&gt;@qj&lt;&#x2F;code&gt;, but they
+&lt;em&gt;can&lt;&#x2F;em&gt; still feel clunky and hard to use, mostly because of replayability issues.
+It does get better with practice, but there&#x27;s definitely a learning curve. For
+those of you who swear by multiple cursors, I&#x27;ll give you that: they&#x27;re much
+easier to use. Oh and there&#x27;s no &amp;quot;preview&amp;quot; for macros! If you get it wrong,
+you&#x27;ll only know after recording and you&#x27;ll have to record again.&lt;&#x2F;p&gt;
+&lt;p&gt;Using the right text-objects does make a big difference, though, because it can
+make motions more &amp;quot;generic&amp;quot;. I find that
+&lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;chrisgrieser&#x2F;nvim-various-textobjs&quot;&gt;chrisgrieser&#x2F;nvim-various-textobjs&lt;&#x2F;a&gt;
+has been very useful in that regard.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;conclusion&quot;&gt;Conclusion&lt;a class=&quot;zola-anchor&quot; href=&quot;#conclusion&quot; aria-label=&quot;Anchor link for: conclusion&quot;&gt;#&lt;&#x2F;a&gt;
+&lt;&#x2F;h2&gt;
+&lt;p&gt;Watch &lt;a href=&quot;https:&#x2F;&#x2F;www.youtube.com&#x2F;watch?v=5x3dXo8aDCI&quot;&gt;That One Micro Talk on Macros (NeovimConf 2023)&lt;&#x2F;a&gt;,
+map &lt;code&gt;Q&lt;&#x2F;code&gt; to &lt;code&gt;@qj&lt;&#x2F;code&gt; and be happy.&lt;&#x2F;p&gt;
+</content>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>Keeping my bookmarks in a plaintext file</title>
+        <published>2024-04-17T00:00:00+00:00</published>
+        <updated>2024-04-17T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://leoriether.github.io/posts/plaintext-bookmarks/"/>
+        <id>https://leoriether.github.io/posts/plaintext-bookmarks/</id>
+        
+        <content type="html" xml:base="https://leoriether.github.io/posts/plaintext-bookmarks/">&lt;p&gt;For the longest time I didn&#x27;t organize my bookmarks at all. Links were either in
+an unorganized folder with various miscellaneous neighbors or inside a &amp;quot;Imported
+from Firefox&amp;quot; folder nested inside &amp;quot;Imported from Chrome&amp;quot; (repeat however many
+times I changed browsers in my life).&lt;&#x2F;p&gt;
+&lt;p&gt;Worse than that, because I didn&#x27;t get much use out of bookmarks I never got into
+the habit of bookmarking things a lot, which reinforces the whole not getting
+much use out of them.&lt;&#x2F;p&gt;
+&lt;p&gt;At some point, however, I found &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;vimwiki&#x2F;vimwiki&quot;&gt;vimwiki&lt;&#x2F;a&gt;
+and got more invested in the way I take notes. I&#x27;ve since moved to &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;jakewvincent&#x2F;mkdnflow.nvim&quot;&gt;mkdnflow&lt;&#x2F;a&gt;,
+but these tools serve the same purpose: they allow me to keep a local, easily
+accessible knowledge base that&#x27;s searchable, easy to backup, stored in a very
+commonly accepted format! Plus, I can bind a key to open it on &lt;code&gt;$EDITOR&lt;&#x2F;code&gt;.&lt;&#x2F;p&gt;
+&lt;p&gt;But the purpose of this post isn&#x27;t to explain note-taking systems in general,
+you can Google &amp;quot;&lt;a href=&quot;https:&#x2F;&#x2F;en.wikipedia.org&#x2F;wiki&#x2F;Zettelkasten&quot;&gt;Zettelkasten&lt;&#x2F;a&gt;&amp;quot; or watch &lt;a href=&quot;https:&#x2F;&#x2F;www.youtube.com&#x2F;watch?v=DbsAQSIKQXk&quot;&gt;Hack your brain with Obsidian.md&lt;&#x2F;a&gt;
+for that, maybe even &lt;a href=&quot;https:&#x2F;&#x2F;www.youtube.com&#x2F;watch?v=XUZ9VATeF_4&quot;&gt;Hack Your Brain With Elaborate Coping Mechanisms&lt;&#x2F;a&gt;
+while you&#x27;re at it -- it&#x27;s about more than just notes, but it&#x27;ll be worth it I
+promise. The purpose of this post is to say why I now keep my bookmarks in said
+note-taking system, in a list inside a markdown file.&lt;&#x2F;p&gt;
+&lt;p&gt;Sure, the first thing I said is that &amp;quot;I didn&#x27;t organize my bookmarks&amp;quot; and while
+throwing every article or youtube video I have a slight chance of wanting to
+revisit later isn&#x27;t exactly organized, a list of links in chronological order
+that I can easily Ctrl+F if needed actually works quite well! All the other
+benefits of a local file that&#x27;s not inside a browser apply here too, making it
+easy to backup and avoding the need to export&#x2F;import them. Plus -- and that&#x27;s a
+really nice plus -- I can run a &lt;strong&gt;fuzzy finder&lt;&#x2F;strong&gt; in the file to find things and
+I find that works much better than trying to find bookmarks elsewhere. Keybinds
+help in making it easy to open the file to add a new link, but obviously
+pressing Ctrl+D is easier, so I&#x27;ll at least concede that point to the browsers.&lt;&#x2F;p&gt;
+&lt;p&gt;If I do regret choosing this format one day, markdown is just so simple I could
+hack a quick script to convert it to another format and call it a day. Will I
+regret it? Only time will tell. Maybe I&#x27;ll edit this post 2 years from now and
+report back.&lt;&#x2F;p&gt;
+</content>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>Testing Resources — A Literature Review</title>
+        <published>2024-04-04T00:00:00+00:00</published>
+        <updated>2024-04-04T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://leoriether.github.io/posts/tests-literature-review/"/>
+        <id>https://leoriether.github.io/posts/tests-literature-review/</id>
+        
+        <content type="html" xml:base="https://leoriether.github.io/posts/tests-literature-review/">&lt;!--
+    Links:
+    - https:&#x2F;&#x2F;matklad.github.io&#x2F;2021&#x2F;05&#x2F;31&#x2F;how-to-test.html
+    - https:&#x2F;&#x2F;concerningquality.com&#x2F;model-based-testing&#x2F;
+    - [Use weird tests to capture tacit knowledge · Applied Cartography](https:&#x2F;&#x2F;jmduke.com&#x2F;posts&#x2F;essays&#x2F;weird-tests-tacit-knowledge&#x2F;)
+    - https:&#x2F;&#x2F;martinfowler.com&#x2F;articles&#x2F;mocksArentStubs.html
+    - https:&#x2F;&#x2F;www.brandons.me&#x2F;blog&#x2F;thoughts-on-testing
+    - https:&#x2F;&#x2F;buttondown.email&#x2F;hillelwayne&#x2F;archive&#x2F;cross-branch-testing&#x2F;
+
+    Techniques:
+    - Example testing &#x2F; Table-based
+    - Snapshots
+        - &lt;https:&#x2F;&#x2F;matklad.github.io&#x2F;2021&#x2F;05&#x2F;31&#x2F;how-to-test.html&gt;
+        - &lt;https:&#x2F;&#x2F;docs.rs&#x2F;expect-test&#x2F;latest&#x2F;expect_test&#x2F;&gt;
+        - &lt;https:&#x2F;&#x2F;selfie.dev&#x2F;&gt;
+    - Property testing
+        - &lt;https:&#x2F;&#x2F;matklad.github.io&#x2F;2021&#x2F;05&#x2F;31&#x2F;how-to-test.html&gt;
+        - &lt;https:&#x2F;&#x2F;www.hillelwayne.com&#x2F;post&#x2F;metamorphic-testing&#x2F;&gt;
+        - [Property-testing async code in Rust to build reliable distributed systems - Antonio Scandurra](https:&#x2F;&#x2F;www.youtube.com&#x2F;watch?v=ms8zKpS_dZE)
+    - Model-based testing
+    - Weird tests
+    - Formal methods
+--&gt;
+&lt;p&gt;I&#x27;ve learned a lot about testing in the last few months, so the idea of this
+post is to aggregate resources I think are useful in a structured way, both for
+future reference and maybe, who knows, it might be useful to someone else. I&#x27;ll
+also give a brief introduction to each technique as motivation, but I expect the
+real value of this post to be the links contained in it.&lt;&#x2F;p&gt;
+&lt;p&gt;Before delving into more specific techniques, it&#x27;s worth mentioning &lt;a href=&quot;https:&#x2F;&#x2F;matklad.github.io&#x2F;2021&#x2F;05&#x2F;31&#x2F;how-to-test.html&quot;&gt;How to Test&lt;&#x2F;a&gt;
+by matklad, as it contains a wealth of information, techniques and practices.
+If I had to pick only one link to recommend, it would be this one. Many of the
+other sections will overlap with How to Test.&lt;&#x2F;p&gt;
+&lt;p&gt;So with that out of the way, let&#x27;s talk about...&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;example-testing&quot;&gt;Example testing&lt;a class=&quot;zola-anchor&quot; href=&quot;#example-testing&quot; aria-label=&quot;Anchor link for: example-testing&quot;&gt;#&lt;&#x2F;a&gt;
+&lt;&#x2F;h2&gt;
+&lt;p&gt;One of the easiest and most common ways of testing: come up with some example
+inputs and check if the output of a method is as expected. &lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;rust&quot; style=&quot;background-color:#191919;color:#f8f8f2;&quot; class=&quot;language-rust &quot;&gt;&lt;code class=&quot;language-rust&quot; data-lang=&quot;rust&quot;&gt;&lt;span&gt;#[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;test&lt;&#x2F;span&gt;&lt;span&gt;]
+&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;fn &lt;&#x2F;span&gt;&lt;span style=&quot;color:#8cdaff;&quot;&gt;test_capitalize&lt;&#x2F;span&gt;&lt;span&gt;() {
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;let&lt;&#x2F;span&gt;&lt;span&gt; input &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ffffff;&quot;&gt;&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#fbe3bf;&quot;&gt;the quick Brown fOx JUMPS OVer THE LazY dog&lt;&#x2F;span&gt;&lt;span style=&quot;color:#ffffff;&quot;&gt;&amp;quot;&lt;&#x2F;span&gt;&lt;span&gt;;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;let&lt;&#x2F;span&gt;&lt;span&gt; expected &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ffffff;&quot;&gt;&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#fbe3bf;&quot;&gt;The Quick Brown Fox Jumps Over The Lazy Dog&lt;&#x2F;span&gt;&lt;span style=&quot;color:#ffffff;&quot;&gt;&amp;quot;&lt;&#x2F;span&gt;&lt;span&gt;;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;let&lt;&#x2F;span&gt;&lt;span&gt; actual &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#6699cc;&quot;&gt;capitalize&lt;&#x2F;span&gt;&lt;span&gt;(input);
+&lt;&#x2F;span&gt;&lt;span&gt;    assert_eq!(actual, expected);
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;One variation of this method is table-driven testing, or data-driven testing. As
+far as I know (and I have no source for this), this technique was popularized by
+Go (see &lt;a href=&quot;https:&#x2F;&#x2F;go.dev&#x2F;wiki&#x2F;TableDrivenTests&quot;&gt;https:&#x2F;&#x2F;go.dev&#x2F;wiki&#x2F;TableDrivenTests&lt;&#x2F;a&gt;), but is also recommended in &lt;a href=&quot;https:&#x2F;&#x2F;matklad.github.io&#x2F;2021&#x2F;05&#x2F;31&#x2F;how-to-test.html#Data-Driven-Testing&quot;&gt;How to Test -- Data Driven Testing&lt;&#x2F;a&gt;
+and has a similar implementation in JUnit&#x27;s &lt;code&gt;@ParameterizedTest&lt;&#x2F;code&gt;s (see
+&lt;a href=&quot;https:&#x2F;&#x2F;junit.org&#x2F;junit5&#x2F;docs&#x2F;current&#x2F;user-guide&#x2F;#writing-tests-parameterized-tests&quot;&gt;https:&#x2F;&#x2F;junit.org&#x2F;junit5&#x2F;docs&#x2F;current&#x2F;user-guide&#x2F;#writing-tests-parameterized-tests&lt;&#x2F;a&gt;).&lt;&#x2F;p&gt;
+&lt;p&gt;In my opinion, Go&#x27;s implementation of table-driven tests is still the best.
+Because the built-in testing library makes it easy to create subtests, you can
+write something like this:&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;go&quot; style=&quot;background-color:#191919;color:#f8f8f2;&quot; class=&quot;language-go &quot;&gt;&lt;code class=&quot;language-go&quot; data-lang=&quot;go&quot;&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;func &lt;&#x2F;span&gt;&lt;span style=&quot;color:#8cdaff;&quot;&gt;TestCapitalize&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fc9354;&quot;&gt;t &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;*&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;testing&lt;&#x2F;span&gt;&lt;span&gt;.&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;T&lt;&#x2F;span&gt;&lt;span&gt;) {
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;type &lt;&#x2F;span&gt;&lt;span&gt;testcase &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;struct &lt;&#x2F;span&gt;&lt;span&gt;{
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;Input    &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbe3bf;&quot;&gt;string
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;Expected &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbe3bf;&quot;&gt;string
+&lt;&#x2F;span&gt;&lt;span&gt;    }
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;testcases &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;:= &lt;&#x2F;span&gt;&lt;span&gt;[]&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;testcase&lt;&#x2F;span&gt;&lt;span&gt;{
+&lt;&#x2F;span&gt;&lt;span&gt;        {
+&lt;&#x2F;span&gt;&lt;span&gt;            &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;Input&lt;&#x2F;span&gt;&lt;span&gt;: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ffffff;&quot;&gt;&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#fbe3bf;&quot;&gt;the quick Brown fOx JUMPS OVer THE LazY dog&lt;&#x2F;span&gt;&lt;span style=&quot;color:#ffffff;&quot;&gt;&amp;quot;&lt;&#x2F;span&gt;&lt;span&gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;            &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;Expected&lt;&#x2F;span&gt;&lt;span&gt;: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ffffff;&quot;&gt;&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#fbe3bf;&quot;&gt;The Quick Brown Fox Jumps Over The Lazy Dog&lt;&#x2F;span&gt;&lt;span style=&quot;color:#ffffff;&quot;&gt;&amp;quot;&lt;&#x2F;span&gt;&lt;span&gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;        },
+&lt;&#x2F;span&gt;&lt;span&gt;        {
+&lt;&#x2F;span&gt;&lt;span&gt;            &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;Input&lt;&#x2F;span&gt;&lt;span&gt;: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ffffff;&quot;&gt;&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#fbe3bf;&quot;&gt;the quick brown fox jumps over the lazy dog&lt;&#x2F;span&gt;&lt;span style=&quot;color:#ffffff;&quot;&gt;&amp;quot;&lt;&#x2F;span&gt;&lt;span&gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;            &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;Expected&lt;&#x2F;span&gt;&lt;span&gt;: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ffffff;&quot;&gt;&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#fbe3bf;&quot;&gt;The Quick Brown Fox Jumps Over The Lazy Dog&lt;&#x2F;span&gt;&lt;span style=&quot;color:#ffffff;&quot;&gt;&amp;quot;&lt;&#x2F;span&gt;&lt;span&gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;        },
+&lt;&#x2F;span&gt;&lt;span&gt;        {
+&lt;&#x2F;span&gt;&lt;span&gt;            &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;Input&lt;&#x2F;span&gt;&lt;span&gt;: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ffffff;&quot;&gt;&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#fbe3bf;&quot;&gt;THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG&lt;&#x2F;span&gt;&lt;span style=&quot;color:#ffffff;&quot;&gt;&amp;quot;&lt;&#x2F;span&gt;&lt;span&gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;            &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;Expected&lt;&#x2F;span&gt;&lt;span&gt;: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ffffff;&quot;&gt;&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#fbe3bf;&quot;&gt;The Quick Brown Fox Jumps Over The Lazy Dog&lt;&#x2F;span&gt;&lt;span style=&quot;color:#ffffff;&quot;&gt;&amp;quot;&lt;&#x2F;span&gt;&lt;span&gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;        },
+&lt;&#x2F;span&gt;&lt;span&gt;        {
+&lt;&#x2F;span&gt;&lt;span&gt;            &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;Input&lt;&#x2F;span&gt;&lt;span&gt;: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ffffff;&quot;&gt;&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#fbe3bf;&quot;&gt;hello. world!&lt;&#x2F;span&gt;&lt;span style=&quot;color:#ffffff;&quot;&gt;&amp;quot;&lt;&#x2F;span&gt;&lt;span&gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;            &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;Expected&lt;&#x2F;span&gt;&lt;span&gt;: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ffffff;&quot;&gt;&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#fbe3bf;&quot;&gt;Hello. World!&lt;&#x2F;span&gt;&lt;span style=&quot;color:#ffffff;&quot;&gt;&amp;quot;&lt;&#x2F;span&gt;&lt;span&gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;        },
+&lt;&#x2F;span&gt;&lt;span&gt;    }
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;i&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;tc &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;:= range &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;testcases &lt;&#x2F;span&gt;&lt;span&gt;{
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;description &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;:= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;fmt&lt;&#x2F;span&gt;&lt;span&gt;.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;Sprintf&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#ffffff;&quot;&gt;&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#fbe3bf;&quot;&gt;(#&lt;&#x2F;span&gt;&lt;span style=&quot;color:#fdb082;&quot;&gt;%d&lt;&#x2F;span&gt;&lt;span style=&quot;color:#fbe3bf;&quot;&gt;) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#fdb082;&quot;&gt;%s&lt;&#x2F;span&gt;&lt;span style=&quot;color:#ffffff;&quot;&gt;&amp;quot;&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;i&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;tc&lt;&#x2F;span&gt;&lt;span&gt;.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;Input&lt;&#x2F;span&gt;&lt;span&gt;)
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;t&lt;&#x2F;span&gt;&lt;span&gt;.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;Run&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;description&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;func&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fc9354;&quot;&gt;t &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;*&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;testing&lt;&#x2F;span&gt;&lt;span&gt;.&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;T&lt;&#x2F;span&gt;&lt;span&gt;) {
+&lt;&#x2F;span&gt;&lt;span&gt;            &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;t&lt;&#x2F;span&gt;&lt;span&gt;.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;Parallel&lt;&#x2F;span&gt;&lt;span&gt;()
+&lt;&#x2F;span&gt;&lt;span&gt;            &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;actual &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;:= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;Capitalize&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;tc&lt;&#x2F;span&gt;&lt;span&gt;.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;Input&lt;&#x2F;span&gt;&lt;span&gt;)
+&lt;&#x2F;span&gt;&lt;span&gt;            &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;if &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;actual &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;!= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;tc&lt;&#x2F;span&gt;&lt;span&gt;.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;Expected &lt;&#x2F;span&gt;&lt;span&gt;{
+&lt;&#x2F;span&gt;&lt;span&gt;                &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;t&lt;&#x2F;span&gt;&lt;span&gt;.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;Fatalf&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#ffffff;&quot;&gt;&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#fbe3bf;&quot;&gt;Expected &amp;lt;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#fdb082;&quot;&gt;%v&lt;&#x2F;span&gt;&lt;span style=&quot;color:#fbe3bf;&quot;&gt;&amp;gt; but got &amp;lt;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#fdb082;&quot;&gt;%v&lt;&#x2F;span&gt;&lt;span style=&quot;color:#fbe3bf;&quot;&gt;&amp;gt;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#ffffff;&quot;&gt;&amp;quot;&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;tc&lt;&#x2F;span&gt;&lt;span&gt;.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;Expected&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;actual&lt;&#x2F;span&gt;&lt;span&gt;)
+&lt;&#x2F;span&gt;&lt;span&gt;            }
+&lt;&#x2F;span&gt;&lt;span&gt;        })
+&lt;&#x2F;span&gt;&lt;span&gt;    }
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;Notice we start the subtest with a &lt;code&gt;description&lt;&#x2F;code&gt; in &lt;code&gt;t.Run(description, ...)&lt;&#x2F;code&gt;.
+If this test fails, that description is reported in the failure message, making
+it easy to find which test failed! This is a pain point reported in How to Test:&lt;&#x2F;p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;But there’s a drawback as well — without literal #[test] attributes,
+integration with tooling suffers. For example, you don’t automatically get “X
+out of Y tests passed” at the end of test run.&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;p&gt;Indeed, in Rust&#x27;s standard testing lib, there&#x27;s no way to run subtests and have
+them reported neatly, unfortunately.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;snapshot-testing&quot;&gt;Snapshot testing&lt;a class=&quot;zola-anchor&quot; href=&quot;#snapshot-testing&quot; aria-label=&quot;Anchor link for: snapshot-testing&quot;&gt;#&lt;&#x2F;a&gt;
+&lt;&#x2F;h2&gt;
+&lt;p&gt;Also known as golden tests or expect tests, snapshot testing is example-based
+testing with a twist. When a snapshot test breaks, instead of manually fixing
+the expected values there&#x27;s a mode of running the tests that &lt;strong&gt;updates the
+expectations based on the real outputs&lt;&#x2F;strong&gt;, potentially saving you a lot of time.&lt;&#x2F;p&gt;
+&lt;p&gt;Although matklad recommends this technique in &lt;a href=&quot;https:&#x2F;&#x2F;matklad.github.io&#x2F;2021&#x2F;05&#x2F;31&#x2F;how-to-test.html#Expect-Tests&quot;&gt;How to Test -- Expect-Tests&lt;&#x2F;a&gt;,
+I&#x27;ll be using the (very recent!) library &lt;a href=&quot;https:&#x2F;&#x2F;selfie.dev&#x2F;&quot;&gt;selfie&lt;&#x2F;a&gt;, which
+runs in the JVM, for an example. With selfie, you&#x27;d write a test like this
+(blatantly stolen from their frontpage):&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;java&quot; style=&quot;background-color:#191919;color:#f8f8f2;&quot; class=&quot;language-java &quot;&gt;&lt;code class=&quot;language-java&quot; data-lang=&quot;java&quot;&gt;&lt;span&gt;@&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;Test
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;public&lt;&#x2F;span&gt;&lt;span&gt; void &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;primesBelow100&lt;&#x2F;span&gt;&lt;span&gt;() {
+&lt;&#x2F;span&gt;&lt;span&gt;  &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;expectSelfie&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;primesBelow&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#fdb082;&quot;&gt;100&lt;&#x2F;span&gt;&lt;span&gt;).&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;toString&lt;&#x2F;span&gt;&lt;span&gt;()).&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;toBe_TODO&lt;&#x2F;span&gt;&lt;span&gt;();
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;When running the test, selfie recognizes the &lt;code&gt;_TODO()&lt;&#x2F;code&gt; invocation and replaces
+it in your own files by&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;java&quot; style=&quot;background-color:#191919;color:#f8f8f2;&quot; class=&quot;language-java &quot;&gt;&lt;code class=&quot;language-java&quot; data-lang=&quot;java&quot;&gt;&lt;span&gt;@&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;Test
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;public&lt;&#x2F;span&gt;&lt;span&gt; void &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;primesBelow100&lt;&#x2F;span&gt;&lt;span&gt;() {
+&lt;&#x2F;span&gt;&lt;span&gt;  &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;expectSelfie&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;primesBelow&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#fdb082;&quot;&gt;100&lt;&#x2F;span&gt;&lt;span&gt;).&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;toString&lt;&#x2F;span&gt;&lt;span&gt;())
+&lt;&#x2F;span&gt;&lt;span&gt;    .&lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;toBe&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#ffffff;&quot;&gt;&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#fbe3bf;&quot;&gt;[2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97]&lt;&#x2F;span&gt;&lt;span style=&quot;color:#ffffff;&quot;&gt;&amp;quot;&lt;&#x2F;span&gt;&lt;span&gt;);
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;Of course, you still need to verify that the output is really what you want. If
+that prime list contained a &lt;code&gt;42&lt;&#x2F;code&gt; in the middle and no one noticed, the tests
+would pass anyway, but that&#x27;s why it&#x27;s called snapshot testing: the expectation
+captures a snapshot of &lt;code&gt;primesBelow(100)&lt;&#x2F;code&gt; and if it ever changes we&#x27;ll be
+notified by a failing test.&lt;&#x2F;p&gt;
+&lt;p&gt;Selfie also supports saving the expected string in a file, as well as some more
+advanced features which are less common in the snapshot testing libraries I&#x27;ve
+seen. The &lt;a href=&quot;https:&#x2F;&#x2F;selfie.dev&#x2F;jvm&#x2F;facets&quot;&gt;facets&lt;&#x2F;a&gt; page exemplifies one of those.&lt;&#x2F;p&gt;
+&lt;p&gt;In Go land, it&#x27;s more common to see this pattern of testing named as &amp;quot;golden
+files&amp;quot;. I&#x27;m not sure if the naming influences the implementations or the
+opposite, but indeed it&#x27;s less common to see &amp;quot;inline&amp;quot; expectations such as
+&lt;code&gt;.toBe(&amp;quot;[list of primes...]&amp;quot;)&lt;&#x2F;code&gt;. Instead, libraries such as
+&lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;sebdah&#x2F;goldie&quot;&gt;goldie&lt;&#x2F;a&gt; always store expected strings in a
+(golden) file. This makes sense for longer strings, but I think this approach
+makes it harder to review the correctness of the output, given that it&#x27;s always
+in another file.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;model-based-testing&quot;&gt;Model-based Testing&lt;a class=&quot;zola-anchor&quot; href=&quot;#model-based-testing&quot; aria-label=&quot;Anchor link for: model-based-testing&quot;&gt;#&lt;&#x2F;a&gt;
+&lt;&#x2F;h2&gt;
+&lt;p&gt;A characteristic of example and snapshot-based testing is that they require that
+the expected output of the program is &amp;quot;hardcoded&amp;quot; into the test. Because this
+requires hand-crafting expectations, this can be impractical, especially when
+the output is complex or hard to verify.&lt;&#x2F;p&gt;
+&lt;p&gt;In some situations, we can implement another version of the program that does
+the same thing but implemented in an easier way (a model), perhaps with
+different performance characteristics, and compare the outputs of the two
+programs.&lt;&#x2F;p&gt;
+&lt;p&gt;For example, to test an optimizing compiler, one could implement a much simpler
+interpreter and verify for various inputs that both compiled and interpreted
+programs produce the same output. &lt;&#x2F;p&gt;
+&lt;p&gt;Although I haven&#x27;t read much on model-based testing,
+&lt;a href=&quot;https:&#x2F;&#x2F;concerningquality.com&#x2F;model-based-testing&#x2F;&quot;&gt;Property-Based Testing Against a Model of a Web Application&lt;&#x2F;a&gt;
+seems like a good starting point.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;property-testing&quot;&gt;Property Testing&lt;a class=&quot;zola-anchor&quot; href=&quot;#property-testing&quot; aria-label=&quot;Anchor link for: property-testing&quot;&gt;#&lt;&#x2F;a&gt;
+&lt;&#x2F;h2&gt;
+&lt;p&gt;Example, snapshot and model-based tests all need a test oracle: the expected
+output needs to be known and compared against the real one. This approach has
+some limitations, of course, because the expected output is a lot of times too
+big, complex or hard to generate. Property testing is the first way I&#x27;ll
+introduce of testing &lt;strong&gt;without an oracle&lt;&#x2F;strong&gt;!&lt;&#x2F;p&gt;
+&lt;p&gt;The idea here is to come up with a kind of &amp;quot;mathematical&amp;quot; property of the system
+under test, and check if the property holds for the inputs (these are often
+randomly generated).&lt;&#x2F;p&gt;
+&lt;p&gt;For example, suppose we&#x27;re writing a UUID library. UUIDs have a &lt;code&gt;ToString&lt;&#x2F;code&gt;
+method, but we also wrote a &lt;code&gt;FromString&lt;&#x2F;code&gt; function. It makes sense, then, to
+test that calling &lt;code&gt;ToString&lt;&#x2F;code&gt; and then &lt;code&gt;FromString&lt;&#x2F;code&gt; should yield the original
+UUID, a sort of &amp;quot;inversibility&amp;quot; or &amp;quot;round-tripness&amp;quot; property. This is by far the
+most commonly cited property, it can be tricky to find others!&lt;&#x2F;p&gt;
+&lt;p&gt;F# for Fun and Profit has
+&lt;a href=&quot;https:&#x2F;&#x2F;fsharpforfunandprofit.com&#x2F;series&#x2F;property-based-testing&#x2F;&quot;&gt;an entire series on property-based testing&lt;&#x2F;a&gt;,
+which covers the topic quite well, from the basics to ways of finding new
+properties.&lt;&#x2F;p&gt;
+&lt;p&gt;A talk that&#x27;s pretty specific to Rust, but nonetheless very interesting is
+&lt;a href=&quot;https:&#x2F;&#x2F;www.youtube.com&#x2F;watch?v=ms8zKpS_dZE&quot;&gt;Property-testing async code in Rust to build reliable distributed systems&lt;&#x2F;a&gt;
+by Antonio Scandurra. In it, Antonio explains how &lt;a href=&quot;https:&#x2F;&#x2F;zed.dev&#x2F;&quot;&gt;Zed&lt;&#x2F;a&gt;
+wraps the async executor in test code to randomize the order of concurrent
+tasks, thus covering cases that would be much harder to trigger otherwise,
+also making the concurrency deterministic (randomized with a known seed) in
+the process (actually, I&#x27;m not sure it&#x27;s fully deterministic? Not sure about
+this part, please go watch the video :).&lt;&#x2F;p&gt;
+&lt;p&gt;Surprisingly (for me at least), Go&#x27;s standard testing library has a
+property-testing framework called &lt;a href=&quot;https:&#x2F;&#x2F;pkg.go.dev&#x2F;testing&#x2F;quick&quot;&gt;testing&#x2F;quick&lt;&#x2F;a&gt;,
+based on Haskell&#x27;s &lt;a href=&quot;https:&#x2F;&#x2F;hackage.haskell.org&#x2F;package&#x2F;QuickCheck&quot;&gt;QuickCheck&lt;&#x2F;a&gt;.
+In Go&#x27;s version, you write a &lt;code&gt;func (x Input) bool&lt;&#x2F;code&gt; and the library generates
+values of &lt;code&gt;x&lt;&#x2F;code&gt; to try and make it return &lt;code&gt;false&lt;&#x2F;code&gt;, in which case the test would
+fail.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;metamorphic-testing&quot;&gt;Metamorphic Testing&lt;a class=&quot;zola-anchor&quot; href=&quot;#metamorphic-testing&quot; aria-label=&quot;Anchor link for: metamorphic-testing&quot;&gt;#&lt;&#x2F;a&gt;
+&lt;&#x2F;h2&gt;
+&lt;p&gt;Metamorphic testing is actually a flavor of property testing, a subset of ways
+you could pick a property. This technique relies on generating inputs like
+in property tests, then modifying it in a way that we know what should change in
+the output. For example, suppose we&#x27;re testing a &lt;code&gt;StableSort&lt;&#x2F;code&gt; function. If we
+shuffle the input, the output should not change at all, but if we concatenate
+the input to itself (e.g. &lt;code&gt;[1, 2, 3] =&amp;gt; [1, 2, 3, 1, 2, 3]&lt;&#x2F;code&gt;), the output will be
+interspersed with itself (e.g. &lt;code&gt;[1, 2, 3] =&amp;gt; [1, 1, 2, 2, 3, 3]&lt;&#x2F;code&gt;).&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;www.hillelwayne.com&#x2F;post&#x2F;metamorphic-testing&#x2F;&quot;&gt;Metamorphic Testing&lt;&#x2F;a&gt; by Hillel Wayne
+gives great examples of the technique and links some academic papers, if you&#x27;re
+into that. Unfortunately, it does not link &lt;a href=&quot;https:&#x2F;&#x2F;buttondown.email&#x2F;hillelwayne&#x2F;archive&#x2F;cross-branch-testing&#x2F;&quot;&gt;Cross-Branch Testing&lt;&#x2F;a&gt;,
+also by Hillel Wayne, about a method that could be considered snapshot testing,
+model-based testing, property testing and metamorphic testing all at once! In
+short, the idea consists in using another git branch as a model and checking the
+property &lt;code&gt;thing(X) == thing_from_another_branch(X)&lt;&#x2F;code&gt;. Kind of like a snapshot!&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;weird-tests&quot;&gt;Weird Tests&lt;a class=&quot;zola-anchor&quot; href=&quot;#weird-tests&quot; aria-label=&quot;Anchor link for: weird-tests&quot;&gt;#&lt;&#x2F;a&gt;
+&lt;&#x2F;h2&gt;
+&lt;p&gt;Surely this can&#x27;t be the only term used for these kinds of tests, but &lt;a href=&quot;https:&#x2F;&#x2F;jmduke.com&#x2F;posts&#x2F;essays&#x2F;weird-tests-tacit-knowledge&#x2F;&quot;&gt;Use weird tests to capture tacit knowledge&lt;&#x2F;a&gt;
+uses it and so will I.&lt;&#x2F;p&gt;
+&lt;p&gt;Weird tests test things you wish were true in your codebase, but are not
+enforced by any other tooling. matklad explains it better than I could in &lt;a href=&quot;https:&#x2F;&#x2F;matklad.github.io&#x2F;2024&#x2F;03&#x2F;22&#x2F;basic-things.html#Not-Rocket-Science-Rule&quot;&gt;Basic Things -- Not Rocket Science Rule&lt;&#x2F;a&gt;:&lt;&#x2F;p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Maintain a well-defined set of automated checks that pass on the main branch
+at all times. If you don’t want large blobs in git repository, write a test
+rejecting large git objects and run that right before updating the main
+branch. No merge commits on feature branches? Write a test which fails with a
+pageful of Git self-help if one is detected. Want to wrap .md at 80 columns?
+Write a test :)&lt;&#x2F;p&gt;
+&lt;p&gt;It is perhaps worth you while to re-read the original post:
+&lt;a href=&quot;https:&#x2F;&#x2F;graydon2.dreamwidth.org&#x2F;1597.html&quot;&gt;https:&#x2F;&#x2F;graydon2.dreamwidth.org&#x2F;1597.html&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;This mindset of monotonically growing set of properties that are true about
+the codebase is incredibly powerful. You start seeing code as temporary, fluid
+thing that can always be changed relatively cheaply, and the accumulated set
+of automated tests as the real value of the project.&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;p&gt;Note: matklad calls &amp;quot;weird tests&amp;quot; the &amp;quot;not rocket science rule&amp;quot;, but I don&#x27;t get
+the impression these are the same things from the original NRSR post? I&#x27;ll
+continue calling them weird tests :)&lt;&#x2F;p&gt;
+&lt;p&gt;These are a great way of &amp;quot;documenting&amp;quot; processes and standards in a given
+project! It helps both new team members and veterans that may have forgotten a
+thing or two.&lt;&#x2F;p&gt;
+&lt;p&gt;As a side note, I think running linters and format-checkers could be considered
+&amp;quot;weird tests&amp;quot; as well. These are standard practice, why not make your own lints
+as well?&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;formal-methods&quot;&gt;Formal Methods&lt;a class=&quot;zola-anchor&quot; href=&quot;#formal-methods&quot; aria-label=&quot;Anchor link for: formal-methods&quot;&gt;#&lt;&#x2F;a&gt;
+&lt;&#x2F;h2&gt;
+&lt;p&gt;So you like property testing, but worry that the random test cases might miss
+something? Why not &lt;em&gt;mathematically prove&lt;&#x2F;em&gt; those properties instead, then? Formal
+methods allow us to verify properties for &lt;em&gt;all&lt;&#x2F;em&gt; inputs, without actually running
+the program! A lot of effort has been put into making this kind of technique
+more mainstream, but it hasn&#x27;t really catched on, unfortunately.&lt;&#x2F;p&gt;
+&lt;p&gt;One way of writing these proofs is with languages that implement
+&lt;a href=&quot;https:&#x2F;&#x2F;en.wikipedia.org&#x2F;wiki&#x2F;Dependent_type&quot;&gt;dependent typing&lt;&#x2F;a&gt;, like &lt;a href=&quot;https:&#x2F;&#x2F;coq.inria.fr&#x2F;&quot;&gt;Coq&lt;&#x2F;a&gt;, &lt;a href=&quot;https:&#x2F;&#x2F;agda.readthedocs.io&#x2F;en&#x2F;v2.6.0.1&#x2F;getting-started&#x2F;what-is-agda.html&quot;&gt;Agda&lt;&#x2F;a&gt;, &lt;a href=&quot;https:&#x2F;&#x2F;idris2.readthedocs.io&#x2F;en&#x2F;latest&#x2F;tutorial&#x2F;theorems.html&quot;&gt;Idris&lt;&#x2F;a&gt; and &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;HigherOrderCO&#x2F;kind&quot;&gt;Kind&lt;&#x2F;a&gt;.
+Types in these languages can encode proofs, so in some cases you don&#x27;t even need
+to write a test, instead choosing to return a type that proves the test would
+pass (if it doesn&#x27;t pass, it doesn&#x27;t compile!). A big barrier to entry for
+dependent typing is that you need to use these very specific languages to get
+the benefit, you can&#x27;t just &lt;code&gt;go get&lt;&#x2F;code&gt; a &amp;quot;dependent types library&amp;quot; to start using
+it in a Go application that already exists, you have to write that application
+from scratch in Agda or something. &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;HigherOrderCO&#x2F;Kind-Legacy&quot;&gt;Kind1&lt;&#x2F;a&gt; actually compiled
+to JS, so you could make it work for some real-life applications, but this seems
+to not be the case in the current version of Kind. I guess Kind compiles to C,
+so you should be able to embed it in other stuff, but few people bother.&lt;&#x2F;p&gt;
+&lt;p&gt;Another kind of formal method are &lt;a href=&quot;https:&#x2F;&#x2F;en.wikipedia.org&#x2F;wiki&#x2F;Satisfiability_modulo_theories&quot;&gt;SMT Solvers&lt;&#x2F;a&gt;, such as the &lt;a href=&quot;https:&#x2F;&#x2F;en.wikipedia.org&#x2F;wiki&#x2F;Z3_Theorem_Prover&quot;&gt;Z3 Theorem Prover&lt;&#x2F;a&gt;,
+used by &lt;a href=&quot;https:&#x2F;&#x2F;en.wikipedia.org&#x2F;wiki&#x2F;Dafny&quot;&gt;Dafny&lt;&#x2F;a&gt;. In Dafny, you can specify
+preconditions, postconditions, loop invariants and more, then given
+enough information the compiler will automatically prove the constraints for
+you, or give a counter-example. I haven&#x27;t used SMT solvers myself, so I can&#x27;t
+say much here, but I think the overall idea is pretty cool. Again, though, the
+code you want to prove needs to be written in Dafny if you want to prove things
+with it, even if it does compile to a bunch of languages (currently C#, Go,
+Python, Java and JavaScript). &lt;&#x2F;p&gt;
+&lt;h2 id=&quot;should-you-really-write-that-test&quot;&gt;Should You Really Write That Test?&lt;a class=&quot;zola-anchor&quot; href=&quot;#should-you-really-write-that-test&quot; aria-label=&quot;Anchor link for: should-you-really-write-that-test&quot;&gt;#&lt;&#x2F;a&gt;
+&lt;&#x2F;h2&gt;
+&lt;p&gt;Hopefully I&#x27;ve shown you some new and shiny testing techniques in this post and
+you&#x27;re now eager to try them all, get 100% coverage on every git repo you&#x27;ve
+ever touched and spend the next few years fixing all those bugs you&#x27;ve found!&lt;&#x2F;p&gt;
+&lt;p&gt;Calm down there, I don&#x27;t hope that at all. In fact, I like the takes by Brandon
+Smith in &lt;a href=&quot;https:&#x2F;&#x2F;www.brandons.me&#x2F;blog&#x2F;thoughts-on-testing&quot;&gt;Thoughts on Testing&lt;&#x2F;a&gt;.
+As highlighted in the post, tests have to be maintained just like the rest of
+the code in your codebase. It can be easy to add tests for the sake of adding
+them, but this can do more harm than good. Tests that just mirror the
+implementation, for example, can end up needing a lot of maintenance without
+adding much benefit at all.&lt;&#x2F;p&gt;
+&lt;p&gt;Another good post is &lt;a href=&quot;https:&#x2F;&#x2F;testing.googleblog.com&#x2F;2013&#x2F;03&#x2F;testing-on-toilet-testing-state-vs.html&quot;&gt;Testing on the Toilet: Testing State vs. Testing Interactions&lt;&#x2F;a&gt;
+on the Google Testing Blog. The second test in it is an example of a test that
+can give a false sense of security because even though the code is technically
+tested, an incorrect implementation would still pass. &lt;&#x2F;p&gt;
+&lt;h2 id=&quot;test-scoping&quot;&gt;Test Scoping&lt;a class=&quot;zola-anchor&quot; href=&quot;#test-scoping&quot; aria-label=&quot;Anchor link for: test-scoping&quot;&gt;#&lt;&#x2F;a&gt;
+&lt;&#x2F;h2&gt;
+&lt;p&gt;It&#x27;s common to restrict the scope of what you&#x27;re testing by replacing
+dependencies with &lt;a href=&quot;https:&#x2F;&#x2F;martinfowler.com&#x2F;articles&#x2F;mocksArentStubs.html&quot;&gt;fakes, stubs or mocks&lt;&#x2F;a&gt;.&lt;&#x2F;p&gt;
+&lt;p&gt;As supported by &lt;a href=&quot;https:&#x2F;&#x2F;www.brandons.me&#x2F;blog&#x2F;thoughts-on-testing&quot;&gt;Thoughts on Testing&lt;&#x2F;a&gt; and (again) &lt;a href=&quot;https:&#x2F;&#x2F;matklad.github.io&#x2F;2021&#x2F;05&#x2F;31&#x2F;how-to-test.html&quot;&gt;How to Test&lt;&#x2F;a&gt;, tests with a
+really small scope (many unit tests fall into this category) tend to test very
+little, but the amount of tests you write is large, increasing maintenance
+burden while providing less security and confidence in the code. A good idea
+seems to be &lt;a href=&quot;https:&#x2F;&#x2F;www.tedinski.com&#x2F;2019&#x2F;03&#x2F;19&#x2F;testing-at-the-boundaries.html&quot;&gt;Testing at the boundaries&lt;&#x2F;a&gt;,
+alongside &lt;a href=&quot;https:&#x2F;&#x2F;matklad.github.io&#x2F;2021&#x2F;05&#x2F;31&#x2F;how-to-test.html#Test-Features-Not-Code&quot;&gt;Testing Features, Not Code&lt;&#x2F;a&gt;.
+This keeps the implementation flexible and the public API more rigid.&lt;&#x2F;p&gt;
+&lt;p&gt;Some people will argue for the complete opposite side of the discussion and
+defend unit tests that mock everything, but I am not one of them, you&#x27;ll have to
+find the resources for this on your own.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;conclusion&quot;&gt;Conclusion&lt;a class=&quot;zola-anchor&quot; href=&quot;#conclusion&quot; aria-label=&quot;Anchor link for: conclusion&quot;&gt;#&lt;&#x2F;a&gt;
+&lt;&#x2F;h2&gt;
+&lt;p&gt;The main takeaway of this article is that you should read &lt;a href=&quot;https:&#x2F;&#x2F;matklad.github.io&#x2F;2021&#x2F;05&#x2F;31&#x2F;how-to-test.html&quot;&gt;How to Test&lt;&#x2F;a&gt;
+and other posts by matklad – highly recommend &lt;a href=&quot;https:&#x2F;&#x2F;matklad.github.io&#x2F;2024&#x2F;03&#x2F;22&#x2F;basic-things.html&quot;&gt;Basic Things&lt;&#x2F;a&gt; as well.&lt;&#x2F;p&gt;
+&lt;p&gt;Aside from that, we&#x27;ve discussed testing techniques that require a test oracle,
+like example-based, snapshot and model-based testing; as well as techniques that
+don&#x27;t, such as property, metamorphic and cross-branch testing.&lt;&#x2F;p&gt;
+&lt;p&gt;These are good methods to apply to test the behavior of code, but you can test
+properties of the code itself as well! Like custom linters, weird tests verify
+that everyone is following a convention, or hasn&#x27;t forgotten to add a thing
+where it needs to be added, or didn&#x27;t commit a typo in the docs, etc etc. These
+tests can aid in knowledge distribution (if you break a test, it may specify the
+way to fix it) and eases cognitive load (the tests can remind you of how to do
+things). &lt;&#x2F;p&gt;
+&lt;p&gt;But sometimes the best test is no test at all! Some tests do more harm than
+good and can give you a false sense of security while simultaneously making the
+codebase harder to maintain. By testing features and system boundaries, it&#x27;s
+easier to maintain software that does what it&#x27;s supposed to while minimizing
+friction for extension and modification.&lt;&#x2F;p&gt;
+&lt;p&gt;And that&#x27;s it, folks! Happy testing :)&lt;&#x2F;p&gt;
+</content>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>Árvores Para Programação Competitiva</title>
+        <published>2022-08-02T00:00:00+00:00</published>
+        <updated>2022-08-02T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://leoriether.github.io/posts/trees/"/>
+        <id>https://leoriether.github.io/posts/trees/</id>
+        
+        <content type="html" xml:base="https://leoriether.github.io/posts/trees/">&lt;blockquote&gt;
+&lt;p&gt;link da aula: &lt;a href=&quot;https:&#x2F;&#x2F;leoriether.github.io&#x2F;posts&#x2F;trees&quot;&gt;https:&#x2F;&#x2F;leoriether.github.io&#x2F;posts&#x2F;trees&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;p&gt;O que é uma árvore?&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;Grafo com &lt;code&gt;N&lt;&#x2F;code&gt; nós e &lt;code&gt;N-1&lt;&#x2F;code&gt; arestas&lt;&#x2F;li&gt;
+&lt;li&gt;Conexo&lt;&#x2F;li&gt;
+&lt;li&gt;Existe um caminho único entre quaisquer dois vértices&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;&lt;em&gt;Escolha dois.&lt;&#x2F;em&gt;&lt;&#x2F;p&gt;
+&lt;hr &#x2F;&gt;
+&lt;p&gt;Uma árvore pode ou não ter raíz. Se não tiver, é bem provável que a gente possa
+escolher uma raíz qualquer!&lt;&#x2F;p&gt;
+&lt;h1 id=&quot;subarvores&quot;&gt;★ Subárvores&lt;a class=&quot;zola-anchor&quot; href=&quot;#subarvores&quot; aria-label=&quot;Anchor link for: subarvores&quot;&gt;#&lt;&#x2F;a&gt;
+&lt;&#x2F;h1&gt;
+&lt;h2 id=&quot;dfs&quot;&gt;DFS&lt;a class=&quot;zola-anchor&quot; href=&quot;#dfs&quot; aria-label=&quot;Anchor link for: dfs&quot;&gt;#&lt;&#x2F;a&gt;
+&lt;&#x2F;h2&gt;
+&lt;p&gt;Muito útil para quando vc quer&lt;&#x2F;p&gt;
+&lt;ol&gt;
+&lt;li&gt;informação das subárvores pra calcular algo pro vértice, ou&lt;&#x2F;li&gt;
+&lt;li&gt;informação do caminho &lt;code&gt;raíz -&amp;gt; u&lt;&#x2F;code&gt; pra calcular algo pra &lt;code&gt;u&lt;&#x2F;code&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;por que no los dos? (acho que nunca vi problema que usa os dois ao mesmo
+tempo, mas fiquem de olho que eu posso settar um a qualquer momento)&lt;&#x2F;li&gt;
+&lt;li&gt;fazer basicamente qualquer coisa em árvore (basicamente suas duas únicas
+opções são DFS ou BFS)&lt;&#x2F;li&gt;
+&lt;&#x2F;ol&gt;
+&lt;pre data-lang=&quot;cpp&quot; style=&quot;background-color:#191919;color:#f8f8f2;&quot; class=&quot;language-cpp &quot;&gt;&lt;code class=&quot;language-cpp&quot; data-lang=&quot;cpp&quot;&gt;&lt;span&gt;vector&amp;lt;&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;int&lt;&#x2F;span&gt;&lt;span&gt;&amp;gt; g[N];
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;void &lt;&#x2F;span&gt;&lt;span style=&quot;color:#8cdaff;&quot;&gt;dfs&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;int &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fc9354;&quot;&gt;u&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;int &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fc9354;&quot;&gt;p &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#fdb082;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;) {
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;int&lt;&#x2F;span&gt;&lt;span&gt; v &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;:&lt;&#x2F;span&gt;&lt;span&gt; g[u]) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;if &lt;&#x2F;span&gt;&lt;span&gt;(v &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;!=&lt;&#x2F;span&gt;&lt;span&gt; p) {
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;dfs&lt;&#x2F;span&gt;&lt;span&gt;(v, u);
+&lt;&#x2F;span&gt;&lt;span&gt;    }
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;blockquote&gt;
+&lt;p&gt;tamanho de subárvore: &lt;a href=&quot;https:&#x2F;&#x2F;cses.fi&#x2F;problemset&#x2F;task&#x2F;1674&quot;&gt;https:&#x2F;&#x2F;cses.fi&#x2F;problemset&#x2F;task&#x2F;1674&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;h2 id=&quot;dfs-time-preorder-time-euler-tour&quot;&gt;DFS Time &#x2F; Preorder Time &#x2F; Euler Tour&lt;a class=&quot;zola-anchor&quot; href=&quot;#dfs-time-preorder-time-euler-tour&quot; aria-label=&quot;Anchor link for: dfs-time-preorder-time-euler-tour&quot;&gt;#&lt;&#x2F;a&gt;
+&lt;&#x2F;h2&gt;
+&lt;blockquote&gt;
+&lt;p&gt;A única estrutura mais fácil que uma árvore é um &lt;strong&gt;array&lt;&#x2F;strong&gt; &lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;p&gt;Acho que o único jeito de explicar isso é fazendo uns exemplos? 🤔&lt;&#x2F;p&gt;
+&lt;h1 id=&quot;caminhos&quot;&gt;★ Caminhos&lt;a class=&quot;zola-anchor&quot; href=&quot;#caminhos&quot; aria-label=&quot;Anchor link for: caminhos&quot;&gt;#&lt;&#x2F;a&gt;
+&lt;&#x2F;h1&gt;
+&lt;h2 id=&quot;lowest-common-ancestor-lca&quot;&gt;Lowest Common Ancestor (LCA)&lt;a class=&quot;zola-anchor&quot; href=&quot;#lowest-common-ancestor-lca&quot; aria-label=&quot;Anchor link for: lowest-common-ancestor-lca&quot;&gt;#&lt;&#x2F;a&gt;
+&lt;&#x2F;h2&gt;
+&lt;ul&gt;
+&lt;li&gt;O que é?&lt;&#x2F;li&gt;
+&lt;li&gt;Ideia: &lt;strong&gt;todo caminho entre &lt;code&gt;u&lt;&#x2F;code&gt; e &lt;code&gt;v&lt;&#x2F;code&gt; em uma árvore pode ser dividido em dois
+caminhos: &lt;code&gt;u -&amp;gt; LCA(u, v)&lt;&#x2F;code&gt; + &lt;code&gt;v -&amp;gt; LCA(u, v)&lt;&#x2F;code&gt;&lt;&#x2F;strong&gt;&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;h3 id=&quot;as-vezes-voce-so-precisa-saber-que-o-lca-existe&quot;&gt;Às vezes você só precisa saber que o LCA existe...&lt;a class=&quot;zola-anchor&quot; href=&quot;#as-vezes-voce-so-precisa-saber-que-o-lca-existe&quot; aria-label=&quot;Anchor link for: as-vezes-voce-so-precisa-saber-que-o-lca-existe&quot;&gt;#&lt;&#x2F;a&gt;
+&lt;&#x2F;h3&gt;
+&lt;h4 id=&quot;diametro&quot;&gt;Diâmetro&lt;a class=&quot;zola-anchor&quot; href=&quot;#diametro&quot; aria-label=&quot;Anchor link for: diametro&quot;&gt;#&lt;&#x2F;a&gt;
+&lt;&#x2F;h4&gt;
+&lt;blockquote&gt;
+&lt;p&gt;link: &lt;a href=&quot;https:&#x2F;&#x2F;cses.fi&#x2F;problemset&#x2F;task&#x2F;1131&quot;&gt;https:&#x2F;&#x2F;cses.fi&#x2F;problemset&#x2F;task&#x2F;1131&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;p&gt;Truque: transformar a árvore em binária&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;mas-outras-vezes-voce-precisa-calcula-lo&quot;&gt;...mas outras vezes você precisa calculá-lo&lt;a class=&quot;zola-anchor&quot; href=&quot;#mas-outras-vezes-voce-precisa-calcula-lo&quot; aria-label=&quot;Anchor link for: mas-outras-vezes-voce-precisa-calcula-lo&quot;&gt;#&lt;&#x2F;a&gt;
+&lt;&#x2F;h3&gt;
+&lt;p&gt;Problema: Q queries de encontrar a distância entre dois vértices&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;binary-lifting&quot;&gt;Binary lifting&lt;a class=&quot;zola-anchor&quot; href=&quot;#binary-lifting&quot; aria-label=&quot;Anchor link for: binary-lifting&quot;&gt;#&lt;&#x2F;a&gt;
+&lt;&#x2F;h3&gt;
+&lt;blockquote&gt;
+&lt;p&gt;cses: &lt;a href=&quot;https:&#x2F;&#x2F;cses.fi&#x2F;problemset&#x2F;task&#x2F;1687&quot;&gt;https:&#x2F;&#x2F;cses.fi&#x2F;problemset&#x2F;task&#x2F;1687&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;h2 id=&quot;problema-facinho-mas-tricky-do-cses&quot;&gt;Problema facinho mas tricky do cses&lt;a class=&quot;zola-anchor&quot; href=&quot;#problema-facinho-mas-tricky-do-cses&quot; aria-label=&quot;Anchor link for: problema-facinho-mas-tricky-do-cses&quot;&gt;#&lt;&#x2F;a&gt;
+&lt;&#x2F;h2&gt;
+&lt;blockquote&gt;
+&lt;p&gt;link: &lt;a href=&quot;https:&#x2F;&#x2F;cses.fi&#x2F;problemset&#x2F;task&#x2F;1138&quot;&gt;https:&#x2F;&#x2F;cses.fi&#x2F;problemset&#x2F;task&#x2F;1138&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;h2 id=&quot;problema-chefao-empresa-de-festas&quot;&gt;Problema Chefão: Empresa de Festas&lt;a class=&quot;zola-anchor&quot; href=&quot;#problema-chefao-empresa-de-festas&quot; aria-label=&quot;Anchor link for: problema-chefao-empresa-de-festas&quot;&gt;#&lt;&#x2F;a&gt;
+&lt;&#x2F;h2&gt;
+&lt;blockquote&gt;
+&lt;p&gt;link: &lt;a href=&quot;http:&#x2F;&#x2F;maratona.sbc.org.br&#x2F;hist&#x2F;2020&#x2F;primfase20&#x2F;maratona20.pdf&quot;&gt;http:&#x2F;&#x2F;maratona.sbc.org.br&#x2F;hist&#x2F;2020&#x2F;primfase20&#x2F;maratona20.pdf&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;details&gt;
+&lt;summary&gt;Dica&lt;&#x2F;summary&gt;
+A gente pode resolver offline!&lt;&#x2F;details&gt;
+&lt;h1 id=&quot;coisas-que-so-vou-falar-se-der-tempo&quot;&gt;Coisas que só vou falar se der tempo&lt;a class=&quot;zola-anchor&quot; href=&quot;#coisas-que-so-vou-falar-se-der-tempo&quot; aria-label=&quot;Anchor link for: coisas-que-so-vou-falar-se-der-tempo&quot;&gt;#&lt;&#x2F;a&gt;
+&lt;&#x2F;h1&gt;
+&lt;h2 id=&quot;resolver-offline&quot;&gt;Resolver offline&lt;a class=&quot;zola-anchor&quot; href=&quot;#resolver-offline&quot; aria-label=&quot;Anchor link for: resolver-offline&quot;&gt;#&lt;&#x2F;a&gt;
+&lt;&#x2F;h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Muitas vezes é mais fácil resolver um problema &lt;strong&gt;offline&lt;&#x2F;strong&gt; em árvore, porque
+podemos reaproveitar os resultados das subárvores para calcular o resultado de
+um nó!&lt;&#x2F;li&gt;
+&lt;li&gt;Outras vezes, você pode resolver offline mantendo uma estrutura de dados sobre
+um caminho do pai até &lt;code&gt;u&lt;&#x2F;code&gt;&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;h2 id=&quot;rerooting&quot;&gt;Rerooting&lt;a class=&quot;zola-anchor&quot; href=&quot;#rerooting&quot; aria-label=&quot;Anchor link for: rerooting&quot;&gt;#&lt;&#x2F;a&gt;
+&lt;&#x2F;h2&gt;
+&lt;blockquote&gt;
+&lt;p&gt;problema: &lt;a href=&quot;https:&#x2F;&#x2F;cses.fi&#x2F;problemset&#x2F;task&#x2F;1132&quot;&gt;https:&#x2F;&#x2F;cses.fi&#x2F;problemset&#x2F;task&#x2F;1132&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;problema: &lt;a href=&quot;https:&#x2F;&#x2F;cses.fi&#x2F;problemset&#x2F;task&#x2F;1133&#x2F;&quot;&gt;https:&#x2F;&#x2F;cses.fi&#x2F;problemset&#x2F;task&#x2F;1133&#x2F;&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;h2 id=&quot;centroid-decomposition&quot;&gt;Centroid Decomposition&lt;a class=&quot;zola-anchor&quot; href=&quot;#centroid-decomposition&quot; aria-label=&quot;Anchor link for: centroid-decomposition&quot;&gt;#&lt;&#x2F;a&gt;
+&lt;&#x2F;h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Modo de decompor a árvore&lt;&#x2F;li&gt;
+&lt;li&gt;De forma parecida com o LCA, todo caminho entre dois vértices **em subárvores&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;h1 id=&quot;ler-mais&quot;&gt;★ Ler Mais&lt;a class=&quot;zola-anchor&quot; href=&quot;#ler-mais&quot; aria-label=&quot;Anchor link for: ler-mais&quot;&gt;#&lt;&#x2F;a&gt;
+&lt;&#x2F;h1&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;codeforces.com&#x2F;blog&#x2F;entry&#x2F;44351&quot;&gt;Small to Large &#x2F; DSU on Tree &#x2F; Sack&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;cp-algorithms.com&#x2F;graph&#x2F;hld.html#proof-of-correctness&quot;&gt;Decomposição Heavy-Light&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;codeforces.com&#x2F;blog&#x2F;entry&#x2F;100910&quot;&gt;7th Litte Technique&lt;&#x2F;a&gt; (nos
+comentários você encontra mais uns 2 ou 3 truques relacionados!)&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;www.youtube.com&#x2F;watch?v=XZLN6NxEQWo&quot;&gt;Árvores Link-Cut&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;codeforces.com&#x2F;blog&#x2F;entry&#x2F;76955&quot;&gt;Virtual Trees&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+</content>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>How Floyd-Warshall is used to convert DFAs to regexes</title>
+        <published>2022-02-20T00:00:00+00:00</published>
+        <updated>2022-02-20T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://leoriether.github.io/posts/floyd-warshall-regex/"/>
+        <id>https://leoriether.github.io/posts/floyd-warshall-regex/</id>
+        
+        <content type="html" xml:base="https://leoriether.github.io/posts/floyd-warshall-regex/">&lt;p&gt;It&#x27;s really fun to find unexpected connections between different areas of
+knowledge, like how recursion and mathematical induction are essentially the
+same thing, or how linear independence in vector spaces correlates with cycles
+in graphs (so much so that &lt;a href=&quot;https:&#x2F;&#x2F;acm.timus.ru&#x2F;problem.aspx?space=1&amp;amp;num=1041&quot;&gt;you can run Kruskal on either&lt;&#x2F;a&gt;). The topic for
+today is neither of these, it&#x27;s actually about how the algorithm that converts a
+deterministic finite automaton to a regular expression is actually very very
+similar to Floyd-Warshall&#x27;s shortest path algorithm. Let&#x27;s start with the automata, shall we? &lt;&#x2F;p&gt;
+&lt;h1 id=&quot;deterministic-finite-automata&quot;&gt;Deterministic Finite Automata&lt;a class=&quot;zola-anchor&quot; href=&quot;#deterministic-finite-automata&quot; aria-label=&quot;Anchor link for: deterministic-finite-automata&quot;&gt;#&lt;&#x2F;a&gt;
+&lt;&#x2F;h1&gt;
+</content>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>Hello World!</title>
+        <published>2022-01-21T00:00:00+00:00</published>
+        <updated>2022-02-25T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://leoriether.github.io/posts/test/"/>
+        <id>https://leoriether.github.io/posts/test/</id>
+        
+        <content type="html" xml:base="https://leoriether.github.io/posts/test/">&lt;p&gt;Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
+incididunt ut labore et dolore magna aliqua. Euismod quis viverra nibh cras
+pulvinar mattis. Porta lorem mollis aliquam ut porttitor leo a diam
+sollicitudin. Cursus sit amet dictum sit. Et odio pellentesque diam volutpat
+commodo. Non diam phasellus vestibulum lorem. Sed ullamcorper morbi tincidunt
+ornare massa. Ornare suspendisse sed nisi lacus. Bibendum neque egestas congue
+quisque egestas diam in arcu. Lorem ipsum dolor sit amet consectetur adipiscing
+elit duis. Enim ut sem viverra aliquet eget sit. Feugiat in ante metus dictum
+at. Porttitor rhoncus dolor purus non enim praesent elementum. Id aliquet risus
+feugiat in ante metus. Amet risus nullam eget felis eget nunc lobortis mattis.
+Nisl tincidunt eget nullam non nisi. Sit amet consectetur adipiscing elit
+pellentesque.&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;rust&quot; style=&quot;background-color:#191919;color:#f8f8f2;&quot; class=&quot;language-rust &quot;&gt;&lt;code class=&quot;language-rust&quot; data-lang=&quot;rust&quot;&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;fn &lt;&#x2F;span&gt;&lt;span style=&quot;color:#8cdaff;&quot;&gt;main&lt;&#x2F;span&gt;&lt;span&gt;() {
+&lt;&#x2F;span&gt;&lt;span&gt;    println!(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#ffffff;&quot;&gt;&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#fbe3bf;&quot;&gt;Hello World!&lt;&#x2F;span&gt;&lt;span style=&quot;color:#ffffff;&quot;&gt;&amp;quot;&lt;&#x2F;span&gt;&lt;span&gt;);
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;I actually have to write something here, otherwise the two codeblocks just merge. &lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;kotlin&quot; style=&quot;background-color:#191919;color:#f8f8f2;&quot; class=&quot;language-kotlin &quot;&gt;&lt;code class=&quot;language-kotlin&quot; data-lang=&quot;kotlin&quot;&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;fun &lt;&#x2F;span&gt;&lt;span style=&quot;color:#8cdaff;&quot;&gt;main&lt;&#x2F;span&gt;&lt;span&gt;() {
+&lt;&#x2F;span&gt;&lt;span&gt;    println(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#ffffff;&quot;&gt;&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#fbe3bf;&quot;&gt;Hello World!&lt;&#x2F;span&gt;&lt;span style=&quot;color:#ffffff;&quot;&gt;&amp;quot;&lt;&#x2F;span&gt;&lt;span&gt;)
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;Leo vel orci porta non pulvinar neque laoreet. Fames ac turpis egestas integer.
+Mollis aliquam ut porttitor leo a diam sollicitudin tempor. At tempor commodo
+ullamcorper a lacus. Integer quis auctor elit sed vulputate. At ultrices mi
+tempus imperdiet nulla malesuada pellentesque elit. Pretium viverra suspendisse
+potenti nullam ac tortor. Diam maecenas sed enim ut. Volutpat ac tincidunt
+vitae semper quis lectus. Auctor elit sed vulputate mi sit amet mauris commodo
+quis. Libero nunc consequat interdum varius sit amet mattis vulputate.&lt;&#x2F;p&gt;
+</content>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>Intuition Behind the Small to Large Algorithm</title>
+        <published>2021-06-05T00:00:00+00:00</published>
+        <updated>2021-06-05T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://leoriether.github.io/posts/small-to-large/"/>
+        <id>https://leoriether.github.io/posts/small-to-large/</id>
+        
+        <content type="html" xml:base="https://leoriether.github.io/posts/small-to-large/">&lt;h1 id=&quot;the-problem&quot;&gt;The Problem&lt;a class=&quot;zola-anchor&quot; href=&quot;#the-problem&quot; aria-label=&quot;Anchor link for: the-problem&quot;&gt;#&lt;&#x2F;a&gt;
+&lt;&#x2F;h1&gt;
+&lt;p&gt;What if we want to build some data structure for every node in a tree, to solve
+a certain problem, but to build that structure for node &lt;code&gt;u&lt;&#x2F;code&gt; we need to trasverse
+the entire subtree of &lt;code&gt;u&lt;&#x2F;code&gt;, thus making the algorithm at least &lt;code&gt;O(N²)&lt;&#x2F;code&gt;, which is
+not fast enough in some cases, could we do better?&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;example&quot;&gt;Example&lt;a class=&quot;zola-anchor&quot; href=&quot;#example&quot; aria-label=&quot;Anchor link for: example&quot;&gt;#&lt;&#x2F;a&gt;
+&lt;&#x2F;h2&gt;
+&lt;blockquote&gt;
+&lt;p&gt;You&#x27;re given a tree with &lt;code&gt;N&lt;&#x2F;code&gt; nodes ($N \le 10^5$), in which every node has a
+value between $1$ and $10^6$. Answer &lt;code&gt;Q&lt;&#x2F;code&gt; queries ($Q \le 10^5$) that give you an
+integer &lt;code&gt;k&lt;&#x2F;code&gt;, a node &lt;code&gt;u&lt;&#x2F;code&gt;, and ask you how many nodes in the subtree of &lt;code&gt;u&lt;&#x2F;code&gt; have
+value equal to &lt;code&gt;k&lt;&#x2F;code&gt;. &lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;p&gt;&lt;img src=&quot;https:&#x2F;&#x2F;user-images.githubusercontent.com&#x2F;8211902&#x2F;120910700-4bbc0600-c657-11eb-9df6-493f39562b62.png&quot; alt=&quot;t0&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;If the constraints were smaller, for example $N \le 10^3$ and $Q \le 10^3$, it
+would be possible to solve this problem by running a DFS starting at the node
+given in the query. The DFS would create a data structure -- a frequency array
+-- that allows us to lookup the answer easily. That&#x27;s not the simplest way to
+solve this problem in particular, but it&#x27;s one that exemplifies the kind of
+reasoning behind Small to Large, so bear with me.&lt;&#x2F;p&gt;
+&lt;p&gt;With the bigger constraints, however, this algorithm isn&#x27;t fast enough because
+we go through &lt;code&gt;O(N)&lt;&#x2F;code&gt; nodes each query, in the worst case.&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;https:&#x2F;&#x2F;user-images.githubusercontent.com&#x2F;8211902&#x2F;120910175-01d12100-c653-11eb-86d8-dd77f574beae.png&quot; alt=&quot;t1&quot; &#x2F;&gt; &lt;&#x2F;p&gt;
+&lt;p&gt;In some cases, however, we don&#x27;t have &lt;code&gt;O(NQ)&lt;&#x2F;code&gt; complexity. Imagine, first, that
+we cache the frequency tables for nodes we&#x27;ve already processed. Then, what&#x27;s
+the time complexity &lt;strong&gt;if the tree is balanced and binary&lt;&#x2F;strong&gt;?. Then, we would take
+&lt;code&gt;N&lt;&#x2F;code&gt; time in the root node, &lt;code&gt;N&#x2F;2 + N&#x2F;2&lt;&#x2F;code&gt; time in the children of the root, &lt;code&gt;N&#x2F;4 + N&#x2F;4 + N&#x2F;4 + N&#x2F;4&lt;&#x2F;code&gt; in the children of the children of the root node, ... It&#x27;s
+exactly like a mergesort: &lt;code&gt;O(N log N)&lt;&#x2F;code&gt;!&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;https:&#x2F;&#x2F;user-images.githubusercontent.com&#x2F;8211902&#x2F;120910404-1ca49500-c655-11eb-92db-914a99183ef1.png&quot; alt=&quot;t2&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;optimization-ideas&quot;&gt;Optimization Ideas&lt;a class=&quot;zola-anchor&quot; href=&quot;#optimization-ideas&quot; aria-label=&quot;Anchor link for: optimization-ideas&quot;&gt;#&lt;&#x2F;a&gt;
+&lt;&#x2F;h3&gt;
+&lt;p&gt;What are some heuristics we could use to optimize the naive algorithm?&lt;&#x2F;p&gt;
+&lt;h4 id=&quot;1-offline&quot;&gt;1. Offline&lt;a class=&quot;zola-anchor&quot; href=&quot;#1-offline&quot; aria-label=&quot;Anchor link for: 1-offline&quot;&gt;#&lt;&#x2F;a&gt;
+&lt;&#x2F;h4&gt;
+&lt;p&gt;Instead of answering queries in the order they are given, we could compute them
+in whichever order is most convenient to us, store the answers, then print them
+in the right order.&lt;&#x2F;p&gt;
+&lt;h4 id=&quot;2-reuse-the-result-from-some-dfss&quot;&gt;2. Reuse the result from some DFSs&lt;a class=&quot;zola-anchor&quot; href=&quot;#2-reuse-the-result-from-some-dfss&quot; aria-label=&quot;Anchor link for: 2-reuse-the-result-from-some-dfss&quot;&gt;#&lt;&#x2F;a&gt;
+&lt;&#x2F;h4&gt;
+&lt;p&gt;Let&#x27;s go back to the example tree that gave us &lt;code&gt;O(N²)&lt;&#x2F;code&gt; runtime. Did we really
+need to run a DFS for every single node? The answer is no! We could, in that
+particular case, reuse the frequency table generated in the child and update it
+in &lt;code&gt;O(1)&lt;&#x2F;code&gt; to get the frequency for the parent, like so:&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;cpp&quot; style=&quot;background-color:#191919;color:#f8f8f2;&quot; class=&quot;language-cpp &quot;&gt;&lt;code class=&quot;language-cpp&quot; data-lang=&quot;cpp&quot;&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;int&lt;&#x2F;span&gt;&lt;span&gt; frequency[MAX_K];
+&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;void &lt;&#x2F;span&gt;&lt;span style=&quot;color:#8cdaff;&quot;&gt;dfs&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fbdfb5;&quot;&gt;int &lt;&#x2F;span&gt;&lt;span style=&quot;font-style:italic;color:#fc9354;&quot;&gt;u&lt;&#x2F;span&gt;&lt;span&gt;) {
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#e9fdac;&quot;&gt;dfs&lt;&#x2F;span&gt;&lt;span&gt;(child[u]);
+&lt;&#x2F;span&gt;&lt;span&gt;    frequency[value[u]]&lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff5e5e;&quot;&gt;++&lt;&#x2F;span&gt;&lt;span&gt;;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#6d6d6d;&quot;&gt;&#x2F;&#x2F; we now have a valid frequency table for `u`
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;But is this always possible? What should we do in this case?&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;https:&#x2F;&#x2F;user-images.githubusercontent.com&#x2F;8211902&#x2F;120910622-bb7dc100-c656-11eb-909a-4db0bc26e36b.png&quot; alt=&quot;t3&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;Answer: yes, but there&#x27;s a catch. First, we should run DFS for node 7 and clear
+the frequency table. Then, we carry on with the DFS of the other nodes in the
+optimized way, reusing tables from the child.&lt;&#x2F;p&gt;
+&lt;h1 id=&quot;small-to-large&quot;&gt;Small to Large&lt;a class=&quot;zola-anchor&quot; href=&quot;#small-to-large&quot; aria-label=&quot;Anchor link for: small-to-large&quot;&gt;#&lt;&#x2F;a&gt;
+&lt;&#x2F;h1&gt;
+&lt;p&gt;The optimizations shown are sufficient to make an &lt;code&gt;O(N log N)&lt;&#x2F;code&gt; algorithm for the
+problem! The general idea is that a DFS call will&lt;&#x2F;p&gt;
+&lt;ol&gt;
+&lt;li&gt;Compute the data structures for each &amp;quot;small&amp;quot; child (small in the sense that
+they have less nodes in their subtrees, like 7 only had 1 node in its
+subtree);&lt;&#x2F;li&gt;
+&lt;li&gt;Clear the data structures in each of their DFS calls (assuming the DFS
+modifies one global data structure);&lt;&#x2F;li&gt;
+&lt;li&gt;Compute the data structure for the &amp;quot;big&amp;quot; child (the one with the biggest
+subtree), but instead of clearing it, reuse it to compute the parent&#x27;s
+answer.&lt;&#x2F;li&gt;
+&lt;li&gt;Iterate over the subtrees of the small children and the parent node, updating
+the data structure accordingly.&lt;&#x2F;li&gt;
+&lt;&#x2F;ol&gt;
+&lt;p&gt;The rest of this blog is still WIP ;)&lt;&#x2F;p&gt;
+</content>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>An Alternative Interpretation for the KMP Algorithm</title>
+        <published>2021-05-24T00:00:00+00:00</published>
+        <updated>2021-05-24T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://leoriether.github.io/posts/kmp/"/>
+        <id>https://leoriether.github.io/posts/kmp/</id>
+        
+        <content type="html" xml:base="https://leoriether.github.io/posts/kmp/">&lt;p&gt;Originally written in &lt;a href=&quot;https:&#x2F;&#x2F;gist.github.com&#x2F;LeoRiether&#x2F;c61b7f709b7826f47bc67f0c5d0d9b6b&quot;&gt;github&lt;&#x2F;a&gt;.
+This article assumes you already know DFAs and NFAs (including subset construction).&lt;&#x2F;p&gt;
+&lt;p&gt;You can follow the examples and try some other ones at &lt;a href=&quot;http:&#x2F;&#x2F;leoriether.github.io&#x2F;kmp-simulator&quot;&gt;KMP Simulator&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;the-problem&quot;&gt;The Problem&lt;a class=&quot;zola-anchor&quot; href=&quot;#the-problem&quot; aria-label=&quot;Anchor link for: the-problem&quot;&gt;#&lt;&#x2F;a&gt;
+&lt;&#x2F;h2&gt;
+&lt;p&gt;We want to solve the string matching problem: given two strings &lt;code&gt;S&lt;&#x2F;code&gt; and &lt;code&gt;P&lt;&#x2F;code&gt;,
+find all substrings of &lt;code&gt;S&lt;&#x2F;code&gt; that match the pattern &lt;code&gt;P&lt;&#x2F;code&gt;. There are other uses for
+the concepts shown here, but we&#x27;ll focus on this one first.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;a-simple-solution&quot;&gt;A Simple Solution&lt;a class=&quot;zola-anchor&quot; href=&quot;#a-simple-solution&quot; aria-label=&quot;Anchor link for: a-simple-solution&quot;&gt;#&lt;&#x2F;a&gt;
+&lt;&#x2F;h2&gt;
+&lt;p&gt;There&#x27;s a pretty simple NFA construction that solves this exact problem. We&#x27;ll
+&amp;quot;feed&amp;quot; this automaton the characters of &lt;code&gt;S&lt;&#x2F;code&gt; as input, and if at any point a
+thread is at the accepting state, we&#x27;ll know there&#x27;s a substring that matches
+&lt;code&gt;P&lt;&#x2F;code&gt;. Let the starting state have an edge for every character of the alphabet
+(the alphabet of the automaton, not necessarily the english alphabet). This
+loop will create a thread at every input and leave it there, at the starting
+node, ready to match the pattern when the other inputs come. Next, we&#x27;ll make a
+path containing the characters of the pattern &lt;code&gt;P&lt;&#x2F;code&gt; at every edge. Here&#x27;s an
+example of an NFA that matches the pattern &amp;quot;abacaba&amp;quot;:&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;https:&#x2F;&#x2F;leoriether.github.io&#x2F;posts&#x2F;kmp&#x2F;images&#x2F;example.png&quot; alt=&quot;abacabautomaton&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;Notice that the Σ edge in the first node represents &amp;quot;an edge for every symbol of the alphabet&amp;quot;, and that includes the symbol &amp;quot;a&amp;quot;. Thus, if the automaton receives an &amp;quot;a&amp;quot;, the thread in the first node splits into one for the second node and one that keeps looping on the starting node. When this split occurs, one of the threads will keep walking to the right while the symbols of the string are matching the forward edges, but if at any point they don&#x27;t match, the thread dies. Take a moment to appreciate how this simple NFA solves the matching problem.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;an-example&quot;&gt;An Example&lt;a class=&quot;zola-anchor&quot; href=&quot;#an-example&quot; aria-label=&quot;Anchor link for: an-example&quot;&gt;#&lt;&#x2F;a&gt;
+&lt;&#x2F;h2&gt;
+&lt;p&gt;Let&#x27;s look at an automaton that matches the pattern &amp;quot;abaa&amp;quot;. The nodes filled in red represent alive threads. &lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;https:&#x2F;&#x2F;leoriether.github.io&#x2F;posts&#x2F;kmp&#x2F;images&#x2F;abaa.png&quot; alt=&quot;abaa&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;We&#x27;ll input the string &amp;quot;abaab&amp;quot; and see how the threads behave. First, let&#x27;s input the letter &amp;quot;a&amp;quot;.&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;https:&#x2F;&#x2F;leoriether.github.io&#x2F;posts&#x2F;kmp&#x2F;images&#x2F;abaa1.png&quot; alt=&quot;abaa1&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;The thread we had before split into two, and now the one on the right will try to walk to the right as far as it can. Now we input the second character of our string, &amp;quot;b&amp;quot;.&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;https:&#x2F;&#x2F;leoriether.github.io&#x2F;posts&#x2F;kmp&#x2F;images&#x2F;abaa2.png&quot; alt=&quot;abaa2&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;Nothing surprising here. Let&#x27;s input &amp;quot;a&amp;quot;.&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;https:&#x2F;&#x2F;leoriether.github.io&#x2F;posts&#x2F;kmp&#x2F;images&#x2F;abaa3.png&quot; alt=&quot;abaa3&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;Now there are 3 threads, look at them go! Now input another &amp;quot;a&amp;quot;.&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;https:&#x2F;&#x2F;leoriether.github.io&#x2F;posts&#x2F;kmp&#x2F;images&#x2F;abaa4.png&quot; alt=&quot;abaa4&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;Notice that the thread that was on the second node didn&#x27;t have any edge to follow, so it died, but then the first node split and another thread is now at the second state. Also, we have a filled accepting state, so there&#x27;s a match with the pattern &amp;quot;abaa&amp;quot;! One last input, &amp;quot;b&amp;quot;.&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;https:&#x2F;&#x2F;leoriether.github.io&#x2F;posts&#x2F;kmp&#x2F;images&#x2F;abaa5.png&quot; alt=&quot;abaa5&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;We already have a thread matching the &amp;quot;b&amp;quot; from &amp;quot;abaa&amp;quot;, even if this first &amp;quot;a&amp;quot; overlaps with our first match. This kind of behaviour allows us to match overlapping patterns efficiently.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;running-the-automaton&quot;&gt;Running the Automaton&lt;a class=&quot;zola-anchor&quot; href=&quot;#running-the-automaton&quot; aria-label=&quot;Anchor link for: running-the-automaton&quot;&gt;#&lt;&#x2F;a&gt;
+&lt;&#x2F;h2&gt;
+&lt;p&gt;The naive way to run this automaton is to keep a set of threads and advance them individually. This is, however, not efficient at all. Imagine the pattern is something like &amp;quot;aaaaaa&amp;quot;, and we match a string &amp;quot;aaaaaaaaaaaaaaaaa&amp;quot;. At every iteration a new thread would be spawned and every other thread would advance, with no deaths. This gives us a time complexity of O(|S| × |P|). We can do better by exploiting some properties.&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;how-many-states-are-reachable&quot;&gt;How many states are reachable?&lt;a class=&quot;zola-anchor&quot; href=&quot;#how-many-states-are-reachable&quot; aria-label=&quot;Anchor link for: how-many-states-are-reachable&quot;&gt;#&lt;&#x2F;a&gt;
+&lt;&#x2F;h3&gt;
+&lt;p&gt;Theres&#x27; potential to do better than the naive simulation by analyzing the subset construction of our NFA. Indeed, only &lt;code&gt;|P|+1&lt;&#x2F;code&gt; states would be reachable in it! The proof is as follows: imagine we&#x27;ve input some string to the automaton and there&#x27;s some set of alive threads. Let &lt;code&gt;u&lt;&#x2F;code&gt; be the most advanced (closest to the right) thread alive -- we&#x27;ll call it the &amp;quot;leader&amp;quot; thread --, and let &lt;code&gt;n&lt;&#x2F;code&gt; be the number of forward edges (the ones that aren&#x27;t the loop) it followed. There are no threads to the right of &lt;code&gt;u&lt;&#x2F;code&gt;, so we only need to consider the last &lt;code&gt;n&lt;&#x2F;code&gt; symbols the automaton has seen, and there&#x27;s only one length-n string possible because there&#x27;s only one path the thread could have followed. Because of that, the alive threads to the left of &lt;code&gt;u&lt;&#x2F;code&gt; are uniquely determined! In other words, if we know the leader, there&#x27;s only one possible set of alive threads to the left of it. With this, it&#x27;s possible to conclude that there&#x27;s exactly one reachable subset in the subset construction for every leader state, which gives us &lt;code&gt;|P|+1&lt;&#x2F;code&gt; states in total.&lt;&#x2F;p&gt;
+&lt;p&gt;An idea one could have now is: when simulating the automaton, what if we only keep track of the leader thread, instead of the entire alive subset? This is exactly what we&#x27;ll do, but there&#x27;s a problem: what if the leader dies? We need to know who will occupy his place. Before that, though, we&#x27;ll need one more concept.&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;left-set&quot;&gt;Left-set&lt;a class=&quot;zola-anchor&quot; href=&quot;#left-set&quot; aria-label=&quot;Anchor link for: left-set&quot;&gt;#&lt;&#x2F;a&gt;
+&lt;&#x2F;h3&gt;
+&lt;p&gt;It turns out that &amp;quot;there&#x27;s only one possible set of alive threads to the left of the leader&amp;quot; does not apply exclusively to the leader. In fact, if we know some thread is alive, all of the threads to the left of it can be uniquely determined. The argument is very similar to the one shown before, here&#x27;s a sketch: if a thread is alive in node &lt;code&gt;n&lt;&#x2F;code&gt;, then there&#x27;s one possible string of length &lt;code&gt;n&lt;&#x2F;code&gt; that must have been fed to the automaton in the last &lt;code&gt;n&lt;&#x2F;code&gt; steps, thus the threads in smaller positions must have come from this string.&lt;&#x2F;p&gt;
+&lt;p&gt;Now we can finally know what to do in the case of a failed match.&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;dealing-with-failure&quot;&gt;Dealing with failure&lt;a class=&quot;zola-anchor&quot; href=&quot;#dealing-with-failure&quot; aria-label=&quot;Anchor link for: dealing-with-failure&quot;&gt;#&lt;&#x2F;a&gt;
+&lt;&#x2F;h3&gt;
+&lt;p&gt;Suppose we&#x27;ve built the automaton for &amp;quot;abababax&amp;quot; and fed &amp;quot;abababa&amp;quot; to it. &lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;https:&#x2F;&#x2F;leoriether.github.io&#x2F;posts&#x2F;kmp&#x2F;images&#x2F;abababa.png&quot; alt=&quot;abababax&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;What would happen if we input the letter &amp;quot;b&amp;quot;? Well, the leader can&#x27;t go forward, so it dies. The thread immediately to the left of the leader, however, can go forward, and thus becomes the new leader. We&#x27;ll call this &amp;quot;thread immediately to the left of a thread&amp;quot; the &amp;quot;neighbor&amp;quot;. This idea outlines a possible efficient way of simulating our NFA. We&#x27;ll keep track of the leader at every step. How? There are two cases:&lt;&#x2F;p&gt;
+&lt;ol&gt;
+&lt;li&gt;The leader matches the input and goes forward. This case is easy, just increment the current leader.&lt;&#x2F;li&gt;
+&lt;li&gt;The leader fails to match and dies. Then, the neighbor of the leader (call him &lt;code&gt;n0&lt;&#x2F;code&gt;) may or may not survive. If it does, the new leader is &lt;code&gt;n0+1&lt;&#x2F;code&gt;. If it dies, then maybe the neighbor of &lt;code&gt;n0&lt;&#x2F;code&gt; (call him &lt;code&gt;n1&lt;&#x2F;code&gt;) survives. If it does, the new leader is &lt;code&gt;n1+1&lt;&#x2F;code&gt;. If it dies, then maybe the neighbor of &lt;code&gt;n1&lt;&#x2F;code&gt; survives. You get the idea. If we could know the neighbor of a thread in &lt;code&gt;O(1)&lt;&#x2F;code&gt;, the entire matching process would take time &lt;code&gt;O(|S|)&lt;&#x2F;code&gt;. Yes, even if we walk through neighbors one by one as they die, the algorithm runs in linear time. To see why, consider that we spawn at most one thread per step, so the total number of dead threads is bounded by &lt;code&gt;|S|&lt;&#x2F;code&gt;. It&#x27;s like pushing threads to a queue when they are spawned and popping the queue when they die.&lt;&#x2F;li&gt;
+&lt;&#x2F;ol&gt;
+&lt;h3 id=&quot;precalculating-the-neighbor&quot;&gt;Precalculating the Neighbor&lt;a class=&quot;zola-anchor&quot; href=&quot;#precalculating-the-neighbor&quot; aria-label=&quot;Anchor link for: precalculating-the-neighbor&quot;&gt;#&lt;&#x2F;a&gt;
+&lt;&#x2F;h3&gt;
+&lt;p&gt;When building our automaton, we&#x27;ll precalculate an array &lt;code&gt;int neighbor[N]&lt;&#x2F;code&gt;,
+where &lt;code&gt;neighbor[u]&lt;&#x2F;code&gt; indicates the neighbor of &lt;code&gt;u&lt;&#x2F;code&gt;, in the case where &lt;code&gt;u&lt;&#x2F;code&gt; is the
+leader. If we do that, we&#x27;ll be able to simulate our automaton as described in
+&amp;quot;Dealing with failure&amp;quot; in &lt;code&gt;O(|S|)&lt;&#x2F;code&gt;!&lt;&#x2F;p&gt;
+&lt;p&gt;It turns out precalculating the neighbor is very similar to what we&#x27;ve seen in
+&amp;quot;Dealing with failure&amp;quot;. Let&#x27;s compute the neighbor array from left to right.
+Suppose we&#x27;ve already computed the result for the first &lt;code&gt;k&lt;&#x2F;code&gt; vertices. How do we
+compute it for &lt;code&gt;k+1&lt;&#x2F;code&gt;? The only way the leader could move from &lt;code&gt;k&lt;&#x2F;code&gt; to &lt;code&gt;k+1&lt;&#x2F;code&gt; is
+to go through the edge between them, right?&lt;&#x2F;p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;&#x2F;li&gt;
+&lt;&#x2F;ol&gt;
+</content>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>About Me</title>
+        <published>2001-08-09T00:00:00+00:00</published>
+        <updated>2001-08-09T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://leoriether.github.io/about/"/>
+        <id>https://leoriether.github.io/about/</id>
+        
+        <content type="html" xml:base="https://leoriether.github.io/about/">&lt;p&gt;Hello there! I&#x27;m Leonardo, a software engineer by day and $CURRENT_HOBBY by night. I write mostly about technology and software in here. You can find me on GitHub (&lt;a href=&quot;https:&#x2F;&#x2F;leoriether.github.io&#x2F;about&#x2F;github.com&#x2F;LeoRiether&#x2F;&quot;&gt;@LeoRiether&lt;&#x2F;a&gt;), Matrix (@leoriether:matrix.org) and &lt;del&gt;please don&#x27;t send me an&lt;&#x2F;del&gt; email (&lt;a href=&quot;mailto:riether.leonardo@gmail.com&quot;&gt;riether.leonardo@gmail.com&lt;&#x2F;a&gt;) &lt;del&gt;I never look at emails&lt;&#x2F;del&gt;&lt;&#x2F;p&gt;
+</content>
+        
+    </entry>
+</feed>

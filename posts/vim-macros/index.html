@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WIP | The Most Important Vim Mapping (it just runs a macro)</title>
+<link rel="stylesheet" href="/base.css">
+    </head>
+    <body class="flex flex-col">
+        <header class="flex justify-center">
+            <div class="flex justify-space-between post-width mobile-flex-col">
+                <h1 class="p-y-4 m-0 mobile-p-bot-0 mobile-p-y-2">
+                    <a href="/" class="color-light inline-v-center-hack">
+                        WIP
+                    </a>
+                    <span class="text-normal"> by leoriether </span>
+                </h1>
+                <nav class="p-y-4 m-0 mobile-p-top-0 mobile-p-y-2">
+                    
+                    <a href="&#x2F;posts" class="text-normal m-x-0-5 inline-v-center-hack color-light">&#x2F;posts</a>
+                    
+                    <a href="&#x2F;tags" class="text-normal m-x-0-5 inline-v-center-hack color-light">&#x2F;tags</a>
+                    
+                    <a href="&#x2F;about" class="text-normal m-x-0-5 inline-v-center-hack color-light">&#x2F;about</a>
+                    
+                </nav>
+            </div>
+        </header>
+        <section class="flex justify-center flex-grow">
+            <div class="post-width">
+                
+<article class="post">
+    <h1 class="m-y-small"> The Most Important Vim Mapping (it just runs a macro) </h1>
+    <h5 class="m-y-small m-bot-3">‹‹ 2024-04-19 ›› </h5>
+    <!--
+    Structure:
+    - 'Q' mapping
+    - Macros vs multiple cursors 
+        - Macros are harder, but the `Q` mapping 
+        - There are definitely use cases for multiple cursors as well, macros have a learning curve and are harder to use
+    - Caveats
+        - You have to think about how the macro is going to play out the other times (there's no preview)
+        - Sometimes you start doing something repetitive and only remember to record a macro after a few times (or don't remember at all)
+-->
+<p>This is a post about how I finally started using macros in neovim, after many
+times of trying them and giving up. If you don't use vim macros yet or would
+like to learn more, I definitely recommend watching
+<a href="https://www.youtube.com/watch?v=5x3dXo8aDCI">That One Micro Talk on Macros (NeovimConf 2023)</a> by Jesse Leite.
+In the video, Jesse introduces this wonderful mapping:</p>
+<pre data-lang="lua" style="background-color:#191919;color:#f8f8f2;" class="language-lua "><code class="language-lua" data-lang="lua"><span style="color:#e9fdac;">vim</span><span>.keymap.</span><span style="color:#e9fdac;">set</span><span>(</span><span style="color:#ffffff;">&#39;</span><span style="color:#fbe3bf;">n</span><span style="color:#ffffff;">&#39;</span><span>, </span><span style="color:#ffffff;">&#39;</span><span style="color:#fbe3bf;">Q</span><span style="color:#ffffff;">&#39;</span><span>, </span><span style="color:#ffffff;">&#39;</span><span style="color:#fbe3bf;">@qj</span><span style="color:#ffffff;">&#39;</span><span>, {</span><span style="color:#fbe3bf;">remap</span><span>=</span><span style="color:#ff8942;">true</span><span>})
+</span></code></pre>
+<p>Ok, that was for neovim. In vimscript, it's</p>
+<pre data-lang="vim" style="background-color:#191919;color:#f8f8f2;" class="language-vim "><code class="language-vim" data-lang="vim"><span style="color:#6699cc;">nmap</span><span> Q </span><span style="color:#e9fdac;">@qj
+</span></code></pre>
+<p>And that's it! The most important mapping in my config! It just runs the macro
+<code>q</code> and goes down a line. Honestly I'm thinking about changing it to map to
+<code>@q</code> only and it would still be the most important mapping in my config. Let me
+explain.</p>
+<h2 id="the-problems-with-macros">The Problems With Macros<a class="zola-anchor" href="#the-problems-with-macros" aria-label="Anchor link for: the-problems-with-macros">#</a>
+</h2>
+<p>It's common to hear people talking about how <em>powerful</em> vim macros are, but I
+always thought they were too clunky. It's easy to make a macro that will do
+unexpected things when replayed and <code>@q</code>/<code>@@</code> are so awkward to type. This lead
+me to search for alternatives like dot-repeating and substitution with <code>:s</code>, but
+these only work in simple cases and can be repetitive.</p>
+<h2 id="the-solution">The Solution<a class="zola-anchor" href="#the-solution" aria-label="Anchor link for: the-solution">#</a>
+</h2>
+<p>Then, everything changed when NeovimConf published the talk. Only Jesse Leite,
+master of all macros, could teach us, and when the world needed him most, he was
+there. <code>Q</code> doesn't only reduce the barrier to replay a macro, it completely
+destroys it. It's impressive how much cheaper macros become when they're so
+spammable!</p>
+<p>I also started getting much better at making macros that do well on replays, not
+because <code>Q</code> changes anything fundamentally, but because I was getting a lot more
+practice.</p>
+<p>Since I began using <code>Q</code>, I've used macros in a number of interesting
+scenarios, including:</p>
+<h3 id="transforming-grpc-service-definitions-into-go-functions">Transforming gRPC service definitions into Go functions<a class="zola-anchor" href="#transforming-grpc-service-definitions-into-go-functions" aria-label="Anchor link for: transforming-grpc-service-definitions-into-go-functions">#</a>
+</h3>
+<p>Suppose I had a gRPC service like the one below</p>
+<pre data-lang="proto" style="background-color:#191919;color:#f8f8f2;" class="language-proto "><code class="language-proto" data-lang="proto"><span style="font-style:italic;color:#fbdfb5;">service </span><span style="text-decoration:underline;color:#8cdaff;">ThingService </span><span>{
+</span><span>  </span><span style="font-style:italic;color:#fbdfb5;">rpc </span><span style="color:#8cdaff;">AddThing</span><span>(</span><span style="font-style:italic;color:#e9fdac;">AddThingRequest</span><span>) </span><span style="color:#ff5e5e;">returns </span><span>(</span><span style="font-style:italic;color:#e9fdac;">AddThingResponse</span><span>)
+</span><span>  </span><span style="font-style:italic;color:#fbdfb5;">rpc </span><span style="color:#8cdaff;">DeleteThing</span><span>(</span><span style="font-style:italic;color:#e9fdac;">DeleteThingRequest</span><span>) </span><span style="color:#ff5e5e;">returns </span><span>(</span><span style="font-style:italic;color:#e9fdac;">DeleteThingResponse</span><span>)
+</span><span>  </span><span style="font-style:italic;color:#fbdfb5;">rpc </span><span style="color:#8cdaff;">RenameThing</span><span>(</span><span style="font-style:italic;color:#e9fdac;">RenameThingRequest</span><span>) </span><span style="color:#ff5e5e;">returns </span><span>(</span><span style="font-style:italic;color:#e9fdac;">RenameThingResponse</span><span>)
+</span><span>  </span><span style="font-style:italic;color:#fbdfb5;">rpc </span><span style="color:#8cdaff;">GetThing</span><span>(</span><span style="font-style:italic;color:#e9fdac;">GetThingRequest</span><span>) </span><span style="color:#ff5e5e;">returns </span><span>(</span><span style="font-style:italic;color:#e9fdac;">GetThingResponse</span><span>)
+</span><span>}
+</span></code></pre>
+<p>To implement this service in Golang, I copied the 4 lines of rpcs (it was more
+like 7 in the real case) into a <code>.go</code> file and recorded a macro, turning it into</p>
+<pre data-lang="go" style="background-color:#191919;color:#f8f8f2;" class="language-go "><code class="language-go" data-lang="go"><span style="font-style:italic;color:#fbdfb5;">func </span><span>(</span><span style="font-style:italic;color:#fc9354;">s </span><span style="color:#ff5e5e;">*</span><span style="font-style:italic;color:#fbdfb5;">ThingService</span><span>) </span><span style="color:#8cdaff;">AddThing</span><span>(
+</span><span>    </span><span style="font-style:italic;color:#fc9354;">ctx </span><span style="color:#e9fdac;">context</span><span>.</span><span style="font-style:italic;color:#fbdfb5;">Context</span><span>,
+</span><span>    </span><span style="font-style:italic;color:#fc9354;">r </span><span style="color:#ff5e5e;">*</span><span style="color:#e9fdac;">proto</span><span>.</span><span style="font-style:italic;color:#fbdfb5;">AddThingRequest
+</span><span>) (</span><span style="color:#ff5e5e;">*</span><span style="color:#e9fdac;">proto</span><span>.</span><span style="font-style:italic;color:#fbdfb5;">AddThingResponse</span><span>, </span><span style="font-style:italic;color:#fbe3bf;">error</span><span>) {
+</span><span>    </span><span style="color:#ff5e5e;">return </span><span style="color:#ff8942;">nil</span><span>, </span><span style="color:#ff8942;">nil
+</span><span>}
+</span><span>
+</span><span>  </span><span style="color:#e9fdac;">rpc DeleteThing</span><span>(</span><span style="color:#e9fdac;">DeleteThingRequest</span><span>) </span><span style="color:#e9fdac;">returns </span><span>(</span><span style="color:#e9fdac;">DeleteThingResponse</span><span>)
+</span><span>  </span><span style="color:#e9fdac;">rpc RenameThing</span><span>(</span><span style="color:#e9fdac;">RenameThingRequest</span><span>) </span><span style="color:#e9fdac;">returns </span><span>(</span><span style="color:#e9fdac;">RenameThingResponse</span><span>)
+</span><span>  </span><span style="color:#e9fdac;">rpc GetThing</span><span>(</span><span style="color:#e9fdac;">GetThingRequest</span><span>) </span><span style="color:#e9fdac;">returns </span><span>(</span><span style="color:#e9fdac;">GetThingResponse</span><span>)
+</span></code></pre>
+<p>For the other three functions, the macro does its job</p>
+<pre data-lang="go" style="background-color:#191919;color:#f8f8f2;" class="language-go "><code class="language-go" data-lang="go"><span style="font-style:italic;color:#fbdfb5;">func </span><span>(</span><span style="font-style:italic;color:#fc9354;">s </span><span style="color:#ff5e5e;">*</span><span style="font-style:italic;color:#fbdfb5;">ThingService</span><span>) </span><span style="color:#8cdaff;">AddThing</span><span>(
+</span><span>    </span><span style="font-style:italic;color:#fc9354;">ctx </span><span style="color:#e9fdac;">context</span><span>.</span><span style="font-style:italic;color:#fbdfb5;">Context</span><span>,
+</span><span>    </span><span style="font-style:italic;color:#fc9354;">r </span><span style="color:#ff5e5e;">*</span><span style="color:#e9fdac;">proto</span><span>.</span><span style="font-style:italic;color:#fbdfb5;">AddThingRequest</span><span>,
+</span><span>) (</span><span style="color:#ff5e5e;">*</span><span style="color:#e9fdac;">proto</span><span>.</span><span style="font-style:italic;color:#fbdfb5;">AddThingResponse</span><span>, </span><span style="font-style:italic;color:#fbe3bf;">error</span><span>) {
+</span><span>    </span><span style="color:#ff5e5e;">return </span><span style="color:#ff8942;">nil</span><span>, </span><span style="color:#ff8942;">nil
+</span><span>}
+</span><span>
+</span><span style="font-style:italic;color:#fbdfb5;">func </span><span>(</span><span style="font-style:italic;color:#fc9354;">s </span><span style="color:#ff5e5e;">*</span><span style="font-style:italic;color:#fbdfb5;">ThingService</span><span>) </span><span style="color:#8cdaff;">DeleteThing</span><span>(
+</span><span>    </span><span style="font-style:italic;color:#fc9354;">ctx </span><span style="color:#e9fdac;">context</span><span>.</span><span style="font-style:italic;color:#fbdfb5;">Context</span><span>,
+</span><span>    </span><span style="font-style:italic;color:#fc9354;">r </span><span style="color:#ff5e5e;">*</span><span style="color:#e9fdac;">proto</span><span>.</span><span style="font-style:italic;color:#fbdfb5;">DeleteThingRequest</span><span>,
+</span><span>) (</span><span style="color:#ff5e5e;">*</span><span style="color:#e9fdac;">proto</span><span>.</span><span style="font-style:italic;color:#fbdfb5;">DeleteThingResponse</span><span>, </span><span style="font-style:italic;color:#fbe3bf;">error</span><span>) {
+</span><span>    </span><span style="color:#ff5e5e;">return </span><span style="color:#ff8942;">nil</span><span>, </span><span style="color:#ff8942;">nil
+</span><span>}
+</span><span>
+</span><span style="font-style:italic;color:#fbdfb5;">func </span><span>(</span><span style="font-style:italic;color:#fc9354;">s </span><span style="color:#ff5e5e;">*</span><span style="font-style:italic;color:#fbdfb5;">ThingService</span><span>) </span><span style="color:#8cdaff;">RenameThing</span><span>(
+</span><span>    </span><span style="font-style:italic;color:#fc9354;">ctx </span><span style="color:#e9fdac;">context</span><span>.</span><span style="font-style:italic;color:#fbdfb5;">Context</span><span>,
+</span><span>    </span><span style="font-style:italic;color:#fc9354;">r </span><span style="color:#ff5e5e;">*</span><span style="color:#e9fdac;">proto</span><span>.</span><span style="font-style:italic;color:#fbdfb5;">RenameThingRequest</span><span>,
+</span><span>) (</span><span style="color:#ff5e5e;">*</span><span style="color:#e9fdac;">proto</span><span>.</span><span style="font-style:italic;color:#fbdfb5;">RenameThingResponse</span><span>, </span><span style="font-style:italic;color:#fbe3bf;">error</span><span>) {
+</span><span>    </span><span style="color:#ff5e5e;">return </span><span style="color:#ff8942;">nil</span><span>, </span><span style="color:#ff8942;">nil
+</span><span>}
+</span><span>
+</span><span style="font-style:italic;color:#fbdfb5;">func </span><span>(</span><span style="font-style:italic;color:#fc9354;">s </span><span style="color:#ff5e5e;">*</span><span style="font-style:italic;color:#fbdfb5;">ThingService</span><span>) </span><span style="color:#8cdaff;">GetThing</span><span>(
+</span><span>    </span><span style="font-style:italic;color:#fc9354;">ctx </span><span style="color:#e9fdac;">context</span><span>.</span><span style="font-style:italic;color:#fbdfb5;">Context</span><span>,
+</span><span>    </span><span style="font-style:italic;color:#fc9354;">r </span><span style="color:#ff5e5e;">*</span><span style="color:#e9fdac;">proto</span><span>.</span><span style="font-style:italic;color:#fbdfb5;">GetThingRequest</span><span>,
+</span><span>) (</span><span style="color:#ff5e5e;">*</span><span style="color:#e9fdac;">proto</span><span>.</span><span style="font-style:italic;color:#fbdfb5;">GetThingResponse</span><span>, </span><span style="font-style:italic;color:#fbe3bf;">error</span><span>) {
+</span><span>    </span><span style="color:#ff5e5e;">return </span><span style="color:#ff8942;">nil</span><span>, </span><span style="color:#ff8942;">nil
+</span><span>}
+</span></code></pre>
+<h3 id="writing-the-grpc-service-example-above">Writing the gRPC service example above<a class="zola-anchor" href="#writing-the-grpc-service-example-above" aria-label="Anchor link for: writing-the-grpc-service-example-above">#</a>
+</h3>
+<p>That whole service definition is very repetitive! I actually initially wrote</p>
+<pre data-lang="proto" style="background-color:#191919;color:#f8f8f2;" class="language-proto "><code class="language-proto" data-lang="proto"><span style="font-style:italic;color:#fbdfb5;">service </span><span style="text-decoration:underline;color:#8cdaff;">ThingService </span><span>{
+</span><span>  Add
+</span><span>  Delete
+</span><span>  Rename
+</span><span>  Get
+</span><span>}
+</span></code></pre>
+<p>Recorded a macro to modify the first rpc into</p>
+<pre data-lang="proto" style="background-color:#191919;color:#f8f8f2;" class="language-proto "><code class="language-proto" data-lang="proto"><span style="font-style:italic;color:#fbdfb5;">service </span><span style="text-decoration:underline;color:#8cdaff;">ThingService </span><span>{
+</span><span>  </span><span style="font-style:italic;color:#fbdfb5;">rpc </span><span style="color:#8cdaff;">AddThing</span><span>(</span><span style="font-style:italic;color:#e9fdac;">AddThingRequest</span><span>) </span><span style="color:#ff5e5e;">returns </span><span>(</span><span style="font-style:italic;color:#e9fdac;">AddThingResponse</span><span>)
+</span><span>  Delete
+</span><span>  Rename
+</span><span>  Get
+</span><span>}
+</span></code></pre>
+<p>and replayed the macro for the other 3 rpcs, remembering to yank the first word
+to paste before <code>ThingRequest</code> and <code>ThingResponse</code>.</p>
+<h3 id="adding-a-property-to-certain-items-in-a-yaml">Adding a property to certain items in a yaml<a class="zola-anchor" href="#adding-a-property-to-certain-items-in-a-yaml" aria-label="Anchor link for: adding-a-property-to-certain-items-in-a-yaml">#</a>
+</h3>
+<p>In another case, I had a huge yaml and needed to modify about 30 list items by
+adding a new <code>flag: true</code> property to them. For this, I opened two buffers
+side-by-side -- yaml on the left, a list of IDs that should be modified on the
+right. The macro starts on the right, hovering the current ID, then goes to the
+left, searches and modifies an item and goes back to the right. By pressing <code>Q</code>
+multiple times, we jump around the yaml making changes one by one, but always
+going back to the next ID on the list!</p>
+<p>Maybe this could be done using the quickfix list as well, but the macro is so
+simple I would probably do it this way again, if I need.</p>
+<h2 id="caveats">Caveats<a class="zola-anchor" href="#caveats" aria-label="Anchor link for: caveats">#</a>
+</h2>
+<p>I argue macros are much more convenient after mapping <code>Q</code> to <code>@qj</code>, but they
+<em>can</em> still feel clunky and hard to use, mostly because of replayability issues.
+It does get better with practice, but there's definitely a learning curve. For
+those of you who swear by multiple cursors, I'll give you that: they're much
+easier to use. Oh and there's no &quot;preview&quot; for macros! If you get it wrong,
+you'll only know after recording and you'll have to record again.</p>
+<p>Using the right text-objects does make a big difference, though, because it can
+make motions more &quot;generic&quot;. I find that
+<a href="https://github.com/chrisgrieser/nvim-various-textobjs">chrisgrieser/nvim-various-textobjs</a>
+has been very useful in that regard.</p>
+<h2 id="conclusion">Conclusion<a class="zola-anchor" href="#conclusion" aria-label="Anchor link for: conclusion">#</a>
+</h2>
+<p>Watch <a href="https://www.youtube.com/watch?v=5x3dXo8aDCI">That One Micro Talk on Macros (NeovimConf 2023)</a>,
+map <code>Q</code> to <code>@qj</code> and be happy.</p>
+
+</article>
+
+<span class="divider"></span>
+<script src="https://utteranc.es/client.js"
+        repo="LeoRiether/leoriether.github.io"
+        issue-term="pathname"
+        label="utterances-post"
+        theme="dark-blue"
+        crossorigin="anonymous"
+        async>
+</script>
+
+            </div>
+        </section>
+        <footer></footer>
+    </body>
+</html>
