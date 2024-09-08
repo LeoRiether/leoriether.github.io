@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WIP | Intuition Behind the Small to Large Algorithm</title>
+<link rel="stylesheet" href="/base.css">
+    </head>
+    <body class="flex flex-col">
+        <header class="flex justify-center">
+            <div class="flex justify-space-between post-width mobile-flex-col">
+                <h1 class="p-y-4 m-0 mobile-p-bot-0 mobile-p-y-2">
+                    <a href="/" class="color-light inline-v-center-hack">
+                        WIP
+                    </a>
+                    <span class="text-normal"> by leoriether </span>
+                </h1>
+                <nav class="p-y-4 m-0 mobile-p-top-0 mobile-p-y-2">
+                    
+                    <a href="&#x2F;posts" class="text-normal m-x-0-5 inline-v-center-hack color-light">&#x2F;posts</a>
+                    
+                    <a href="&#x2F;tags" class="text-normal m-x-0-5 inline-v-center-hack color-light">&#x2F;tags</a>
+                    
+                    <a href="&#x2F;about" class="text-normal m-x-0-5 inline-v-center-hack color-light">&#x2F;about</a>
+                    
+                </nav>
+            </div>
+        </header>
+        <section class="flex justify-center flex-grow">
+            <div class="post-width">
+                
+<article class="post">
+    <h1 class="m-y-small"> Intuition Behind the Small to Large Algorithm </h1>
+    <h5 class="m-y-small m-bot-3">‹‹ 2021-06-05 ›› </h5>
+    <h1 id="the-problem">The Problem<a class="zola-anchor" href="#the-problem" aria-label="Anchor link for: the-problem">#</a>
+</h1>
+<p>What if we want to build some data structure for every node in a tree, to solve
+a certain problem, but to build that structure for node <code>u</code> we need to trasverse
+the entire subtree of <code>u</code>, thus making the algorithm at least <code>O(N²)</code>, which is
+not fast enough in some cases, could we do better?</p>
+<h2 id="example">Example<a class="zola-anchor" href="#example" aria-label="Anchor link for: example">#</a>
+</h2>
+<blockquote>
+<p>You're given a tree with <code>N</code> nodes ($N \le 10^5$), in which every node has a
+value between $1$ and $10^6$. Answer <code>Q</code> queries ($Q \le 10^5$) that give you an
+integer <code>k</code>, a node <code>u</code>, and ask you how many nodes in the subtree of <code>u</code> have
+value equal to <code>k</code>. </p>
+</blockquote>
+<p><img src="https://user-images.githubusercontent.com/8211902/120910700-4bbc0600-c657-11eb-9df6-493f39562b62.png" alt="t0" /></p>
+<p>If the constraints were smaller, for example $N \le 10^3$ and $Q \le 10^3$, it
+would be possible to solve this problem by running a DFS starting at the node
+given in the query. The DFS would create a data structure -- a frequency array
+-- that allows us to lookup the answer easily. That's not the simplest way to
+solve this problem in particular, but it's one that exemplifies the kind of
+reasoning behind Small to Large, so bear with me.</p>
+<p>With the bigger constraints, however, this algorithm isn't fast enough because
+we go through <code>O(N)</code> nodes each query, in the worst case.</p>
+<p><img src="https://user-images.githubusercontent.com/8211902/120910175-01d12100-c653-11eb-86d8-dd77f574beae.png" alt="t1" /> </p>
+<p>In some cases, however, we don't have <code>O(NQ)</code> complexity. Imagine, first, that
+we cache the frequency tables for nodes we've already processed. Then, what's
+the time complexity <strong>if the tree is balanced and binary</strong>?. Then, we would take
+<code>N</code> time in the root node, <code>N/2 + N/2</code> time in the children of the root, <code>N/4 + N/4 + N/4 + N/4</code> in the children of the children of the root node, ... It's
+exactly like a mergesort: <code>O(N log N)</code>!</p>
+<p><img src="https://user-images.githubusercontent.com/8211902/120910404-1ca49500-c655-11eb-92db-914a99183ef1.png" alt="t2" /></p>
+<h3 id="optimization-ideas">Optimization Ideas<a class="zola-anchor" href="#optimization-ideas" aria-label="Anchor link for: optimization-ideas">#</a>
+</h3>
+<p>What are some heuristics we could use to optimize the naive algorithm?</p>
+<h4 id="1-offline">1. Offline<a class="zola-anchor" href="#1-offline" aria-label="Anchor link for: 1-offline">#</a>
+</h4>
+<p>Instead of answering queries in the order they are given, we could compute them
+in whichever order is most convenient to us, store the answers, then print them
+in the right order.</p>
+<h4 id="2-reuse-the-result-from-some-dfss">2. Reuse the result from some DFSs<a class="zola-anchor" href="#2-reuse-the-result-from-some-dfss" aria-label="Anchor link for: 2-reuse-the-result-from-some-dfss">#</a>
+</h4>
+<p>Let's go back to the example tree that gave us <code>O(N²)</code> runtime. Did we really
+need to run a DFS for every single node? The answer is no! We could, in that
+particular case, reuse the frequency table generated in the child and update it
+in <code>O(1)</code> to get the frequency for the parent, like so:</p>
+<pre data-lang="cpp" style="background-color:#191919;color:#f8f8f2;" class="language-cpp "><code class="language-cpp" data-lang="cpp"><span style="font-style:italic;color:#fbdfb5;">int</span><span> frequency[MAX_K];
+</span><span style="font-style:italic;color:#fbdfb5;">void </span><span style="color:#8cdaff;">dfs</span><span>(</span><span style="font-style:italic;color:#fbdfb5;">int </span><span style="font-style:italic;color:#fc9354;">u</span><span>) {
+</span><span>    </span><span style="color:#e9fdac;">dfs</span><span>(child[u]);
+</span><span>    frequency[value[u]]</span><span style="color:#ff5e5e;">++</span><span>;
+</span><span>    </span><span style="color:#6d6d6d;">// we now have a valid frequency table for `u`
+</span><span>}
+</span></code></pre>
+<p>But is this always possible? What should we do in this case?</p>
+<p><img src="https://user-images.githubusercontent.com/8211902/120910622-bb7dc100-c656-11eb-909a-4db0bc26e36b.png" alt="t3" /></p>
+<p>Answer: yes, but there's a catch. First, we should run DFS for node 7 and clear
+the frequency table. Then, we carry on with the DFS of the other nodes in the
+optimized way, reusing tables from the child.</p>
+<h1 id="small-to-large">Small to Large<a class="zola-anchor" href="#small-to-large" aria-label="Anchor link for: small-to-large">#</a>
+</h1>
+<p>The optimizations shown are sufficient to make an <code>O(N log N)</code> algorithm for the
+problem! The general idea is that a DFS call will</p>
+<ol>
+<li>Compute the data structures for each &quot;small&quot; child (small in the sense that
+they have less nodes in their subtrees, like 7 only had 1 node in its
+subtree);</li>
+<li>Clear the data structures in each of their DFS calls (assuming the DFS
+modifies one global data structure);</li>
+<li>Compute the data structure for the &quot;big&quot; child (the one with the biggest
+subtree), but instead of clearing it, reuse it to compute the parent's
+answer.</li>
+<li>Iterate over the subtrees of the small children and the parent node, updating
+the data structure accordingly.</li>
+</ol>
+<p>The rest of this blog is still WIP ;)</p>
+
+</article>
+
+<span class="divider"></span>
+<script src="https://utteranc.es/client.js"
+        repo="LeoRiether/leoriether.github.io"
+        issue-term="pathname"
+        label="utterances-post"
+        theme="dark-blue"
+        crossorigin="anonymous"
+        async>
+</script>
+
+            </div>
+        </section>
+        <footer></footer>
+    </body>
+</html>
