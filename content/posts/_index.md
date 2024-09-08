@@ -1,7 +1,6 @@
 +++
 title = "WIP - Posts"
 template = "index.html"
-page-template = "page.html"
 
 sort_by = "date"
 transparent = true

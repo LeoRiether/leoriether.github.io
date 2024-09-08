@@ -154,9 +154,9 @@ In fact, to add another "optional" nesting level -- like leaves that have cells 
 route -- it would be necessary to add a list of list of list of cells in the `GetTreeResponse`,
 unless there's another approach that's not equally bad and I'm missing.
 
-Where did I go wrong? Could I have prevented this? It was at this moment I realized.. I literally saw
-[this video](https://www.youtube.com/watch?v=o9pEzgHorH0) yesterday and in the first minute, when
-the guy says "Flat is better than nested" when referring to a principle of the Zen of Python, I
+Where did I go wrong? Could I have prevented this? It was at this moment I realized... I literally
+saw [this video](https://www.youtube.com/watch?v=o9pEzgHorH0) yesterday and in the first minute,
+when the guy says "Flat is better than nested" when referring to a principle of the Zen of Python, I
 thought I understood what he meant, but now, only now I truly understood! **The problem above only
 arises because Branch is nested within the Tree message**! When making that decision, I implicitly
 required that Tree contained not only the current Branch, but everything a Branch would ever
@@ -304,4 +304,4 @@ but I'll give an overview.
 Why am I writing this long rant about a design mistake instead of just fixing it? Isn't rapid
 iteration The Way to write software?
 
-Well, you'll have to wait until I update this post to find out! This is WIP, after all :)
+If instead of a public API all of these interfaces were internal to a module, [...]
