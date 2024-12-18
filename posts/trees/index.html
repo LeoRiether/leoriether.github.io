@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WIP | Árvores Para Programação Competitiva</title>
+<link rel="stylesheet" href="/base.css">
+    </head>
+    <body class="flex flex-col">
+        <header class="flex justify-center">
+            <div class="flex justify-space-between post-width mobile-flex-col">
+                <h1 class="p-y-4 m-0 mobile-p-bot-0 mobile-p-y-2">
+                    <a href="/" class="color-light inline-v-center-hack">
+                        WIP
+                    </a>
+                    <span class="text-normal"> by leoriether </span>
+                </h1>
+                <nav class="p-y-4 m-0 mobile-p-top-0 mobile-p-y-2">
+                    
+                    <a href="&#x2F;posts" class="text-normal m-x-0-5 inline-v-center-hack color-light">&#x2F;posts</a>
+                    
+                    <a href="&#x2F;tags" class="text-normal m-x-0-5 inline-v-center-hack color-light">&#x2F;tags</a>
+                    
+                    <a href="&#x2F;about" class="text-normal m-x-0-5 inline-v-center-hack color-light">&#x2F;about</a>
+                    
+                </nav>
+            </div>
+        </header>
+        <section class="flex justify-center flex-grow">
+            <div class="post-width">
+                
+<article class="post">
+    <h1 class="m-y-small"> Árvores Para Programação Competitiva </h1>
+    <h5 class="m-y-small m-bot-3">‹‹ 2022-08-02 ›› </h5>
+    <blockquote>
+<p>link da aula: <a href="https://leoriether.github.io/posts/trees">https://leoriether.github.io/posts/trees</a></p>
+</blockquote>
+<p>O que é uma árvore?</p>
+<ul>
+<li>Grafo com <code>N</code> nós e <code>N-1</code> arestas</li>
+<li>Conexo</li>
+<li>Existe um caminho único entre quaisquer dois vértices</li>
+</ul>
+<p><em>Escolha dois.</em></p>
+<hr />
+<p>Uma árvore pode ou não ter raíz. Se não tiver, é bem provável que a gente possa
+escolher uma raíz qualquer!</p>
+<h1 id="subarvores">★ Subárvores<a class="zola-anchor" href="#subarvores" aria-label="Anchor link for: subarvores">#</a>
+</h1>
+<h2 id="dfs">DFS<a class="zola-anchor" href="#dfs" aria-label="Anchor link for: dfs">#</a>
+</h2>
+<p>Muito útil para quando vc quer</p>
+<ol>
+<li>informação das subárvores pra calcular algo pro vértice, ou</li>
+<li>informação do caminho <code>raíz -&gt; u</code> pra calcular algo pra <code>u</code></li>
+<li>por que no los dos? (acho que nunca vi problema que usa os dois ao mesmo
+tempo, mas fiquem de olho que eu posso settar um a qualquer momento)</li>
+<li>fazer basicamente qualquer coisa em árvore (basicamente suas duas únicas
+opções são DFS ou BFS)</li>
+</ol>
+<pre data-lang="cpp" style="background-color:#191919;color:#f8f8f2;" class="language-cpp "><code class="language-cpp" data-lang="cpp"><span>vector&lt;</span><span style="font-style:italic;color:#fbdfb5;">int</span><span>&gt; g[N];
+</span><span>
+</span><span style="font-style:italic;color:#fbdfb5;">void </span><span style="color:#8cdaff;">dfs</span><span>(</span><span style="font-style:italic;color:#fbdfb5;">int </span><span style="font-style:italic;color:#fc9354;">u</span><span>, </span><span style="font-style:italic;color:#fbdfb5;">int </span><span style="font-style:italic;color:#fc9354;">p </span><span style="color:#ff5e5e;">= </span><span style="color:#fdb082;">0</span><span>) {
+</span><span>    </span><span style="color:#ff5e5e;">for </span><span>(</span><span style="font-style:italic;color:#fbdfb5;">int</span><span> v </span><span style="color:#ff5e5e;">:</span><span> g[u]) </span><span style="color:#ff5e5e;">if </span><span>(v </span><span style="color:#ff5e5e;">!=</span><span> p) {
+</span><span>        </span><span style="color:#e9fdac;">dfs</span><span>(v, u);
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<blockquote>
+<p>tamanho de subárvore: <a href="https://cses.fi/problemset/task/1674">https://cses.fi/problemset/task/1674</a></p>
+</blockquote>
+<h2 id="dfs-time-preorder-time-euler-tour">DFS Time / Preorder Time / Euler Tour<a class="zola-anchor" href="#dfs-time-preorder-time-euler-tour" aria-label="Anchor link for: dfs-time-preorder-time-euler-tour">#</a>
+</h2>
+<blockquote>
+<p>A única estrutura mais fácil que uma árvore é um <strong>array</strong> </p>
+</blockquote>
+<p>Acho que o único jeito de explicar isso é fazendo uns exemplos? 🤔</p>
+<h1 id="caminhos">★ Caminhos<a class="zola-anchor" href="#caminhos" aria-label="Anchor link for: caminhos">#</a>
+</h1>
+<h2 id="lowest-common-ancestor-lca">Lowest Common Ancestor (LCA)<a class="zola-anchor" href="#lowest-common-ancestor-lca" aria-label="Anchor link for: lowest-common-ancestor-lca">#</a>
+</h2>
+<ul>
+<li>O que é?</li>
+<li>Ideia: <strong>todo caminho entre <code>u</code> e <code>v</code> em uma árvore pode ser dividido em dois
+caminhos: <code>u -&gt; LCA(u, v)</code> + <code>v -&gt; LCA(u, v)</code></strong></li>
+</ul>
+<h3 id="as-vezes-voce-so-precisa-saber-que-o-lca-existe">Às vezes você só precisa saber que o LCA existe...<a class="zola-anchor" href="#as-vezes-voce-so-precisa-saber-que-o-lca-existe" aria-label="Anchor link for: as-vezes-voce-so-precisa-saber-que-o-lca-existe">#</a>
+</h3>
+<h4 id="diametro">Diâmetro<a class="zola-anchor" href="#diametro" aria-label="Anchor link for: diametro">#</a>
+</h4>
+<blockquote>
+<p>link: <a href="https://cses.fi/problemset/task/1131">https://cses.fi/problemset/task/1131</a></p>
+</blockquote>
+<p>Truque: transformar a árvore em binária</p>
+<h3 id="mas-outras-vezes-voce-precisa-calcula-lo">...mas outras vezes você precisa calculá-lo<a class="zola-anchor" href="#mas-outras-vezes-voce-precisa-calcula-lo" aria-label="Anchor link for: mas-outras-vezes-voce-precisa-calcula-lo">#</a>
+</h3>
+<p>Problema: Q queries de encontrar a distância entre dois vértices</p>
+<h3 id="binary-lifting">Binary lifting<a class="zola-anchor" href="#binary-lifting" aria-label="Anchor link for: binary-lifting">#</a>
+</h3>
+<blockquote>
+<p>cses: <a href="https://cses.fi/problemset/task/1687">https://cses.fi/problemset/task/1687</a></p>
+</blockquote>
+<h2 id="problema-facinho-mas-tricky-do-cses">Problema facinho mas tricky do cses<a class="zola-anchor" href="#problema-facinho-mas-tricky-do-cses" aria-label="Anchor link for: problema-facinho-mas-tricky-do-cses">#</a>
+</h2>
+<blockquote>
+<p>link: <a href="https://cses.fi/problemset/task/1138">https://cses.fi/problemset/task/1138</a></p>
+</blockquote>
+<h2 id="problema-chefao-empresa-de-festas">Problema Chefão: Empresa de Festas<a class="zola-anchor" href="#problema-chefao-empresa-de-festas" aria-label="Anchor link for: problema-chefao-empresa-de-festas">#</a>
+</h2>
+<blockquote>
+<p>link: <a href="http://maratona.sbc.org.br/hist/2020/primfase20/maratona20.pdf">http://maratona.sbc.org.br/hist/2020/primfase20/maratona20.pdf</a></p>
+</blockquote>
+<details>
+<summary>Dica</summary>
+A gente pode resolver offline!</details>
+<h1 id="coisas-que-so-vou-falar-se-der-tempo">Coisas que só vou falar se der tempo<a class="zola-anchor" href="#coisas-que-so-vou-falar-se-der-tempo" aria-label="Anchor link for: coisas-que-so-vou-falar-se-der-tempo">#</a>
+</h1>
+<h2 id="resolver-offline">Resolver offline<a class="zola-anchor" href="#resolver-offline" aria-label="Anchor link for: resolver-offline">#</a>
+</h2>
+<ul>
+<li>Muitas vezes é mais fácil resolver um problema <strong>offline</strong> em árvore, porque
+podemos reaproveitar os resultados das subárvores para calcular o resultado de
+um nó!</li>
+<li>Outras vezes, você pode resolver offline mantendo uma estrutura de dados sobre
+um caminho do pai até <code>u</code></li>
+</ul>
+<h2 id="rerooting">Rerooting<a class="zola-anchor" href="#rerooting" aria-label="Anchor link for: rerooting">#</a>
+</h2>
+<blockquote>
+<p>problema: <a href="https://cses.fi/problemset/task/1132">https://cses.fi/problemset/task/1132</a></p>
+<p>problema: <a href="https://cses.fi/problemset/task/1133/">https://cses.fi/problemset/task/1133/</a></p>
+</blockquote>
+<h2 id="centroid-decomposition">Centroid Decomposition<a class="zola-anchor" href="#centroid-decomposition" aria-label="Anchor link for: centroid-decomposition">#</a>
+</h2>
+<ul>
+<li>Modo de decompor a árvore</li>
+<li>De forma parecida com o LCA, todo caminho entre dois vértices **em subárvores</li>
+</ul>
+<h1 id="ler-mais">★ Ler Mais<a class="zola-anchor" href="#ler-mais" aria-label="Anchor link for: ler-mais">#</a>
+</h1>
+<ul>
+<li><a href="https://codeforces.com/blog/entry/44351">Small to Large / DSU on Tree / Sack</a></li>
+<li><a href="https://cp-algorithms.com/graph/hld.html#proof-of-correctness">Decomposição Heavy-Light</a></li>
+<li><a href="https://codeforces.com/blog/entry/100910">7th Litte Technique</a> (nos
+comentários você encontra mais uns 2 ou 3 truques relacionados!)</li>
+<li><a href="https://www.youtube.com/watch?v=XZLN6NxEQWo">Árvores Link-Cut</a></li>
+<li><a href="https://codeforces.com/blog/entry/76955">Virtual Trees</a></li>
+</ul>
+
+</article>
+
+<span class="divider"></span>
+<script src="https://utteranc.es/client.js"
+        repo="LeoRiether/leoriether.github.io"
+        issue-term="pathname"
+        label="utterances-post"
+        theme="dark-blue"
+        crossorigin="anonymous"
+        async>
+</script>
+
+            </div>
+        </section>
+        <footer></footer>
+    </body>
+</html>
