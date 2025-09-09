@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WIP | Law of Values</title>
+<link rel="stylesheet" href="/base.css">
+    </head>
+    <body class="flex flex-col">
+        <header class="flex justify-center">
+            <div class="flex justify-space-between post-width mobile-flex-col">
+                <h1 class="p-y-4 m-0 mobile-p-bot-0 mobile-p-y-2">
+                    <a href="/" class="color-light inline-v-center-hack">
+                        WIP
+                    </a>
+                    <span class="text-normal"> by leoriether </span>
+                </h1>
+                <nav class="p-y-4 m-0 mobile-p-top-0 mobile-p-y-2">
+                    
+                    <a href="&#x2F;posts" class="text-normal m-x-0-5 inline-v-center-hack color-light">&#x2F;posts</a>
+                    
+                    <a href="&#x2F;tags" class="text-normal m-x-0-5 inline-v-center-hack color-light">&#x2F;tags</a>
+                    
+                    <a href="&#x2F;about" class="text-normal m-x-0-5 inline-v-center-hack color-light">&#x2F;about</a>
+                    
+                </nav>
+            </div>
+        </header>
+        <section class="flex justify-center flex-grow">
+            <div class="post-width">
+                
+<article class="post">
+    <h1 class="m-y-small"> Law of Values </h1>
+    <h5 class="m-y-small m-bot-3">‹‹ 2024-12-17 ›› </h5>
+    <p>Stated somewhat abstractly, the Law of Values says that</p>
+<blockquote>
+<p>Once you define your <strong>core values</strong>, your most primordial beliefs and priorities, most
+of the <strong>design</strong> follows immediately</p>
+</blockquote>
+<p>Here are concrete variations:</p>
+<ul>
+<li>Once you define the core values to be prioritized in a project, most of the solution
+follows immediately.</li>
+<li>Once you define what you value in a city, most of its architecture and and
+infrastructure characteristics follow immediately</li>
+<li>Once you define what you value in a society, most of your political and economic beliefs
+follow immediately</li>
+<li>Once you define what you value in life, most of your actions and objectives <em>should</em>
+follow immediately</li>
+</ul>
+<p>The law is useful in two ways. I'll use a software engineering context here, but it's not
+too hard to translate these into other contexts as well:</p>
+<p>First, it can be helpful to state explicitly what you value to get more clarity about
+what you should and shouldn't put in a project design --- instead of purely exploring
+design alternatives directly.</p>
+<p>You can see matklad doing just that in <a href="https://youtu.be/hPUL8Xo6MJw?si=v4JG3GgHBnKsGBAB&amp;t=197">this TigerBeetle video</a>.
+For TigerBeetle, some of the core tenets of the solution are Reliability and Correctness.
+Because of the Reliability tenet, it soon follows that Performance should be a major
+concern as well, which leads to the choice of language (Zig in their case), a big part of
+their data model, the kind of operations the interface exposes, and a lot of other design
+decisions.</p>
+<p>Second, there's a kind of contrapositive of the law: different designs follow from
+different sets of values. Because of this, whenever a team disagrees on the direction a
+project should take, it can be more fruitful to discuss &quot;what should we value/prioritize
+in this project&quot; instead of the direction itself. For example, if some members believe a
+system should be monolithic, while others think it should be distributed, instead of
+discussing pros and cons of monolithic and distributed systems, it can be easier to reach
+an agreement by defining &quot;Fault-Tolerance&quot; as a core value of the project (or the
+opposite). Once that's defined, it's clear that the system should be distributed.</p>
+<p>Note that there's a fundamental difference between discussing pros/cons and discussing
+core values. In the above example, even though fault-tolerance could be listed as a pro of
+the &quot;distributed&quot; alternative, by listing it separately we get a better chance to make it
+a top priority (or the opposite!).</p>
+<p>Plus, if there's disagreement on whether it should be a top priority or not but the
+discussion is pros/cons-oriented, it's inevitable someone will say &quot;distributed is
+fault-tolerant!&quot;, to which the response will be &quot;but the monolith is simpler and easier to
+deploy!&quot;, leading to a standstill. Neither is wrong, they just value different things.</p>
+
+</article>
+
+<span class="divider"></span>
+<script src="https://utteranc.es/client.js"
+        repo="LeoRiether/leoriether.github.io"
+        issue-term="pathname"
+        label="utterances-post"
+        theme="dark-blue"
+        crossorigin="anonymous"
+        async>
+</script>
+
+            </div>
+        </section>
+        <footer></footer>
+    </body>
+</html>

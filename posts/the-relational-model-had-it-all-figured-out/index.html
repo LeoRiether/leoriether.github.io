@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WIP | The Relational Model Had It All Figured Out From the Start</title>
+<link rel="stylesheet" href="/base.css">
+    </head>
+    <body class="flex flex-col">
+        <header class="flex justify-center">
+            <div class="flex justify-space-between post-width mobile-flex-col">
+                <h1 class="p-y-4 m-0 mobile-p-bot-0 mobile-p-y-2">
+                    <a href="/" class="color-light inline-v-center-hack">
+                        WIP
+                    </a>
+                    <span class="text-normal"> by leoriether </span>
+                </h1>
+                <nav class="p-y-4 m-0 mobile-p-top-0 mobile-p-y-2">
+                    
+                    <a href="&#x2F;posts" class="text-normal m-x-0-5 inline-v-center-hack color-light">&#x2F;posts</a>
+                    
+                    <a href="&#x2F;tags" class="text-normal m-x-0-5 inline-v-center-hack color-light">&#x2F;tags</a>
+                    
+                    <a href="&#x2F;about" class="text-normal m-x-0-5 inline-v-center-hack color-light">&#x2F;about</a>
+                    
+                </nav>
+            </div>
+        </header>
+        <section class="flex justify-center flex-grow">
+            <div class="post-width">
+                
+<article class="post">
+    <h1 class="m-y-small"> The Relational Model Had It All Figured Out From the Start </h1>
+    <h5 class="m-y-small m-bot-3">‹‹ 2024-06-06 ›› </h5>
+    <p>This is a post about the Zen of Python, system boundaries, software design, relational databases,
+ECS, and how everything became connected when I realized the mistake I made at work.</p>
+<p>The main character is a gRPC API, who we'll call Bob so as not to reveal real details. Bob
+internally manages entities called <code>Tree</code>s. We don't want to complicate it right now, so every
+<code>Tree</code> has exactly one <code>Branch</code>, and that's it. How does a user of the API retrieve existing
+<code>Tree</code>s? Simple:</p>
+<pre data-lang="proto" style="background-color:#191919;color:#f8f8f2;" class="language-proto "><code class="language-proto" data-lang="proto"><span>
+</span><span style="font-style:italic;color:#fbdfb5;">service </span><span style="text-decoration:underline;color:#8cdaff;">Bob </span><span>{
+</span><span>    </span><span style="font-style:italic;color:#fbdfb5;">rpc </span><span style="color:#8cdaff;">GetTree</span><span>(</span><span style="font-style:italic;color:#e9fdac;">GetTreeRequest</span><span>) </span><span style="color:#ff5e5e;">returns </span><span>(</span><span style="font-style:italic;color:#e9fdac;">GetTreeResponse</span><span>);
+</span><span>    </span><span style="font-style:italic;color:#fbdfb5;">rpc </span><span style="color:#8cdaff;">GetAllTrees</span><span>(</span><span style="font-style:italic;color:#e9fdac;">GetAllTreesRequest</span><span>) </span><span style="color:#ff5e5e;">returns </span><span>(</span><span style="font-style:italic;color:#e9fdac;">GetAllTreesResponse</span><span>);
+</span><span>}
+</span><span>
+</span><span style="font-style:italic;color:#fbdfb5;">message </span><span style="text-decoration:underline;color:#8cdaff;">GetTreeRequest </span><span>{
+</span><span>    </span><span style="font-style:italic;color:#e9fdac;">int </span><span style="color:#e9fdac;">id </span><span style="color:#ff5e5e;">= </span><span style="color:#fdb082;">1</span><span>;
+</span><span>}
+</span><span>
+</span><span style="font-style:italic;color:#fbdfb5;">message </span><span style="text-decoration:underline;color:#8cdaff;">GetTreeResponse </span><span>{
+</span><span>    </span><span style="font-style:italic;color:#e9fdac;">Tree </span><span style="color:#e9fdac;">tree </span><span style="color:#ff5e5e;">= </span><span style="color:#fdb082;">1</span><span>; 
+</span><span>}
+</span><span>
+</span><span style="font-style:italic;color:#fbdfb5;">message </span><span style="text-decoration:underline;color:#8cdaff;">GetAllTreesRequest </span><span>{}
+</span><span>
+</span><span style="font-style:italic;color:#fbdfb5;">message </span><span style="text-decoration:underline;color:#8cdaff;">GetAllTreesResponse </span><span>{
+</span><span>    </span><span style="color:#ff5e5e;">repeated </span><span style="font-style:italic;color:#e9fdac;">Tree </span><span style="color:#e9fdac;">trees </span><span style="color:#ff5e5e;">= </span><span style="color:#fdb082;">1</span><span>; 
+</span><span>}
+</span><span>
+</span><span style="font-style:italic;color:#fbdfb5;">message </span><span style="text-decoration:underline;color:#8cdaff;">Tree </span><span>{
+</span><span>    </span><span style="font-style:italic;color:#e9fdac;">int </span><span style="color:#e9fdac;">id </span><span style="color:#ff5e5e;">= </span><span style="color:#fdb082;">1</span><span>;
+</span><span>    </span><span style="color:#fbe3bf;">bool </span><span style="color:#e9fdac;">is_healthy </span><span style="color:#ff5e5e;">= </span><span style="color:#fdb082;">2</span><span>; 
+</span><span>    </span><span style="font-style:italic;color:#e9fdac;">Branch </span><span style="color:#e9fdac;">main_branch </span><span style="color:#ff5e5e;">= </span><span style="color:#fdb082;">3</span><span>;
+</span><span>}
+</span><span>
+</span><span style="font-style:italic;color:#fbdfb5;">message </span><span style="text-decoration:underline;color:#8cdaff;">Branch </span><span>{
+</span><span>    </span><span style="font-style:italic;color:#e9fdac;">int </span><span style="color:#e9fdac;">id </span><span style="color:#ff5e5e;">= </span><span style="color:#fdb082;">1</span><span>;
+</span><span>    </span><span style="font-style:italic;color:#e9fdac;">int </span><span style="color:#e9fdac;">angle </span><span style="color:#ff5e5e;">= </span><span style="color:#fdb082;">2</span><span>;
+</span><span>}
+</span></code></pre>
+<p>Great! Let's write some others methods to create and update trees (which we
+won't discuss here), implement everything and then publish the API so everyone
+uses it!</p>
+<p>We're storing trees on Postgres, the queries are really easy:</p>
+<pre data-lang="sql" style="background-color:#191919;color:#f8f8f2;" class="language-sql "><code class="language-sql" data-lang="sql"><span style="color:#6d6d6d;">-- schema:
+</span><span style="color:#ff5e5e;">create table </span><span style="color:#8cdaff;">tree</span><span> (
+</span><span>    id         </span><span style="font-style:italic;color:#fbdfb5;">serial </span><span style="color:#ff5e5e;">primary key</span><span>,
+</span><span>    is_healthy bool
+</span><span>);
+</span><span>
+</span><span style="color:#ff5e5e;">create table </span><span style="color:#8cdaff;">branch</span><span> (
+</span><span>    id      </span><span style="font-style:italic;color:#fbdfb5;">serial </span><span style="color:#ff5e5e;">primary key</span><span>,
+</span><span>    angle   </span><span style="font-style:italic;color:#fbdfb5;">int
+</span><span>    tree_id </span><span style="font-style:italic;color:#fbdfb5;">int    </span><span style="color:#ff5e5e;">references</span><span> tree (id), </span><span style="color:#6d6d6d;">-- it&#39;s in this table for a good reason,
+</span><span>                                         </span><span style="color:#6d6d6d;">-- which also won&#39;t be discussed
+</span><span>);
+</span><span>
+</span><span style="color:#ff5e5e;">create unique index </span><span style="color:#8cdaff;">unique_branch_tree
+</span><span>    on branch (tree_id);
+</span><span>
+</span><span style="color:#6d6d6d;">-- GetTree:
+</span><span style="color:#ff5e5e;">SELECT</span><span> tree.</span><span style="color:#e9fdac;">*</span><span>, branch.</span><span style="color:#e9fdac;">*
+</span><span style="color:#ff5e5e;">FROM</span><span> tree
+</span><span style="color:#ff5e5e;">JOIN</span><span> branch ON </span><span style="color:#fdb082;">branch</span><span>.</span><span style="color:#fdb082;">tree_id </span><span style="color:#ff5e5e;">= </span><span style="color:#fdb082;">tree</span><span>.</span><span style="color:#fdb082;">id
+</span><span style="color:#ff5e5e;">WHERE </span><span style="color:#fdb082;">tree</span><span>.</span><span style="color:#fdb082;">id </span><span style="color:#ff5e5e;">=</span><span> $</span><span style="color:#fdb082;">1</span><span>;
+</span></code></pre>
+<p>Now that we're done, there's a new requirement: every branch can now have multiple leaves. Because
+of the big amount of leaves though, <code>GetAllTrees</code> should <strong>not</strong> return any leaves. Users of
+<code>GetAllTrees</code> don't need to know about the leaves and it would waste too much network. <code>GetTree</code>,
+however, should return the leaves. How do we change the gRPC interface to reflect that? Adding a
+<code>repeated Leaf leaves = 3;</code> on the <code>Branch</code> message won't work because <code>GetAllTrees</code> uses it. I
+guess we could wrap a <code>Branch</code> with another message that also includes leaves? How does that look?</p>
+<pre data-lang="proto" style="background-color:#191919;color:#f8f8f2;" class="language-proto "><code class="language-proto" data-lang="proto"><span style="color:#6d6d6d;">// We need to add this message
+</span><span style="font-style:italic;color:#fbdfb5;">message </span><span style="text-decoration:underline;color:#8cdaff;">BranchWithLeaves </span><span>{
+</span><span>    </span><span style="font-style:italic;color:#e9fdac;">Branch </span><span style="color:#e9fdac;">branch </span><span style="color:#ff5e5e;">= </span><span style="color:#fdb082;">1</span><span>;
+</span><span>    </span><span style="color:#ff5e5e;">repeated </span><span style="font-style:italic;color:#e9fdac;">Leaf </span><span style="color:#e9fdac;">leaves </span><span style="color:#ff5e5e;">= </span><span style="color:#fdb082;">2</span><span>;
+</span><span>}
+</span><span>
+</span><span style="color:#6d6d6d;">// And modify the response of GetTree...
+</span><span style="font-style:italic;color:#fbdfb5;">message </span><span style="text-decoration:underline;color:#8cdaff;">GetTreeResponse </span><span>{
+</span><span>    </span><span style="font-style:italic;color:#e9fdac;">Tree </span><span style="color:#e9fdac;">tree </span><span style="color:#ff5e5e;">= </span><span style="color:#fdb082;">1</span><span>;
+</span><span>    </span><span style="color:#6d6d6d;">// ...
+</span><span>}
+</span></code></pre>
+<p>Wait, how do we modify <code>GetTree</code>? There's no way to put <code>BranchWithLeaves</code> as a field in <code>Tree</code>
+because it would affect <code>GetAllTrees</code>! Scrap that idea... Maybe put the leaves directly in the
+<code>GetTreeResponse</code>?</p>
+<pre data-lang="proto" style="background-color:#191919;color:#f8f8f2;" class="language-proto "><code class="language-proto" data-lang="proto"><span style="font-style:italic;color:#fbdfb5;">message </span><span style="text-decoration:underline;color:#8cdaff;">GetTreeResponse </span><span>{
+</span><span>    </span><span style="font-style:italic;color:#e9fdac;">Tree </span><span style="color:#e9fdac;">tree </span><span style="color:#ff5e5e;">= </span><span style="color:#fdb082;">1</span><span>;
+</span><span>    </span><span style="color:#ff5e5e;">repeated </span><span style="font-style:italic;color:#e9fdac;">Leaf </span><span style="color:#e9fdac;">main_branch_leaves </span><span style="color:#ff5e5e;">= </span><span style="color:#fdb082;">2</span><span>; 
+</span><span>}
+</span></code></pre>
+<p>Ah, nice, that works! No breaking change needed, users are unaffected, job done.</p>
+<p>But what's that, right around the corner? Another requirement!? Now a tree can have many branches.
+Ok... <code>Tree</code> needs to change... But it's easy to make at least, the users can continue using
+<code>main_branch</code> until they migrate to <code>branches</code>:</p>
+<pre data-lang="proto" style="background-color:#191919;color:#f8f8f2;" class="language-proto "><code class="language-proto" data-lang="proto"><span style="font-style:italic;color:#fbdfb5;">message </span><span style="text-decoration:underline;color:#8cdaff;">Tree </span><span>{
+</span><span>    </span><span style="font-style:italic;color:#e9fdac;">int </span><span style="color:#e9fdac;">id </span><span style="color:#ff5e5e;">= </span><span style="color:#fdb082;">1</span><span>;
+</span><span>    </span><span style="color:#fbe3bf;">bool </span><span style="color:#e9fdac;">is_healthy </span><span style="color:#ff5e5e;">= </span><span style="color:#fdb082;">2</span><span>; 
+</span><span>    </span><span style="font-style:italic;color:#e9fdac;">Branch </span><span style="color:#e9fdac;">main_branch </span><span style="color:#ff5e5e;">= </span><span style="color:#fdb082;">3 </span><span>[</span><span style="color:#6699cc;">deprecated </span><span style="color:#ff5e5e;">= </span><span style="color:#ff8942;">true</span><span>]; </span><span style="color:#6d6d6d;">// deprecate this field...
+</span><span>    </span><span style="color:#ff5e5e;">repeated </span><span style="font-style:italic;color:#e9fdac;">Branch </span><span style="color:#e9fdac;">branches </span><span style="color:#ff5e5e;">= </span><span style="color:#fdb082;">4</span><span>;               </span><span style="color:#6d6d6d;">// ...and add this one
+</span><span>}
+</span></code></pre>
+<p>Now to update <code>GetTree</code>. Remember that the response looked like this:</p>
+<pre data-lang="proto" style="background-color:#191919;color:#f8f8f2;" class="language-proto "><code class="language-proto" data-lang="proto"><span style="font-style:italic;color:#fbdfb5;">message </span><span style="text-decoration:underline;color:#8cdaff;">GetTreeResponse </span><span>{
+</span><span>    </span><span style="font-style:italic;color:#e9fdac;">Tree </span><span style="color:#e9fdac;">tree </span><span style="color:#ff5e5e;">= </span><span style="color:#fdb082;">1</span><span>;
+</span><span>    </span><span style="color:#ff5e5e;">repeated </span><span style="font-style:italic;color:#e9fdac;">Leaf </span><span style="color:#e9fdac;">main_branch_leaves </span><span style="color:#ff5e5e;">= </span><span style="color:#fdb082;">2</span><span>; 
+</span><span>}
+</span></code></pre>
+<p>The tree has a list of branches, and every branch has a list of leaves,
+therefore we should add...</p>
+<pre data-lang="proto" style="background-color:#191919;color:#f8f8f2;" class="language-proto "><code class="language-proto" data-lang="proto"><span style="font-style:italic;color:#fbdfb5;">message </span><span style="text-decoration:underline;color:#8cdaff;">GetTreeResponse </span><span>{
+</span><span>    </span><span style="font-style:italic;color:#e9fdac;">Tree </span><span style="color:#e9fdac;">tree </span><span style="color:#ff5e5e;">= </span><span style="color:#fdb082;">1</span><span>;
+</span><span>    </span><span style="color:#ff5e5e;">repeated </span><span style="font-style:italic;color:#e9fdac;">Leaf </span><span style="color:#e9fdac;">main_branch_leaves </span><span style="color:#ff5e5e;">= </span><span style="color:#fdb082;">2 </span><span>[</span><span style="color:#6699cc;">deprecated </span><span style="color:#ff5e5e;">= </span><span style="color:#ff8942;">true</span><span>];
+</span><span>    </span><span style="color:#ff5e5e;">repeated </span><span style="font-style:italic;color:#e9fdac;">LeafList </span><span style="color:#e9fdac;">branches_leaves </span><span style="color:#ff5e5e;">= </span><span style="color:#fdb082;">3</span><span>; </span><span style="color:#6d6d6d;">// the m-th leaf of the n-th branch
+</span><span>                                           </span><span style="color:#6d6d6d;">// is accessed by
+</span><span>                                           </span><span style="color:#6d6d6d;">// branches_leaves[n][m]
+</span><span>}
+</span><span>
+</span><span style="font-style:italic;color:#fbdfb5;">message </span><span style="text-decoration:underline;color:#8cdaff;">LeafList </span><span>{
+</span><span>    </span><span style="color:#ff5e5e;">repeated </span><span style="font-style:italic;color:#e9fdac;">Leaf </span><span style="color:#e9fdac;">leaves </span><span style="color:#ff5e5e;">= </span><span style="color:#fdb082;">1</span><span>;
+</span><span>}
+</span></code></pre>
+<p>Yeah... That doesn't look like a pleasant API to use at all. Branches are nested within the Tree,
+but leaves are outside (by necessity!) and iterating over this structure requires keeping track of
+indices and is harder than it should be.</p>
+<p>In fact, to add another &quot;optional&quot; nesting level -- like leaves that have cells but only in another
+route -- it would be necessary to add a list of list of list of cells in the <code>GetTreeResponse</code>,
+unless there's another approach that's not equally bad and I'm missing.</p>
+<p>Where did I go wrong? Could I have prevented this? It was at this moment I realized... I literally
+saw <a href="https://www.youtube.com/watch?v=o9pEzgHorH0">this video</a> yesterday and in the first minute,
+when the guy says &quot;Flat is better than nested&quot; when referring to a principle of the Zen of Python, I
+thought I understood what he meant, but now, only now I truly understood! <strong>The problem above only
+arises because Branch is nested within the Tree message</strong>! When making that decision, I implicitly
+required that Tree contained not only the current Branch, but everything a Branch would ever
+contain, today's <strong>and tomorrow's fields</strong>.</p>
+<p>How can a flat structure help? Let's go back to the beginning, before those new requirements, the
+times when a Tree could only have a single Branch and leaves didn't exist. Here's the alternative
+design for the responses:</p>
+<pre data-lang="proto" style="background-color:#191919;color:#f8f8f2;" class="language-proto "><code class="language-proto" data-lang="proto"><span style="color:#6d6d6d;">// Notice there&#39;s no `Branch main_branch` inside the Tree.
+</span><span style="color:#6d6d6d;">// The Branch message is unchanged.
+</span><span style="font-style:italic;color:#fbdfb5;">message </span><span style="text-decoration:underline;color:#8cdaff;">Tree </span><span>{
+</span><span>    </span><span style="font-style:italic;color:#e9fdac;">int </span><span style="color:#e9fdac;">id </span><span style="color:#ff5e5e;">= </span><span style="color:#fdb082;">1</span><span>;
+</span><span>    </span><span style="color:#fbe3bf;">bool </span><span style="color:#e9fdac;">is_healthy </span><span style="color:#ff5e5e;">= </span><span style="color:#fdb082;">2</span><span>; 
+</span><span>    </span><span style="font-style:italic;color:#e9fdac;">int </span><span style="color:#e9fdac;">main_branch_id </span><span style="color:#ff5e5e;">= </span><span style="color:#fdb082;">3</span><span>; </span><span style="color:#6d6d6d;">// not really necessary in this case, but here anyway
+</span><span>}
+</span><span>
+</span><span style="font-style:italic;color:#fbdfb5;">message </span><span style="text-decoration:underline;color:#8cdaff;">GetTreeResponse </span><span>{
+</span><span>    </span><span style="font-style:italic;color:#e9fdac;">Tree </span><span style="color:#e9fdac;">tree </span><span style="color:#ff5e5e;">= </span><span style="color:#fdb082;">1</span><span>;
+</span><span>    </span><span style="font-style:italic;color:#e9fdac;">Branch </span><span style="color:#e9fdac;">main_branch </span><span style="color:#ff5e5e;">= </span><span style="color:#fdb082;">2</span><span>;
+</span><span>}
+</span><span>
+</span><span style="font-style:italic;color:#fbdfb5;">message </span><span style="text-decoration:underline;color:#8cdaff;">GetAllTreesResponse </span><span>{
+</span><span>    </span><span style="color:#ff5e5e;">repeated </span><span style="font-style:italic;color:#e9fdac;">TreeBranchPair </span><span style="color:#e9fdac;">tree_branch_pair </span><span style="color:#ff5e5e;">= </span><span style="color:#fdb082;">1</span><span>;
+</span><span>}
+</span><span>
+</span><span style="font-style:italic;color:#fbdfb5;">message </span><span style="text-decoration:underline;color:#8cdaff;">TreeBranchPair </span><span>{
+</span><span>    </span><span style="font-style:italic;color:#e9fdac;">Tree </span><span style="color:#e9fdac;">tree </span><span style="color:#ff5e5e;">= </span><span style="color:#fdb082;">1</span><span>;
+</span><span>    </span><span style="font-style:italic;color:#e9fdac;">Branch </span><span style="color:#e9fdac;">main_branch </span><span style="color:#ff5e5e;">= </span><span style="color:#fdb082;">2</span><span>;
+</span><span>}
+</span></code></pre>
+<p>The <code>TreeBranchPair</code> message is a bit ugly, sure, but I blame protobuf for this, capn'proto has a
+cleaner way of defining it.</p>
+<p>Is this any harder to use than our first design? Not really, trees and branches are still right next
+to each other, easily iterable in <code>GetAllTreesResponse</code>, without adding any cognitive load. There's
+<strong>more code</strong>, yes, but it's still simple.</p>
+<p>Let's add the next requirement: a branch has multiple leaves, but <code>GetAllTrees</code> shouldn't include
+them. Sure!</p>
+<pre data-lang="proto" style="background-color:#191919;color:#f8f8f2;" class="language-proto "><code class="language-proto" data-lang="proto"><span style="font-style:italic;color:#fbdfb5;">message </span><span style="text-decoration:underline;color:#8cdaff;">GetTreeResponse </span><span>{
+</span><span>    </span><span style="font-style:italic;color:#e9fdac;">Tree </span><span style="color:#e9fdac;">tree </span><span style="color:#ff5e5e;">= </span><span style="color:#fdb082;">1</span><span>;
+</span><span>    </span><span style="font-style:italic;color:#e9fdac;">Branch </span><span style="color:#e9fdac;">main_branch </span><span style="color:#ff5e5e;">= </span><span style="color:#fdb082;">2</span><span>;
+</span><span>    </span><span style="color:#ff5e5e;">repeated </span><span style="font-style:italic;color:#e9fdac;">Leaf </span><span style="color:#e9fdac;">leaves </span><span style="color:#ff5e5e;">= </span><span style="color:#fdb082;">3</span><span>; </span><span style="color:#6d6d6d;">// &lt;- added this
+</span><span>}
+</span></code></pre>
+<p>That's it! <code>GetAllTreesResponse</code> doesn't change at all. Could we nest <code>repeated Leaf</code> inside the
+<code>Branch</code>? Sure we could, but we've seen how that can lead to problems down the line, and the current
+structure seems perfectly fine, no? </p>
+<p>Great, let's try the final test: adding multiple branches per tree. There's no way to do this
+without deprecating some things as far as I'm aware, but it's possible to update the responses like
+this:</p>
+<pre data-lang="proto" style="background-color:#191919;color:#f8f8f2;" class="language-proto "><code class="language-proto" data-lang="proto"><span style="font-style:italic;color:#fbdfb5;">message </span><span style="text-decoration:underline;color:#8cdaff;">GetTreeResponse </span><span>{
+</span><span>    </span><span style="font-style:italic;color:#e9fdac;">Tree </span><span style="color:#e9fdac;">tree </span><span style="color:#ff5e5e;">= </span><span style="color:#fdb082;">1</span><span>;
+</span><span>    </span><span style="font-style:italic;color:#e9fdac;">Branch </span><span style="color:#e9fdac;">main_branch </span><span style="color:#ff5e5e;">= </span><span style="color:#fdb082;">2 </span><span>[</span><span style="color:#6699cc;">deprecated </span><span style="color:#ff5e5e;">= </span><span style="color:#ff8942;">true</span><span>];       </span><span style="color:#6d6d6d;">// deprecated this...
+</span><span>    </span><span style="color:#ff5e5e;">repeated </span><span style="font-style:italic;color:#e9fdac;">Leaf </span><span style="color:#e9fdac;">leaves </span><span style="color:#ff5e5e;">= </span><span style="color:#fdb082;">3 </span><span>[</span><span style="color:#6699cc;">deprecated </span><span style="color:#ff5e5e;">= </span><span style="color:#ff8942;">true</span><span>];     </span><span style="color:#6d6d6d;">// ...and this...
+</span><span>    </span><span style="color:#ff5e5e;">repeated </span><span style="font-style:italic;color:#e9fdac;">BranchLeavesPair </span><span style="color:#e9fdac;">branch_leaves_pair </span><span style="color:#ff5e5e;">= </span><span style="color:#fdb082;">4</span><span>; </span><span style="color:#6d6d6d;">// ...and added this
+</span><span>}
+</span><span>
+</span><span style="font-style:italic;color:#fbdfb5;">message </span><span style="text-decoration:underline;color:#8cdaff;">BranchLeavesPair </span><span>{
+</span><span>    </span><span style="font-style:italic;color:#e9fdac;">Branch </span><span style="color:#e9fdac;">branch </span><span style="color:#ff5e5e;">= </span><span style="color:#fdb082;">1</span><span>;
+</span><span>    </span><span style="color:#ff5e5e;">repeated </span><span style="font-style:italic;color:#e9fdac;">Leaves </span><span style="color:#ff5e5e;">= </span><span style="color:#fdb082;">2</span><span>;
+</span><span>}
+</span><span>
+</span><span style="font-style:italic;color:#fbdfb5;">message </span><span style="text-decoration:underline;color:#8cdaff;">GetAllTreesResponse </span><span>{
+</span><span>    </span><span style="color:#ff5e5e;">repeated </span><span style="font-style:italic;color:#e9fdac;">TreeBranchPair </span><span style="color:#e9fdac;">tree_branch_pair </span><span style="color:#ff5e5e;">= </span><span style="color:#fdb082;">1 </span><span>[</span><span style="color:#6699cc;">deprecated </span><span style="color:#ff5e5e;">= </span><span style="color:#ff8942;">true</span><span>]; </span><span style="color:#6d6d6d;">// big deprecation here!
+</span><span>    </span><span style="color:#ff5e5e;">repeated </span><span style="font-style:italic;color:#e9fdac;">TreeBranchesPair </span><span style="color:#e9fdac;">tree_branches_pair </span><span style="color:#ff5e5e;">= </span><span style="color:#fdb082;">2</span><span>;                 </span><span style="color:#6d6d6d;">// and added this
+</span><span>}
+</span><span>
+</span><span style="font-style:italic;color:#fbdfb5;">message </span><span style="text-decoration:underline;color:#8cdaff;">TreeBranchesPair </span><span>{
+</span><span>    </span><span style="font-style:italic;color:#e9fdac;">Tree </span><span style="color:#e9fdac;">tree </span><span style="color:#ff5e5e;">= </span><span style="color:#fdb082;">1</span><span>;
+</span><span>    </span><span style="color:#ff5e5e;">repeated </span><span style="font-style:italic;color:#e9fdac;">Branch </span><span style="color:#e9fdac;">branches </span><span style="color:#ff5e5e;">= </span><span style="color:#fdb082;">2</span><span>;
+</span><span>}
+</span></code></pre>
+<p>We did it! The structure is a bit hard to visualize in protobuf, but this is the schema:</p>
+<pre data-lang="haskell" style="background-color:#191919;color:#f8f8f2;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span style="color:#fdb082;">GetTreeResponse</span><span> {
+</span><span>    </span><span style="color:#fdb082;">Tree</span><span>,
+</span><span>    list </span><span style="color:#ff5e5e;">of</span><span> {
+</span><span>        </span><span style="color:#fdb082;">Branch</span><span>,
+</span><span>        list </span><span style="color:#ff5e5e;">of </span><span style="color:#fdb082;">Leaves
+</span><span>    }
+</span><span>}
+</span><span>
+</span><span style="color:#fdb082;">GetAllTreesResponse</span><span> {
+</span><span>    list </span><span style="color:#ff5e5e;">of</span><span> {
+</span><span>        </span><span style="color:#fdb082;">Tree</span><span>,
+</span><span>        list </span><span style="color:#ff5e5e;">of </span><span style="color:#fdb082;">Branches
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>I think that's much better :)</p>
+<p>Plus, this design is a ton more flexible. Imagine some new route doesn't care about branches at all,
+only about trees and it's leaves. It's easy to define it like this:</p>
+<pre data-lang="haskell" style="background-color:#191919;color:#f8f8f2;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span style="color:#fdb082;">OnlyTreesAndLeavesPlease</span><span> {
+</span><span>    list </span><span style="color:#ff5e5e;">of</span><span> {
+</span><span>        </span><span style="color:#fdb082;">Tree</span><span>,
+</span><span>        list </span><span style="color:#ff5e5e;">of </span><span style="color:#fdb082;">Leaves
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>But notice we didn't sacrifice today's simplicity to accomodate for tomorrow's vague and fuzzy
+possibilities. It's simple whether <code>OnlyTreesAndLeavesPlease</code> is added or not.</p>
+<p>Another point here is that the only nesting that exists in these messages occurs because of repeated
+items. If a tree could only have one branch, which in turn could only have one leaf, the structure
+would be completely flat, like this:</p>
+<pre data-lang="haskell" style="background-color:#191919;color:#f8f8f2;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span style="color:#fdb082;">GetAllTreesResponse</span><span> {
+</span><span>    </span><span style="color:#fdb082;">Tree</span><span>,
+</span><span>    </span><span style="color:#fdb082;">Branch</span><span>,
+</span><span>    </span><span style="color:#fdb082;">Leaf
+</span><span>}
+</span></code></pre>
+<p>Side note: once all clients update their code to remove deprecated fields, we can <code>reserve</code> them,
+cleaning the protobuf code up.</p>
+<p>One caveat of this approach is that you always need to define all of the entities (trees, branches,
+leaves) that will be returned, leading to more code repetition. In my case, I think it was a well
+worthwhile tradeoff, but your mileage may vary.</p>
+<hr />
+<p>I'd like to interlude for a moment to talk about <strong>system boundaries</strong> and <strong>software design</strong>. Ted
+Kaminski describes it in detail in <a href="https://www.tedinski.com/2018/02/06/system-boundaries.html">System boundaries: the focus of design</a>,
+but I'll give an overview.</p>
+<p>Why am I writing this long rant about a design mistake instead of just fixing it? Isn't rapid
+iteration The Way to write software?</p>
+<p>If instead of a public API all of these interfaces were internal to a module, [...]</p>
+
+</article>
+
+<span class="divider"></span>
+<script src="https://utteranc.es/client.js"
+        repo="LeoRiether/leoriether.github.io"
+        issue-term="pathname"
+        label="utterances-post"
+        theme="dark-blue"
+        crossorigin="anonymous"
+        async>
+</script>
+
+            </div>
+        </section>
+        <footer></footer>
+    </body>
+</html>
