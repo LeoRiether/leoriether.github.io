@@ -6,6 +6,12 @@ categories = ["automata", "strings"]
 tags = ["kmp", "nfas", "automata"]
 +++
 
+---
+
+IMPORTANT UPDATE: this post has been finished by arthur_9548 on Codeforces! You can read it in full [here](https://codeforces.com/blog/entry/146191). In the spirit of keeping the WIP blog WIP, the current article will stay incomplete.
+
+---
+
 Originally written in [github](https://gist.github.com/LeoRiether/c61b7f709b7826f47bc67f0c5d0d9b6b).
 This article assumes you already know DFAs and NFAs (including subset construction).
 
